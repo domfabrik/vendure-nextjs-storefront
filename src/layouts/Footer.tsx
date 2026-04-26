@@ -71,9 +71,9 @@ export const Footer: React.FC<{
                 </ContentContainer>
             </LawsWrapper>
             <LinkBar>
-                <Link href="https://aexol.com/" external>
+                <Link href="https://domfabrik.ru/" external>
                     <p>
-                        Made by <strong>Aexol</strong>
+                        {t('made-by')}
                     </p>
                 </Link>
             </LinkBar>
@@ -151,10 +151,5 @@ const LinkBar = styled.div`
     user-select: none;
     & p {
         font-size: 1rem;
-    }
-    & strong {
-        text-transform: uppercase;
-        font-weight: 900;
-        color: gray;
     }
 `;

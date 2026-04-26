@@ -11,7 +11,7 @@
     "shop": "Demo Shop",
     "title": "Hello",
     "search-products": "Search products",
-    "made-by": "Made by VendureAgency.com 2023",
+    "made-by": "Тестовый витринный фронт Domfabric",
     "select-category": "Select category",
     "cart": "Cart",
     "cart-summary": "Cart summary",
@@ -143,10 +143,10 @@
     },
     "footer": {
         "notify": {
-            "header": "Stay radiant!",
-            "paragraph": "Join our newsletter for exclusive offers & beauty tips",
-            "placeholder": "email@example.com",
-            "alert": "Notified!"
+            "header": "Будьте в курсе",
+            "paragraph": "Подпишитесь на рассылку, чтобы получать новости, новинки и специальные предложения",
+            "placeholder": "email@domain.ru",
+            "alert": "Подписка оформлена:"
         },
         "sections": [
             {
@@ -163,9 +163,9 @@
             }
         ],
         "law": [
-            { "name": "About us", "href": "/about" },
-            { "name": "Privacy policy", "href": "/privacy" },
-            { "name": "Terms & conditions", "href": "/terms" }
+            { "name": "О нас", "href": "/about" },
+            { "name": "Политика конфиденциальности", "href": "/privacy" },
+            { "name": "Условия использования", "href": "/terms" }
         ]
     },
     "picker": {
