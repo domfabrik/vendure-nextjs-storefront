@@ -21,7 +21,7 @@ export const CustomHelmet: React.FC<{
         title = pageTitle.slice(0, 60 - 3) + '...';
         // console.log(`title of ${asPath} is too long`);
     }
-    const u = new URL((process.env.NEXT_PUBLIC_DOMAIN || 'https://shop.aexol.com') + asPath);
+    const u = new URL((process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3001') + asPath);
     const canonicalUrl = u.origin + u.pathname;
 
     let metaDescription = product?.description || collection?.description || 'Demo store made by Aexol';

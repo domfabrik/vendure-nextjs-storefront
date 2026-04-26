@@ -5,7 +5,7 @@ import { getContext } from '@/src/lib/utils';
 let token: string | null = typeof window !== 'undefined' ? window.localStorage.getItem('token') : null;
 
 const trimShopApiSuffix = (value: string) => value.replace(/\/shop-api\/?$/, '');
-const publicVendureHost = trimShopApiSuffix(process.env.NEXT_PUBLIC_HOST ?? 'https://shop.aexol.com');
+const publicVendureHost = trimShopApiSuffix(process.env.NEXT_PUBLIC_HOST ?? 'http://localhost:3000');
 const internalVendureHost =
     typeof window === 'undefined'
         ? trimShopApiSuffix(process.env.VENDURE_SERVER_URL ?? publicVendureHost)
