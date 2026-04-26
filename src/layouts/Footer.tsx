@@ -72,9 +72,7 @@ export const Footer: React.FC<{
             </LawsWrapper>
             <LinkBar>
                 <Link href="https://domfabrik.ru/" external>
-                    <p>
-                        {t('made-by')}
-                    </p>
+                    <p>{t('made-by')}</p>
                 </Link>
             </LinkBar>
         </Wrapper>
