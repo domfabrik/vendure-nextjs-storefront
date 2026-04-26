@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import { useTranslation } from 'next-i18next';
 
 import { Stack, TypoGraphy, Link, NotifyFooterForm, ContentContainer } from '@/src/components/atoms';
-import { Socials } from '@/src/components/atoms/Socials';
 import { NavigationType } from '@/src/graphql/selectors';
 import { RootNode } from '@/src/util/arrayToTree';
 
@@ -58,7 +57,7 @@ export const Footer: React.FC<{
             </Main>
             <LawsWrapper>
                 <ContentContainer>
-                    <Stack justifyBetween itemsCenter>
+                    <Stack itemsCenter>
                         <Laws>
                             {footerLaw?.map(l => (
                                 <Link key={l.name} href={l.href}>
@@ -66,7 +65,6 @@ export const Footer: React.FC<{
                                 </Link>
                             ))}
                         </Laws>
-                        <Socials />
                     </Stack>
                 </ContentContainer>
             </LawsWrapper>
