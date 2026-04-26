@@ -49,7 +49,6 @@ export const CustomHelmet: React.FC<{
         ],
         faviconUrl: `/favicon.ico`,
         logo: `/images/aexol_full_logo.png`,
-        facebook: 'https://www.facebook.com/Aexol',
         twitter: 'https://twitter.com/aexol',
         image: product?.featuredAsset?.preview || collection?.featuredAsset?.preview || `/images/aexol_full_logo.png`,
     };
@@ -79,7 +78,6 @@ export const CustomHelmet: React.FC<{
                 <meta property="og:price:currency" content={`${product.variants[0].currencyCode}`} />
             )}
 
-            <meta property="article:publisher" content={seo.facebook} />
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={seo.name} />
             <meta name="twitter:description" content={seo.description} />
