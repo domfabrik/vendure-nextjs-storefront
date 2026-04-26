@@ -21,12 +21,13 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string }>) =
 
     const collections = await getCollections(r.context);
     const navigation = arrayToTree(collections);
+    const fallbackCollectionSlug = response.product.collections[0]?.slug || 'electronics';
 
     const relatedProducts = await api({
-        collection: [{ slug: response.product?.collections[0]?.slug || 'search' }, homePageSlidersSelector],
+        collection: [{ slug: fallbackCollectionSlug }, homePageSlidersSelector],
     });
     const clientsAlsoBought = await api({
-        collection: [{ slug: 'search' }, homePageSlidersSelector],
+        collection: [{ slug: fallbackCollectionSlug }, homePageSlidersSelector],
     });
 
     const { optionGroups: _optionGroups, ...product } = response.product;

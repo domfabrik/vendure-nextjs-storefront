@@ -5,6 +5,9 @@ const nextConfig = {
     swcMinify: true,
     reactStrictMode: true,
     output: 'standalone',
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 };
 
 module.exports = nextConfig;

@@ -66,7 +66,7 @@ export const Navigation: React.FC<NavigationProps> = ({ navigation, categories, 
 
     // THIS SHOULD COME FROM PLUGIN
     const entries = [
-        { text: t('announcements-bar')[0], href: '/collections/all' },
+        { text: t('announcements-bar')[0], href: '/collections/home-garden' },
         { text: t('announcements-bar')[1], href: '/' },
         { text: t('announcements-bar')[2], href: '/' },
         { text: t('announcements-bar')[3], href: '/' },

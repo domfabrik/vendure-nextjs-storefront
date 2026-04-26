@@ -4,6 +4,15 @@ import { getContext } from '@/src/lib/utils';
 
 let token: string | null = typeof window !== 'undefined' ? window.localStorage.getItem('token') : null;
 
+const trimShopApiSuffix = (value: string) => value.replace(/\/shop-api\/?$/, '');
+const publicVendureHost = trimShopApiSuffix(process.env.NEXT_PUBLIC_HOST ?? 'https://shop.aexol.com');
+const internalVendureHost =
+    typeof window === 'undefined'
+        ? trimShopApiSuffix(process.env.VENDURE_SERVER_URL ?? publicVendureHost)
+        : publicVendureHost;
+const internalAssetHost = `${internalVendureHost}/assets`;
+const publicAssetHost = `${publicVendureHost}/assets`;
+
 export const scalars = ZeusScalars({
     Money: {
         decode: e => e as number,
@@ -18,9 +27,22 @@ export const scalars = ZeusScalars({
     },
 });
 
-//use 'http://localhost:3000/shop-api/' in local .env file for localhost development and provide env to use on prod/dev envs
+export const VENDURE_HOST = `${internalVendureHost}/shop-api`;
 
-export const VENDURE_HOST = `${process.env.NEXT_PUBLIC_HOST ?? 'https://shop.aexol.com'}/shop-api`;
+const rewriteAssetUrls = <T>(value: T): T => {
+    if (typeof value === 'string') {
+        return value.replaceAll(internalAssetHost, publicAssetHost) as T;
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => rewriteAssetUrls(item)) as T;
+    }
+    if (value && typeof value === 'object') {
+        return Object.fromEntries(
+            Object.entries(value).map(([key, currentValue]) => [key, rewriteAssetUrls(currentValue)]),
+        ) as T;
+    }
+    return value;
+};
 
 const apiFetchVendure =
     (options: fetchOptions) =>
@@ -33,7 +55,7 @@ const apiFetchVendure =
                     if (response.errors) {
                         throw new GraphQLError(response);
                     }
-                    return response.data;
+                    return rewriteAssetUrls(response.data);
                 });
         }
         const additionalHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
@@ -58,7 +80,7 @@ const apiFetchVendure =
                 if (response.errors) {
                     throw new GraphQLError(response);
                 }
-                return response.data;
+                return rewriteAssetUrls(response.data);
             });
     };
 
