@@ -1,14 +1,15 @@
 import { SSGQuery } from '@/src/graphql/client';
 import { HomePageSlidersType, ProductSearchSelector, homePageSlidersSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
-import { ContextModel, makeStaticProps } from '@/src/lib/getStatic';
+import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
 import { SortOrder } from '@/src/zeus';
+import { GetServerSidePropsContext } from 'next';
 
 const slugsOfBestOf = ['home-garden', 'electronics', 'sports-outdoor'];
 
-export const getStaticProps = async (ctx: ContextModel) => {
-    const r = await makeStaticProps(['common', 'homepage'])(ctx);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+    const r = await makeServerSideProps(['common', 'homepage'])(ctx);
     const api = SSGQuery(r.context);
 
     const products = await api({
@@ -33,7 +34,7 @@ export const getStaticProps = async (ctx: ContextModel) => {
     const collections = await getCollections(r.context);
     const navigation = arrayToTree(collections);
 
-    const returnedStuff = {
+    return {
         props: {
             ...r.props,
             ...r.context,
@@ -42,8 +43,5 @@ export const getStaticProps = async (ctx: ContextModel) => {
             navigation,
             sliders,
         },
-        revalidate: process.env.NEXT_REVALIDATE ? parseInt(process.env.NEXT_REVALIDATE) : 10,
     };
-
-    return returnedStuff;
 };

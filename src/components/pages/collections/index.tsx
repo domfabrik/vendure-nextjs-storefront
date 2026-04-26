@@ -2,7 +2,7 @@ import { useCollection } from '@/src/state/collection';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import { ContentContainer, Stack, TP, TH1, MainGrid } from '@/src/components/atoms';
 import { Breadcrumbs } from '@/src/components/molecules';
@@ -11,10 +11,10 @@ import { FacetFilterCheckbox } from '@/src/components/molecules/FacetFilter';
 import { Pagination } from '@/src/components/molecules/Pagination';
 import { ProductTile } from '@/src/components/molecules/ProductTile';
 import { SortBy } from '@/src/components/molecules/SortBy';
-import { getStaticProps } from './props';
+import { getServerSideProps } from './props';
 import { Layout } from '@/src/layouts';
 
-const CollectionPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => {
+const CollectionPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
     const { t } = useTranslation('collections');
     const { t: breadcrumb } = useTranslation('common');
     const {

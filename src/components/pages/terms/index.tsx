@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 import { useTranslation } from 'next-i18next';
 import { Layout } from '@/src/layouts';
-import type { getStaticProps } from '@/src/components/pages/home/props';
+import type { getServerSideProps } from '@/src/components/pages/home/props';
 import { termsContent } from './terms';
 
-export const Terms: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => {
+export const Terms: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
     const { t } = useTranslation('homepage');
     return (
         <Layout navigation={props.navigation} categories={props.categories} pageTitle={t('seo.home')}>

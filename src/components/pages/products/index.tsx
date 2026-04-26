@@ -8,20 +8,20 @@ import { ProductPageProductsSlider } from '@/src/components/organisms/ProductPag
 import { Layout } from '@/src/layouts';
 import styled from '@emotion/styled';
 import { Check, X } from 'lucide-react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
 import { Trans, useTranslation } from 'next-i18next';
 import { ProductOptions } from '@/src/components/organisms/ProductOptions';
 import { Breadcrumbs } from '@/src/components/molecules';
 import { useProduct } from '@/src/state/product';
 import { ProductPhotosPreview } from '@/src/components/organisms/ProductPhotosPreview';
-import { getStaticProps } from '@/src/components/pages/products/props';
+import { getServerSideProps } from '@/src/components/pages/products/props';
 import { ProductDescription } from '@/src/components/molecules/ProductDescription';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { useChannels } from '@/src/state/channels';
 import { ProductVariantTileType, productVariantTileSelector } from '@/src/graphql/selectors';
 
-export const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => {
+export const ProductPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
     const { t } = useTranslation('products');
     const { t: breadcrumb } = useTranslation('common');
     const ctx = useChannels();

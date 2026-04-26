@@ -1,10 +1,10 @@
-import Page, { getStaticProps, getStaticPaths } from '@/src/pages/[channel]/collections/[...slug].page';
+import Page, { getServerSideProps } from '@/src/pages/[channel]/collections/[...slug].page';
 import { Redirect } from '@/src/lib/redirect';
 import React from 'react';
-import type { InferGetStaticPropsType } from 'next';
+import type { InferGetServerSidePropsType } from 'next';
 
-export default (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+export default (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
     return Redirect({ children: <Page {...props} /> })();
 };
 
-export { getStaticProps, getStaticPaths };
+export { getServerSideProps };

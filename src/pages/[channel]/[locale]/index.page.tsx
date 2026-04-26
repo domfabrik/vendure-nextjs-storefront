@@ -1,11 +1,10 @@
 import React from 'react';
-import type { InferGetStaticPropsType } from 'next';
+import type { InferGetServerSidePropsType } from 'next';
 
 import { Home } from '@/src/components/pages/home';
-import { getStaticProps } from '@/src/components/pages/home/props';
-import { getStaticPaths } from '@/src/lib/getStatic';
+import { getServerSideProps } from '@/src/components/pages/home/props';
 
-const Page: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => <Home {...props} />;
+const Page: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => <Home {...props} />;
 
-export { getStaticPaths, getStaticProps };
+export { getServerSideProps };
 export default Page;

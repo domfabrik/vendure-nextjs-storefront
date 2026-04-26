@@ -1,12 +1,13 @@
 import { SSGQuery } from '@/src/graphql/client';
 import { CollectionSelector, SearchSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
-import { ContextModel, makeStaticProps } from '@/src/lib/getStatic';
+import { makeServerSideProps } from '@/src/lib/getStatic';
 import { PER_PAGE, reduceFacets } from '@/src/state/collection/utils';
 import { arrayToTree } from '@/src/util/arrayToTree';
 import { SortOrder } from '@/src/zeus';
+import { GetServerSidePropsContext } from 'next';
 
-export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>) => {
+export const getServerSideProps = async (context: GetServerSidePropsContext<{ slug?: string[] }>) => {
     const { slug } = context.params || {};
     const lastIndexSlug = slug?.length ? slug[slug.length - 1] : '';
     const _context = {
@@ -14,7 +15,7 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>)
         params: { ...context.params, slug: lastIndexSlug },
     };
 
-    const r = await makeStaticProps(['common', 'collections'])(_context);
+    const r = await makeServerSideProps(['common', 'collections'])(_context);
     const collections = await getCollections(r.context);
     const navigation = arrayToTree(collections);
     const api = SSGQuery(r.context);
@@ -54,6 +55,5 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>)
 
     return {
         props: returnedStuff,
-        revalidate: process.env.NEXT_REVALIDATE ? parseInt(process.env.NEXT_REVALIDATE) : 10,
     };
 };

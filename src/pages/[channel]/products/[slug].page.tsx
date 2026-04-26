@@ -1,11 +1,10 @@
 import React from 'react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
-import { getStaticProps } from '@/src/components/pages/products/props';
+import { getServerSideProps } from '@/src/components/pages/products/props';
 import { ProductPage } from '@/src/components/pages/products';
-import { getStaticPaths } from '@/src/components/pages/products/paths';
 
-const Page: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => <ProductPage {...props} />;
+const Page: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => <ProductPage {...props} />;
 
-export { getStaticPaths, getStaticProps };
+export { getServerSideProps };
 export default Page;

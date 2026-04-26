@@ -1,18 +1,18 @@
 import styled from '@emotion/styled';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 import { useTranslation } from 'next-i18next';
 import { Stack, ContentContainer } from '@/src/components/atoms';
 import { HomePageSliders } from '@/src/components/organisms/HomePageSliders';
 import { Hero } from '@/src/components/organisms/Hero';
 import { Layout } from '@/src/layouts';
-import type { getStaticProps } from './props';
+import type { getServerSideProps } from './props';
 
 const Main = styled(Stack)`
     padding: 0 0 4rem 0;
 `;
 
-export const Home: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => {
+export const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
     const { t } = useTranslation('homepage');
 
     return (

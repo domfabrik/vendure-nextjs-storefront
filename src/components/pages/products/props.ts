@@ -1,11 +1,12 @@
 import { SSGQuery } from '@/src/graphql/client';
 import { ProductDetailSelector, homePageSlidersSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
-import { ContextModel, makeStaticProps } from '@/src/lib/getStatic';
+import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
+import { GetServerSidePropsContext } from 'next';
 
-export const getStaticProps = async (context: ContextModel<{ slug?: string }>) => {
-    const r = await makeStaticProps(['common', 'products'])(context);
+export const getServerSideProps = async (context: GetServerSidePropsContext<{ slug?: string }>) => {
+    const r = await makeServerSideProps(['common', 'products'])(context);
     const language = r.props._nextI18Next?.initialLocale || 'en';
     const { slug } = context.params || {};
     const api = SSGQuery(r.context);
@@ -72,7 +73,6 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string }>) =
 
     return {
         props: returnedStuff,
-        revalidate: process.env.NEXT_REVALIDATE ? parseInt(process.env.NEXT_REVALIDATE) : 10,
     };
 };
 

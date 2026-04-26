@@ -1,11 +1,10 @@
 import CollectionPage from '@/src/components/pages/collections';
-import { getStaticPaths } from '@/src/components/pages/collections/paths';
-import { getStaticProps } from '@/src/components/pages/collections/props';
+import { getServerSideProps } from '@/src/components/pages/collections/props';
 
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 import React from 'react';
 
-const Page: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => <CollectionPage {...props} />;
+const Page: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => <CollectionPage {...props} />;
 
-export { getStaticPaths, getStaticProps };
+export { getServerSideProps };
 export default Page;
