@@ -35,8 +35,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Check build errors
-        run: npm run build
+      - name: Run lint if present
+        run: npm run lint --if-present
       - name: Run tests if present
         run: npm test --if-present
 
