@@ -29,8 +29,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
 
     const currencyCode = activeOrder?.currencyCode || CurrencyCode.USD;
     const discountsSum = useMemo(() => {
-        const discounts = activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
-        return discounts;
+        return activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
     }, [activeOrder]);
 
     return (
