@@ -1,0 +1,169 @@
+{
+  "breadcrumbs": {
+    "home": "Главная"
+  },
+  "announcements-bar": ["ЛУЧШИЕ ТОВАРЫ", "БЕСПЛАТНАЯ ДОСТАВКА ОТ 5000 ₽", "БЕЗОПАСНАЯ ОПЛАТА", "ВОЗВРАТ В ТЕЧЕНИЕ 30 ДНЕЙ"],
+  "shop": "Магазин",
+  "title": "Привет",
+  "search-products": "Поиск товаров",
+  "made-by": "Сделано VendureAgency.com 2023",
+  "select-category": "Выберите категорию",
+  "cart": "Корзина",
+  "cart-summary": "Итого по корзине",
+  "your-cart": "Ваша корзина",
+  "items": "товаров",
+  "proceed-to-checkout": "Оформить заказ",
+  "continue-shopping": "Продолжить покупки",
+  "price": "Цена",
+  "search-for-best-products": "Поиск лучших товаров",
+  "discount": "Скидка",
+  "discounts-errors": {
+    "coupon-code-invalid": "Купон с таким кодом не найден",
+    "something-went-wrong": "Что-то пошло не так",
+    "enter-code": "Введите код"
+  },
+  "shipping": "Доставка",
+  "subtotal": "Подытог",
+  "total": "Итого",
+  "coupon-code": "Код:",
+  "empty-cart": "Ваша корзина пуста",
+  "remove": "Удалить",
+  "add-to-cart": "В корзину",
+  "buy-now": "Купить сейчас",
+  "featured-products": "Рекомендуемые товары",
+  "best-collections": "Лучшие коллекции",
+  "commonError": "Что-то пошло не так",
+  "send": "Отправить",
+  "search-results": "Результаты поиска:",
+  "search-results-header": "Результаты поиска",
+  "search-results-total": "Найдено {{totalItems}} результатов по запросу <1>{{searchQuery}}</1>",
+  "search-query-to-short": "Поисковый запрос должен содержать минимум 3 символа",
+  "search-results-no-results": "Ничего не найдено по запросу <1>{{searchQuery}}</1>",
+  "search-results-loading": "Загрузка результатов...",
+  "popular-searches-heading": "Популярные запросы",
+  "cart-empty": "Ваша корзина пуста",
+  "select-options": "Пожалуйста, выберите параметры",
+  "shipping-protection": {
+    "title": "Защита доставки",
+    "subtitle": "От повреждений, потери и кражи за {{value}}"
+  },
+  "navigation": {
+    "manageAccount": "Мой аккаунт",
+    "manageAddresses": "Мои адреса",
+    "manageOrders": "Мои заказы",
+    "logout": "Выйти"
+  },
+  "orderStates": {
+    "Created": "Создан",
+    "Draft": "Черновик",
+    "AddingItems": "Добавление товаров",
+    "Cancelled": "Отменён",
+    "ArrangingPayment": "Ожидание оплаты",
+    "PaymentAuthorized": "Оплата авторизована",
+    "PaymentSettled": "Оплата подтверждена",
+    "PartiallyShipped": "Частично отправлен",
+    "Shipped": "Отправлен",
+    "PartiallyDelivered": "Частично доставлен",
+    "Delivered": "Доставлен",
+    "Modifying": "Изменение",
+    "ArrangingAdditionalPayment": "Дополнительная оплата"
+  },
+  "paymentStates": {
+    "Authorized": "Авторизована",
+    "Settled": "Подтверждена",
+    "Declined": "Отклонена"
+  },
+  "notifyMe": {
+    "invalidEmail": "Введите корректный email",
+    "backendError": "Не удалось подписаться, попробуйте позже",
+    "placeholder": "Уведомить меня"
+  },
+  "errors": {
+    "clearErrors": "Очистить ошибки",
+    "backend": {
+      "UNKNOWN_ERROR": "Неизвестная ошибка",
+      "NATIVE_AUTH_STRATEGY_ERROR": "Ошибка стратегии авторизации",
+      "INVALID_CREDENTIALS_ERROR": "Неверные учётные данные",
+      "ORDER_STATE_TRANSITION_ERROR": "Ошибка смены статуса заказа",
+      "EMAIL_ADDRESS_CONFLICT_ERROR": "Этот email уже используется",
+      "GUEST_CHECKOUT_ERROR": "Ошибка гостевого оформления",
+      "ORDER_LIMIT_ERROR": "Превышен лимит заказа",
+      "NEGATIVE_QUANTITY_ERROR": "Количество не может быть отрицательным",
+      "INSUFFICIENT_STOCK_ERROR": "Недостаточно товара на складе",
+      "COUPON_CODE_INVALID_ERROR": "Недействительный купон",
+      "COUPON_CODE_EXPIRED_ERROR": "Срок действия купона истёк",
+      "COUPON_CODE_LIMIT_ERROR": "Лимит использования купона исчерпан",
+      "ORDER_MODIFICATION_ERROR": "Ошибка изменения заказа",
+      "INELIGIBLE_SHIPPING_METHOD_ERROR": "Недоступный способ доставки",
+      "NO_ACTIVE_ORDER_ERROR": "Нет активного заказа",
+      "ORDER_PAYMENT_STATE_ERROR": "Ошибка статуса оплаты заказа",
+      "INELIGIBLE_PAYMENT_METHOD_ERROR": "Недоступный способ оплаты",
+      "PAYMENT_FAILED_ERROR": "Ошибка оплаты",
+      "PAYMENT_DECLINED_ERROR": "Оплата отклонена",
+      "ALREADY_LOGGED_IN_ERROR": "Вы уже авторизованы",
+      "MISSING_PASSWORD_ERROR": "Пароль не указан",
+      "PASSWORD_VALIDATION_ERROR": "Ошибка валидации пароля",
+      "PASSWORD_ALREADY_SET_ERROR": "Пароль уже установлен",
+      "VERIFICATION_TOKEN_INVALID_ERROR": "Недействительный токен верификации",
+      "VERIFICATION_TOKEN_EXPIRED_ERROR": "Срок действия токена верификации истёк",
+      "IDENTIFIER_CHANGE_TOKEN_INVALID_ERROR": "Недействительный токен смены идентификатора",
+      "IDENTIFIER_CHANGE_TOKEN_EXPIRED_ERROR": "Срок действия токена смены идентификатора истёк",
+      "PASSWORD_RESET_TOKEN_INVALID_ERROR": "Недействительный токен сброса пароля",
+      "PASSWORD_RESET_TOKEN_EXPIRED_ERROR": "Срок действия токена сброса пароля истёк",
+      "NOT_VERIFIED_ERROR": "Аккаунт не подтверждён"
+    },
+    "email": {
+      "required": "Email обязателен",
+      "invalid": "Некорректный email"
+    },
+    "password": {
+      "required": "Пароль обязателен",
+      "minLength": "Пароль должен содержать минимум 8 символов",
+      "maxLength": "Пароль не может быть длиннее 25 символов",
+      "mustDifferent": "Пароль должен отличаться от текущего"
+    },
+    "confirmPassword": {
+      "required": "Подтверждение пароля обязательно",
+      "mustMatch": "Пароли должны совпадать"
+    },
+    "firstName": {
+      "required": "Имя обязательно"
+    },
+    "lastName": {
+      "required": "Фамилия обязательна"
+    },
+    "phoneNumber": {
+      "required": "Номер телефона обязателен"
+    }
+  },
+  "footer": {
+    "notify": {
+      "header": "Будьте в курсе!",
+      "paragraph": "Подпишитесь на рассылку для эксклюзивных предложений и советов",
+      "placeholder": "email@example.com",
+      "alert": "Подписка оформлена!"
+    },
+    "sections": [
+      {
+        "header": "Уход за кожей",
+        "linksTitles": ["Уход за лицом", "Уход за телом"]
+      },
+      {
+        "header": "Уход за волосами",
+        "linksTitles": ["Здоровье кожи головы и волос", "Увлажнение губ"]
+      },
+      {
+        "header": "Релаксация и восстановление",
+        "linksTitles": ["Уход за ногами", "Процедуры для тела"]
+      }
+    ],
+    "law": [{ "name": "О нас", "href": "/about" }, { "name": "Политика конфиденциальности", "href": "/privacy" }, { "name": "Условия использования", "href": "/terms" }]
+  },
+  "picker": {
+    "ship-to-country": "Страна доставки",
+    "change-language": "Сменить язык",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "detected": "Мы определили вашу локацию как <1>{{country}}</1>, хотите продолжить с выбранными параметрами?"
+  }
+}

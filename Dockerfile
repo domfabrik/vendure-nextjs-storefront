@@ -3,7 +3,7 @@ FROM node:${NODE_VER}-bookworm-slim AS deps
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 RUN npm ci
 
 FROM node:${NODE_VER}-bookworm-slim AS runner

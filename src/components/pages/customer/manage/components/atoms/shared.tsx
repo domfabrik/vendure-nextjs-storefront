@@ -1,6 +1,6 @@
+import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { Button } from '@/src/components/molecules/Button';
-import styled from '@emotion/styled';
 
 export const MotionCustomerWrap = styled(motion.div)`
     align-items: flex-start;
@@ -19,6 +19,6 @@ export const Form = styled.form`
 `;
 
 export const StyledButton = styled(Button)<{ active?: boolean }>`
-    background: ${p => p.active && p.theme.gray(700)};
+    background: ${(p) => p.active && p.theme.gray(700)};
     font-size: 1.2rem;
 `;

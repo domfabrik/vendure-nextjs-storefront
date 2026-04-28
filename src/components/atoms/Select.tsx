@@ -1,39 +1,45 @@
-import { thv } from '@/src/theme';
 import styled from '@emotion/styled';
 import { useTranslation } from 'next-i18next';
+import { thv } from '@/src/theme';
 
 export function Select<T extends string | number>({
-    options,
-    value,
-    setValue,
+  options,
+  value,
+  setValue,
 }: {
-    options?: Array<{
-        label: string;
-        value: T;
-    }>;
-    value?: T;
-    setValue: (v: T) => void;
+  options?: Array<{
+    label: string;
+    value: T;
+  }>;
+  value?: T;
+  setValue: (v: T) => void;
 }) {
-    const { t } = useTranslation('common');
-    return (
-        <Main>
-            <select
-                value={value || ''}
-                placeholder={t('select-category')}
-                onChange={e => {
-                    setValue(e.target.value as T);
-                }}>
-                <option value="" disabled>
-                    Select your option
-                </option>
-                {options?.map(o => (
-                    <option value={o.value} key={o.value}>
-                        {o.label}
-                    </option>
-                ))}
-            </select>
-        </Main>
-    );
+  const { t } = useTranslation('common');
+  return (
+    <Main>
+      <select
+        value={value || ''}
+        onChange={(e) => {
+          setValue(e.target.value as T);
+        }}
+      >
+        <option
+          value=""
+          disabled
+        >
+          {t('select-category')}
+        </option>
+        {options?.map((o) => (
+          <option
+            value={o.value}
+            key={o.value}
+          >
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </Main>
+  );
 }
 
 const Main = styled.div`
@@ -45,7 +51,7 @@ const Main = styled.div`
         /* other styles for aesthetics */
         background-color: ${thv.background.main};
         border: 1px solid ${thv.text.main};
-        border-radius: ${p => p.theme.borderRadius};
+        border-radius: ${(p) => p.theme.borderRadius};
         color: ${thv.text.main};
         cursor: pointer;
         font-size: 1.25rem;

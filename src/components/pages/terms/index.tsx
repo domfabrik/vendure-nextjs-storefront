@@ -1,18 +1,22 @@
 import styled from '@emotion/styled';
 import { InferGetStaticPropsType } from 'next';
-import React from 'react';
 import { useTranslation } from 'next-i18next';
-import { Layout } from '@/src/layouts';
+
 import type { getStaticProps } from '@/src/components/pages/home/props';
+import { Layout } from '@/src/layouts';
 import { termsContent } from './terms';
 
-export const Terms: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = props => {
-    const { t } = useTranslation('homepage');
-    return (
-        <Layout navigation={props.navigation} categories={props.categories} pageTitle={t('seo.home')}>
-            <HtmlContentTerms dangerouslySetInnerHTML={{ __html: termsContent }} />
-        </Layout>
-    );
+export const Terms = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const { t } = useTranslation('homepage');
+  return (
+    <Layout
+      navigation={props.navigation}
+      categories={props.categories}
+      pageTitle={t('seo.home')}
+    >
+      <HtmlContentTerms dangerouslySetInnerHTML={{ __html: termsContent }} />
+    </Layout>
+  );
 };
 
 const HtmlContentTerms = styled.section`

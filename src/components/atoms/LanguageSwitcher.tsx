@@ -1,11 +1,11 @@
-import { Dropdown, HoverMenu } from '@/src/styles/reusableStyles';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
-import React from 'react';
-import languageDetector from '@/src/lib/lngDetector';
+
 import nextI18nextConfig from '@/next-i18next.config';
-import { getFlagByCode } from '@/src/util/i18Helpers';
 import { Chevron } from '@/src/assets';
+import languageDetector from '@/src/lib/lngDetector';
+import { Dropdown, HoverMenu } from '@/src/styles/reusableStyles';
+import { getFlagByCode } from '@/src/util/i18Helpers';
 
 const Container = styled.div`
     display: flex;
@@ -85,40 +85,41 @@ const Language = styled.div`
 `;
 
 export const LanguageSwitcher = () => {
-    const { query, push, pathname } = useRouter();
-    const { locales, defaultLocale } = nextI18nextConfig.i18n;
-    const currentLocale = (query.locale as string) || defaultLocale;
+  const { query, push, pathname } = useRouter();
+  const { locales, defaultLocale } = nextI18nextConfig.i18n;
+  const currentLocale = (query.locale as string) || defaultLocale;
 
-    const languages = locales
-        .filter(locale => locale !== currentLocale)
-        .map(newLang => {
-            return (
-                <Language
-                    key={newLang}
-                    className="language"
-                    onClick={() => {
-                        languageDetector.cache && languageDetector.cache(newLang);
-                        const correctPathname = pathname
-                            .replace('[locale]', newLang === 'en' ? '' : newLang)
-                            .replace('[slug]', query.slug as string)
-                            .replace('[code]', query.code as string);
+  const languages = locales
+    .filter((locale) => locale !== currentLocale)
+    .map((newLang) => {
+      return (
+        <Language
+          key={newLang}
+          className="language"
+          onClick={() => {
+            languageDetector.cache?.(newLang);
+            const correctPathname = pathname
+              .replace('[locale]', newLang === 'en' ? '' : newLang)
+              .replace('[slug]', query.slug as string)
+              .replace('[code]', query.code as string);
 
-                        push(correctPathname);
-                    }}>
-                    {getFlagByCode(newLang)}
-                </Language>
-            );
-        });
+            push(correctPathname);
+          }}
+        >
+          {getFlagByCode(newLang)}
+        </Language>
+      );
+    });
 
-    return (
-        <Container>
-            <Dropdown>
-                <CurrentFlag id="currentflag">
-                    {getFlagByCode(currentLocale, true)}
-                    <Chevron />
-                </CurrentFlag>
-                <HoverMenu langSwitcher>{languages}</HoverMenu>
-            </Dropdown>
-        </Container>
-    );
+  return (
+    <Container>
+      <Dropdown>
+        <CurrentFlag id="currentflag">
+          {getFlagByCode(currentLocale, true)}
+          <Chevron />
+        </CurrentFlag>
+        <HoverMenu langSwitcher>{languages}</HoverMenu>
+      </Dropdown>
+    </Container>
+  );
 };

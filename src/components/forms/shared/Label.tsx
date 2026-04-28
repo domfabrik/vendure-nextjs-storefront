@@ -7,7 +7,7 @@ export const Label = styled.label`
     font-weight: 400;
 
     & > a {
-        color: ${p => p.theme.accent(800)};
+        color: ${(p) => p.theme.accent(800)};
         text-decoration: none;
         font-weight: 500;
         font-size: 1.25rem;

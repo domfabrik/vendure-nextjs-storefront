@@ -1,51 +1,62 @@
-import { ProductImage, Stack } from '@/src/components/atoms';
 import styled from '@emotion/styled';
 import { ImageOff } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ProductImage, Stack } from '@/src/components/atoms';
+
 type Asset = { source: string; preview: string } | undefined;
 
 interface ProductPhotosPreview {
-    featuredAsset: Asset;
-    name?: string;
-    images?: Asset[];
+  featuredAsset: Asset;
+  name?: string;
+  images?: Asset[];
 }
 
-export const ProductPhotosPreview: React.FC<ProductPhotosPreview> = ({ featuredAsset, images, name }) => {
-    const [chosenImage, setChosenImage] = useState<Asset>(featuredAsset ?? images?.[0]);
+export const ProductPhotosPreview = ({ featuredAsset, images, name }: ProductPhotosPreview) => {
+  const [chosenImage, setChosenImage] = useState<Asset>(featuredAsset ?? images?.[0]);
 
-    useEffect(() => {
-        if (typeof featuredAsset === 'undefined' && typeof images === 'undefined' && typeof chosenImage === 'undefined')
-            return;
-        setChosenImage(featuredAsset ?? images?.[0]);
-    }, [featuredAsset, images]);
+  useEffect(() => {
+    if (typeof featuredAsset === 'undefined' && typeof images === 'undefined' && typeof chosenImage === 'undefined') return;
+    setChosenImage(featuredAsset ?? images?.[0]);
+  }, [featuredAsset, images]);
 
-    return (
-        <Wrapper w100 justifyBetween>
-            <AssetBrowser column gap="1.75rem">
-                {images?.map(a => {
-                    const isSelected = chosenImage?.source === a?.source;
-                    return (
-                        <StyledProductImage
-                            key={a?.preview}
-                            size="thumbnail"
-                            src={a?.preview}
-                            onClick={() => setChosenImage(a)}
-                            isSelected={isSelected}
-                            alt={name}
-                            title={name}
-                        />
-                    );
-                })}
-            </AssetBrowser>
-            {chosenImage ? (
-                <ProductImageContainer>
-                    <ProductImage size="detail" src={chosenImage.preview} alt={name} title={name} />
-                </ProductImageContainer>
-            ) : (
-                <NoImage size="60rem" />
-            )}
-        </Wrapper>
-    );
+  return (
+    <Wrapper
+      w100
+      justifyBetween
+    >
+      <AssetBrowser
+        column
+        gap="1.75rem"
+      >
+        {images?.map((a) => {
+          const isSelected = chosenImage?.source === a?.source;
+          return (
+            <StyledProductImage
+              key={a?.preview}
+              size="thumbnail"
+              src={a?.preview}
+              onClick={() => setChosenImage(a)}
+              isSelected={isSelected}
+              alt={name}
+              title={name}
+            />
+          );
+        })}
+      </AssetBrowser>
+      {chosenImage ? (
+        <ProductImageContainer>
+          <ProductImage
+            size="detail"
+            src={chosenImage.preview}
+            alt={name}
+            title={name}
+          />
+        </ProductImageContainer>
+      ) : (
+        <NoImage size="60rem" />
+      )}
+    </Wrapper>
+  );
 };
 
 const Wrapper = styled(Stack)`
@@ -97,14 +108,14 @@ const AssetBrowser = styled(Stack)`
     }
 
     ::-webkit-scrollbar-thumb {
-        background: ${p => p.theme.gray(200)};
+        background: ${(p) => p.theme.gray(200)};
         border-radius: 1rem;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: ${p => p.theme.gray(400)};
+        background: ${(p) => p.theme.gray(400)};
     }
 `;
 const NoImage = styled(ImageOff)`
-    color: ${p => p.theme.gray(50)};
+    color: ${(p) => p.theme.gray(50)};
 `;

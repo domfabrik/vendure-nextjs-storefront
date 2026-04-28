@@ -1,71 +1,74 @@
-import { Stack, Link, ProductImageGrid, TP } from '@/src/components/atoms/';
+import styled from '@emotion/styled';
+
+import { Link, ProductImageGrid, Stack, TP } from '@/src/components/atoms/';
 import { CollectionTileType, ProductSearchType } from '@/src/graphql/selectors';
 import { priceFormatter } from '@/src/util/priceFormatter';
-import styled from '@emotion/styled';
-import React from 'react';
 
-export const ProductTile: React.FC<{
-    product: ProductSearchType;
-    collections: CollectionTileType[];
-    lazy?: boolean;
-}> = ({ product, collections, lazy }) => {
-    const priceValue =
-        'value' in product.priceWithTax
-            ? priceFormatter(product.priceWithTax.value, product.currencyCode)
-            : product.priceWithTax.min === product.priceWithTax.max
-              ? priceFormatter(product.priceWithTax.min, product.currencyCode)
-              : `${priceFormatter(product.priceWithTax.min, product.currencyCode)} - ${priceFormatter(
-                    product.priceWithTax.max,
-                    product.currencyCode,
-                )}`;
+export const ProductTile = ({ product, collections, lazy }: { product: ProductSearchType; collections: CollectionTileType[]; lazy?: boolean }) => {
+  const priceValue =
+    'value' in product.priceWithTax
+      ? priceFormatter(product.priceWithTax.value, product.currencyCode)
+      : product.priceWithTax.min === product.priceWithTax.max
+        ? priceFormatter(product.priceWithTax.min, product.currencyCode)
+        : `${priceFormatter(product.priceWithTax.min, product.currencyCode)} - ${priceFormatter(product.priceWithTax.max, product.currencyCode)}`;
 
-    return (
-        <Main column gap="1rem">
-            <Link href={`/products/${product.slug}/`}>
-                <ProductImageGrid
-                    loading={lazy ? 'lazy' : undefined}
-                    src={product.productAsset?.preview}
-                    alt={product.productName}
-                    title={product.productName}
-                />
-            </Link>
-            <Categories gap="0.5rem">
-                {product.collectionIds
-                    .filter((cId, index) => product.collectionIds.indexOf(cId) === index)
-                    .map(cId => collections.find(c => c.id === cId))
-                    .filter(c => c && c.slug !== 'all' && c.slug !== 'search')
-                    .map(c => {
-                        const href =
-                            c?.parent?.slug !== '__root_collection__'
-                                ? `/collections/${c?.parent?.slug}/${c?.slug}`
-                                : `/collections/${c?.slug}`;
+  return (
+    <Main
+      column
+      gap="1rem"
+    >
+      <Link href={`/products/${product.slug}/`}>
+        <ProductImageGrid
+          loading={lazy ? 'lazy' : undefined}
+          src={product.productAsset?.preview}
+          alt={product.productName}
+          title={product.productName}
+        />
+      </Link>
+      <Categories gap="0.5rem">
+        {product.collectionIds
+          .filter((cId, index) => product.collectionIds.indexOf(cId) === index)
+          .map((cId) => collections.find((c) => c.id === cId))
+          .filter((c) => c && c.slug !== 'all' && c.slug !== 'search')
+          .map((c) => {
+            const href = c?.parent?.slug !== '__root_collection__' ? `/collections/${c?.parent?.slug}/${c?.slug}` : `/collections/${c?.slug}`;
 
-                        return (
-                            <CategoryBlock href={href} key={c?.slug}>
-                                <TP
-                                    size="1.25rem"
-                                    color="contrast"
-                                    upperCase
-                                    weight={500}
-                                    style={{ letterSpacing: '0.5px' }}>
-                                    {c?.name}
-                                </TP>
-                            </CategoryBlock>
-                        );
-                    })}
-            </Categories>
-            <Stack column gap="0.25rem">
-                <Stack column gap="0.5rem">
-                    <Link href={`/products/${product.slug}/`}>
-                        <ProductName>{product.productName}</ProductName>
-                    </Link>
-                </Stack>
-                <ProductPrice gap="0.25rem">
-                    <ProductPriceValue>{priceValue}</ProductPriceValue>
-                </ProductPrice>
-            </Stack>
-        </Main>
-    );
+            return (
+              <CategoryBlock
+                href={href}
+                key={c?.slug}
+              >
+                <TP
+                  size="1.25rem"
+                  color="contrast"
+                  upperCase
+                  weight={500}
+                  style={{ letterSpacing: '0.5px' }}
+                >
+                  {c?.name}
+                </TP>
+              </CategoryBlock>
+            );
+          })}
+      </Categories>
+      <Stack
+        column
+        gap="0.25rem"
+      >
+        <Stack
+          column
+          gap="0.5rem"
+        >
+          <Link href={`/products/${product.slug}/`}>
+            <ProductName>{product.productName}</ProductName>
+          </Link>
+        </Stack>
+        <ProductPrice gap="0.25rem">
+          <ProductPriceValue>{priceValue}</ProductPriceValue>
+        </ProductPrice>
+      </Stack>
+    </Main>
+  );
 };
 const Categories = styled(Stack)`
     position: absolute;
@@ -76,7 +79,7 @@ const Categories = styled(Stack)`
 
 const ProductName = styled.div`
     font-weight: 400;
-    color: ${p => p.theme.gray(900)};
+    color: ${(p) => p.theme.gray(900)};
     font-size: 1.5rem;
 `;
 

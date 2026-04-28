@@ -1,63 +1,65 @@
-import React, { useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { Stack, TypoGraphy } from '@/src/components';
 import { ChevronDown } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Stack, TypoGraphy } from '@/src/components';
 import { useOutsideClick } from '@/src/util/hooks/useOutsideClick';
 
 interface DropdownProps {
-    items: {
-        key: string;
-        children: React.ReactNode;
-    }[];
-    placeholder: string;
-    selected: string;
-    renderSelected?: (selected: string) => React.ReactNode;
-    maxHeight?: string;
-    setSelected: (key: string) => void;
+  items: {
+    key: string;
+    children: React.ReactNode;
+  }[];
+  placeholder: string;
+  selected: string;
+  renderSelected?: (selected: string) => React.ReactNode;
+  maxHeight?: string;
+  setSelected: (key: string) => void;
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({
-    items,
-    placeholder,
-    selected,
-    maxHeight = '200px',
-    renderSelected,
-    setSelected,
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-    useOutsideClick(dropdownRef, () => setIsOpen(false));
+export const Dropdown = ({ items, placeholder, selected, maxHeight = '200px', renderSelected, setSelected }: DropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(dropdownRef, () => setIsOpen(false));
 
-    return (
-        <Wrapper ref={dropdownRef}>
-            <DropdownButton onClick={() => setIsOpen(!isOpen)}>
-                <Stack column gap={'0.5rem'}>
-                    <TypoGraphy size={'1.25rem'} weight={300}>
-                        {placeholder}
-                    </TypoGraphy>
-                    <TypoGraphy size={'1.25rem'} weight={400}>
-                        {renderSelected ? renderSelected(selected) : selected}
-                    </TypoGraphy>
-                </Stack>
-                <ChevronDown />
-            </DropdownButton>
-            {isOpen && (
-                <DropdownContent maxHeight={maxHeight}>
-                    {items &&
-                        items.map(({ children, key }) => (
-                            <DropdownItem
-                                key={key}
-                                onClick={() => {
-                                    setSelected(key);
-                                    setIsOpen(false);
-                                }}>
-                                {children}
-                            </DropdownItem>
-                        ))}
-                </DropdownContent>
-            )}
-        </Wrapper>
-    );
+  return (
+    <Wrapper ref={dropdownRef}>
+      <DropdownButton onClick={() => setIsOpen(!isOpen)}>
+        <Stack
+          column
+          gap={'0.5rem'}
+        >
+          <TypoGraphy
+            size={'1.25rem'}
+            weight={300}
+          >
+            {placeholder}
+          </TypoGraphy>
+          <TypoGraphy
+            size={'1.25rem'}
+            weight={400}
+          >
+            {renderSelected ? renderSelected(selected) : selected}
+          </TypoGraphy>
+        </Stack>
+        <ChevronDown />
+      </DropdownButton>
+      {isOpen && (
+        <DropdownContent maxHeight={maxHeight}>
+          {items?.map(({ children, key }) => (
+            <DropdownItem
+              key={key}
+              onClick={() => {
+                setSelected(key);
+                setIsOpen(false);
+              }}
+            >
+              {children}
+            </DropdownItem>
+          ))}
+        </DropdownContent>
+      )}
+    </Wrapper>
+  );
 };
 
 const Wrapper = styled.div`

@@ -1,6 +1,6 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
-import { FieldError } from 'react-hook-form';
 import styled from '@emotion/styled';
+import { forwardRef, InputHTMLAttributes } from 'react';
+import { FieldError } from 'react-hook-form';
 import { Stack } from '@/src/components/atoms/Stack';
 import { FormError, Label } from './shared';
 
@@ -8,9 +8,9 @@ const RadioWrapper = styled(Stack)<{ active?: boolean }>`
     position: relative;
     width: fit-content;
     padding: 0.75rem 1.75rem;
-    border-radius: ${p => p.theme.borderRadius};
+    border-radius: ${(p) => p.theme.borderRadius};
     border: 1px solid;
-    color: ${p => (p.active ? p.theme.text.main : p.theme.text.inactive)};
+    color: ${(p) => (p.active ? p.theme.text.main : p.theme.text.inactive)};
     transition: all 200ms;
 `;
 
@@ -29,27 +29,43 @@ const Icon = styled.div`
 `;
 
 type InputType = InputHTMLAttributes<HTMLInputElement> & {
-    label: string;
-    icon?: React.ReactNode;
-    error?: FieldError;
+  label: string;
+  icon?: React.ReactNode;
+  error?: FieldError;
 };
 
 export const Radio = forwardRef((props: InputType, ref: React.ForwardedRef<HTMLInputElement>) => {
-    const { label, error, icon, ...rest } = props;
-    return (
-        <Stack column itemsCenter gap="0.25rem">
-            <RadioWrapper active={rest.checked} gap="0.75rem" itemsCenter>
-                <Icon>{icon}</Icon>
-                <StyledRadio ref={ref} {...rest} type="radio" />
-                <Label htmlFor={props.name}>{label}</Label>
-            </RadioWrapper>
-            {error?.message && (
-                <FormError initial={{ opacity: 0 }} animate={{ opacity: error ? 1 : 0 }} transition={{ duration: 0.2 }}>
-                    {error?.message}
-                </FormError>
-            )}
-        </Stack>
-    );
+  const { label, error, icon, ...rest } = props;
+  return (
+    <Stack
+      column
+      itemsCenter
+      gap="0.25rem"
+    >
+      <RadioWrapper
+        active={rest.checked}
+        gap="0.75rem"
+        itemsCenter
+      >
+        <Icon>{icon}</Icon>
+        <StyledRadio
+          ref={ref}
+          {...rest}
+          type="radio"
+        />
+        <Label htmlFor={props.name}>{label}</Label>
+      </RadioWrapper>
+      {error?.message && (
+        <FormError
+          initial={{ opacity: 0 }}
+          animate={{ opacity: error ? 1 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {error?.message}
+        </FormError>
+      )}
+    </Stack>
+  );
 });
 
 Radio.displayName = 'Radio';

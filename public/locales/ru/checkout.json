@@ -1,0 +1,160 @@
+{
+  "seoTitles": {
+    "checkout": "Оформление заказа",
+    "payment": "Оплата",
+    "confirmation": "Подтверждение"
+  },
+  "steps": {
+    "shipping": "Доставка",
+    "payment": "Оплата",
+    "confirmation": "Подтверждение"
+  },
+  "orderForm": {
+    "emptyCart": "Ваша корзина пуста",
+    "emptyCartDescription": "В вашей корзине нет товаров. Нажмите <1>здесь</1>, чтобы продолжить покупки.",
+    "whatAccountGives": "Аккаунт даёт доступ к истории и статусу заказов. Также позволяет изменять личные данные и адреса.",
+    "createAccount": "Создать аккаунт?",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "shippingDifferentThanBilling": "Адрес доставки отличается от адреса для счёта?",
+    "userNeedInvoice": "Нужен счёт-фактура?",
+    "orderSummary": "Сводка заказа",
+    "contactInfo": "Контактная информация",
+    "emailAddress": "Email",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "phone": "Телефон",
+    "shippingInfo": "Адрес доставки",
+    "billingInfo": "Адрес для счёта",
+    "NIP": "ИНН",
+    "fullName": "Полное имя",
+    "company": "Компания",
+    "individual": "Физическое лицо",
+    "streetLine1": "Адрес",
+    "streetLine2": "Квартира, офис и т.д.",
+    "city": "Город",
+    "countryCode": "Страна",
+    "province": "Область / Регион",
+    "postalCode": "Почтовый индекс",
+    "continueToPayment": "Перейти к оплате",
+    "continueShopping": "Продолжить покупки",
+    "regulations": "Я принимаю <1>правила</1>.",
+    "terms": "Я принимаю <1>условия использования</1>.",
+    "placeholders": {
+      "emailAddress": "Email",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "phoneNumber": "Номер телефона",
+      "phone": "Телефон",
+      "fullName": "Полное имя",
+      "company": "Компания",
+      "streetLine1": "Адрес",
+      "streetLine2": "Квартира, офис и т.д.",
+      "city": "Город",
+      "countryCode": "Страна",
+      "province": "Область / Регион",
+      "postalCode": "Почтовый индекс",
+      "NIP": "ИНН",
+      "password": "Пароль",
+      "confirmPassword": "Подтвердите пароль"
+    },
+    "errors": {
+      "root": {
+        "invalid": "Произошла ошибка при отправке формы. Пожалуйста, исправьте ошибки ниже",
+        "closeButton": "Закрыть"
+      },
+      "emailAddress": {
+        "required": "Email обязателен",
+        "email": "Некорректный email"
+      },
+      "firstName": {
+        "required": "Имя обязательно"
+      },
+      "lastName": {
+        "required": "Фамилия обязательна"
+      },
+      "phone": {
+        "required": "Телефон обязателен"
+      },
+      "fullName": {
+        "required": "Полное имя обязательно"
+      },
+      "company": {
+        "required": "Название компании обязательно"
+      },
+      "streetLine1": {
+        "required": "Адрес обязателен"
+      },
+      "streetLine2": {
+        "required": "Квартира/офис обязательны"
+      },
+      "city": {
+        "required": "Город обязателен"
+      },
+      "countryCode": {
+        "required": "Страна обязательна"
+      },
+      "province": {
+        "required": "Область/регион обязательны"
+      },
+      "postalCode": {
+        "required": "Почтовый индекс обязателен"
+      },
+      "terms": {
+        "required": "Необходимо принять условия использования"
+      },
+      "regulations": {
+        "required": "Необходимо принять правила"
+      },
+      "NIP": {
+        "required": "ИНН обязателен"
+      },
+      "password": {
+        "required": "Пароль обязателен"
+      },
+      "confirmPassword": {
+        "required": "Подтверждение пароля обязательно",
+        "notMatch": "Пароли не совпадают"
+      }
+    }
+  },
+  "orderSummary": {
+    "title": "Сводка заказа",
+    "subtotal": "Подытог",
+    "discount": "Скидка",
+    "shipping": "Доставка",
+    "total": "Итого",
+    "quantity": "Количество",
+    "remove": "Удалить",
+    "customerAlsoBought": {
+      "title": "Покупатели также приобрели",
+      "addToOrder": "Добавить к заказу"
+    }
+  },
+  "deliveryMethod": {
+    "title": "Способ доставки",
+    "required": "*(Необходимо выбрать способ доставки)",
+    "errors": {
+      "required": "Способ доставки обязателен"
+    }
+  },
+  "paymentMethod": {
+    "title": "Это тестовая оплата только для демонстрации",
+    "submit": "Оплатить",
+    "notAvailable": "Способ оплаты по умолчанию недоступен",
+    "success": "Успешная оплата",
+    "error": "Ошибка оплаты",
+    "selectToContinue": "Выберите способ оплаты для продолжения",
+    "decline": "Отклонённая оплата",
+    "dummyMethods": {
+      "success": "Тестовая оплата — успех",
+      "error": "Тестовая оплата — ошибка",
+      "decline": "Тестовая оплата — отклонение"
+    }
+  },
+  "confirmation": {
+    "orderReceived": "Ваш заказ <1>{{code}}</1> принят",
+    "orderCancelled": "Ваш заказ <1>{{code}}</1> отменён",
+    "orderNotFound": "Заказ не найден"
+  }
+}

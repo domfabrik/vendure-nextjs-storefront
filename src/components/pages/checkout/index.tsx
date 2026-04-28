@@ -1,29 +1,29 @@
-import { CheckoutLayout } from '@/src/layouts';
-import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import { OrderForm } from './components/OrderForm';
-import { useTranslation } from 'next-i18next';
-import { getServerSideProps } from './props';
-import { CheckoutCarousel } from './components/OrderSummary/CheckoutCarousel';
 import styled from '@emotion/styled';
+import { InferGetServerSidePropsType } from 'next';
+import { useTranslation } from 'next-i18next';
+
 import { ContentContainer } from '@/src/components/atoms';
+import { CheckoutLayout } from '@/src/layouts';
+import { OrderForm } from './components/OrderForm';
+import { CheckoutCarousel } from './components/OrderSummary/CheckoutCarousel';
+import { getServerSideProps } from './props';
 
-export const CheckoutPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
-    const { t } = useTranslation('checkout');
-    const { availableCountries, alsoBoughtProducts, eligibleShippingMethods, activeCustomer } = props;
+export const CheckoutPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  const { t } = useTranslation('checkout');
+  const { availableCountries, alsoBoughtProducts, eligibleShippingMethods, activeCustomer } = props;
 
-    return (
-        <CheckoutLayout pageTitle={`${t('seoTitles.checkout')}`}>
-            <Content>
-                <OrderForm
-                    availableCountries={availableCountries}
-                    shippingMethods={eligibleShippingMethods}
-                    activeCustomer={activeCustomer}
-                />
-                <CheckoutCarousel alsoBoughtProducts={alsoBoughtProducts} />
-            </Content>
-        </CheckoutLayout>
-    );
+  return (
+    <CheckoutLayout pageTitle={`${t('seoTitles.checkout')}`}>
+      <Content>
+        <OrderForm
+          availableCountries={availableCountries}
+          shippingMethods={eligibleShippingMethods}
+          activeCustomer={activeCustomer}
+        />
+        <CheckoutCarousel alsoBoughtProducts={alsoBoughtProducts} />
+      </Content>
+    </CheckoutLayout>
+  );
 };
 
 const Content = styled(ContentContainer)`
