@@ -1,17 +1,17 @@
 import styled from '@emotion/styled';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
 import { ContentContainer, Stack } from '@/src/components/atoms';
 import { Hero } from '@/src/components/organisms/Hero';
 import { HomePageSliders } from '@/src/components/organisms/HomePageSliders';
 import { Layout } from '@/src/layouts';
-import type { getStaticProps } from './props';
+import type { getServerSideProps } from './props';
 
 const Main = styled(Stack)`
     padding: 0 0 4rem 0;
 `;
 
-export const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+export const Home = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <Layout
       navigation={props.navigation}

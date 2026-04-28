@@ -1,20 +1,19 @@
+import { GetServerSidePropsContext } from 'next';
+
 import { SSGQuery } from '@/src/graphql/client';
 import { CollectionSelector, SearchSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
-import { ContextModel, makeStaticProps } from '@/src/lib/getStatic';
+import { makeServerSideProps } from '@/src/lib/getStatic';
 import { PER_PAGE, reduceFacets } from '@/src/state/collection/utils';
 import { arrayToTree } from '@/src/util/arrayToTree';
 import { SortOrder } from '@/src/zeus';
 
-export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>) => {
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { slug } = context.params || {};
-  const lastIndexSlug = slug?.length ? slug[slug.length - 1] : '';
-  const _context = {
-    ...context,
-    params: { ...context.params, slug: lastIndexSlug },
-  };
+  const slugArr = Array.isArray(slug) ? slug : slug ? [slug] : [];
+  const lastIndexSlug = slugArr.length ? slugArr[slugArr.length - 1] : '';
 
-  const r = await makeStaticProps(['common', 'collections'])(_context);
+  const r = await makeServerSideProps(['common', 'collections'])(context);
   const collections = await getCollections(r.context);
   const navigation = arrayToTree(collections);
   const api = SSGQuery(r.context);
@@ -22,7 +21,7 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>)
   const { collection } = await api({
     collection: [{ slug: lastIndexSlug }, CollectionSelector],
   });
-  if (!collection) return { notFound: true };
+  if (!collection) return { notFound: true as const };
 
   const productsQuery = await api({
     search: [
@@ -39,21 +38,18 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string[] }>)
   });
   const facets = reduceFacets(productsQuery.search.facetValues);
 
-  const returnedStuff = {
-    ...r.props,
-    ...r.context,
-    slug: context.params?.slug,
-    collections: collections,
-    name: collections.find((c) => c.slug === lastIndexSlug)?.name,
-    products: productsQuery.search?.items,
-    facets,
-    totalProducts: productsQuery.search?.totalItems,
-    collection,
-    navigation,
-  };
-
   return {
-    props: returnedStuff,
-    revalidate: process.env.NEXT_REVALIDATE ? parseInt(process.env.NEXT_REVALIDATE, 10) : 10,
+    props: {
+      ...r.props,
+      ...r.context,
+      slug: slugArr,
+      collections: collections,
+      name: collections.find((c) => c.slug === lastIndexSlug)?.name,
+      products: productsQuery.search?.items,
+      facets,
+      totalProducts: productsQuery.search?.totalItems,
+      collection,
+      navigation,
+    },
   };
 };

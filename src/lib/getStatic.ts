@@ -22,36 +22,8 @@ export const getAllPossibleWithChannels = () => {
   return paths;
 };
 
-const getStandardLocalePaths = () => {
-  return getAllPossibleWithChannels();
-};
-
-export const localizeGetStaticPaths = <T>(
-  existingPaths: Array<{
-    params: T;
-  }>,
-) => {
-  const allPaths = getAllPossibleWithChannels();
-  return allPaths.flatMap((locale) =>
-    existingPaths.map((ep) => ({
-      ...ep,
-      params: { ...ep.params, ...locale.params },
-    })),
-  );
-};
-
 export async function getI18nProps(_ctx: ContextModel, _ns: string[] = ['common']) {
   return {};
-}
-
-export function makeStaticProps(ns: string[]) {
-  return async function getStaticProps(ctx: ContextModel) {
-    const context = getContext(ctx);
-    return {
-      props: await getI18nProps(context, ns),
-      context: context.params,
-    };
-  };
 }
 
 export function makeServerSideProps(ns: string[]) {
@@ -63,8 +35,3 @@ export function makeServerSideProps(ns: string[]) {
     };
   };
 }
-
-export const getStaticPaths = () => ({
-  fallback: false,
-  paths: getStandardLocalePaths(),
-});

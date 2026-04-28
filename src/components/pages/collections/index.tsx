@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Filter, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
 import { ContentContainer, MainGrid, Stack, TH1, TP } from '@/src/components/atoms';
 import { Breadcrumbs } from '@/src/components/molecules';
@@ -12,9 +12,9 @@ import { ProductTile } from '@/src/components/molecules/ProductTile';
 import { SortBy } from '@/src/components/molecules/SortBy';
 import { Layout } from '@/src/layouts';
 import { useCollection } from '@/src/state/collection';
-import { getStaticProps } from './props';
+import { getServerSideProps } from './props';
 
-const CollectionPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+const CollectionPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { collection, products, facetValues, filtersOpen, setFiltersOpen, paginationInfo, changePage, filters, applyFilter, removeFilter, sort, handleSort } = useCollection();
 
   const breadcrumbs = [

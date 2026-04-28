@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
-import type { getStaticProps } from '@/src/components/pages/home/props';
+import type { getServerSideProps } from '@/src/components/pages/home/props';
 import { Layout } from '@/src/layouts';
 import aboutJson from './About.json';
 
@@ -13,7 +13,7 @@ const faces: Array<{
   ln: string;
 }> = aboutJson.faces;
 
-export const About = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+export const About = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <Layout
       navigation={props.navigation}

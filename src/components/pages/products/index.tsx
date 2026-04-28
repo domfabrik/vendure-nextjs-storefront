@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Check, X } from 'lucide-react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 
 import { useEffect, useState } from 'react';
 import { ContentContainer, Link, Price, Stack, TH1, TP } from '@/src/components/atoms';
@@ -11,7 +11,7 @@ import { ProductDescription } from '@/src/components/molecules/ProductDescriptio
 import { ProductOptions } from '@/src/components/organisms/ProductOptions';
 import { ProductPageProductsSlider } from '@/src/components/organisms/ProductPageProductsSlider';
 import { ProductPhotosPreview } from '@/src/components/organisms/ProductPhotosPreview';
-import { getStaticProps } from '@/src/components/pages/products/props';
+import { getServerSideProps } from '@/src/components/pages/products/props';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { ProductVariantTileType, productVariantTileSelector } from '@/src/graphql/selectors';
 // import { ProductPhotosPreview } from '@/src/components/organisms/ProductPhotosPreview';
@@ -19,7 +19,7 @@ import { Layout } from '@/src/layouts';
 import { useChannels } from '@/src/state/channels';
 import { useProduct } from '@/src/state/product';
 
-export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const ctx = useChannels();
   const { product, variant, addingError, productOptionsGroups, handleOptionClick, handleBuyNow, handleAddToCart } = useProduct();
 

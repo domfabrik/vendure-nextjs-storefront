@@ -1,11 +1,13 @@
+import { GetServerSidePropsContext } from 'next';
+
 import { SSGQuery } from '@/src/graphql/client';
 import { homePageSlidersSelector, ProductDetailSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
-import { ContextModel, makeStaticProps } from '@/src/lib/getStatic';
+import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
-export const getStaticProps = async (context: ContextModel<{ slug?: string }>) => {
-  const r = await makeStaticProps(['common', 'products'])(context);
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+  const r = await makeServerSideProps(['common', 'products'])(context);
   const language = r.context?.locale || 'ru';
   const { slug } = context.params || {};
   const api = SSGQuery(r.context);
@@ -17,7 +19,7 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string }>) =
         })
       : null;
 
-  if (!response?.product) return { notFound: true };
+  if (!response?.product) return { notFound: true as const };
 
   const collections = await getCollections(r.context);
   const navigation = arrayToTree(collections);
@@ -32,46 +34,33 @@ export const getStaticProps = async (context: ContextModel<{ slug?: string }>) =
 
   const { optionGroups: _optionGroups, ...product } = response.product;
 
-  // mapping option groups to match the color names <-> hex codes
-  // const getFacetsValues = await SSGQuery(r.context)({
-  //     facets: [{ options: { filter: { name: { eq: 'color' } } } }, { items: { values: { name: true, code: true } } }],
-  // });
-
   const optionGroups = _optionGroups.map((og) => {
     return {
       ...og,
       options: og.options
         .sort((a, b) => a.name.length - b.name.length || a.name.localeCompare(b.name))
         .map((o) => {
-          // mapping option groups to match the color names <-> hex codes
-          // const name =
-          //     getFacetsValues.facets.items[0].values.find(v => v.name.toLowerCase() === o.code.toLowerCase())
-          //         ?.code || o.name;
-
           const name = notInDemoStore.find((v) => v.name.toLowerCase() === o.code.toLowerCase())?.code || o.name;
           return { ...o, name };
         }),
     };
   });
 
-  const returnedStuff = {
-    ...r.props,
-    ...r.context,
-    slug: context.params?.slug,
-    product: {
-      ...product,
-      optionGroups,
-    },
-    collections,
-    relatedProducts,
-    clientsAlsoBought,
-    navigation,
-    language,
-  };
-
   return {
-    props: returnedStuff,
-    revalidate: process.env.NEXT_REVALIDATE ? parseInt(process.env.NEXT_REVALIDATE, 10) : 10,
+    props: {
+      ...r.props,
+      ...r.context,
+      slug: context.params?.slug,
+      product: {
+        ...product,
+        optionGroups,
+      },
+      collections,
+      relatedProducts,
+      clientsAlsoBought,
+      navigation,
+      language,
+    },
   };
 };
 

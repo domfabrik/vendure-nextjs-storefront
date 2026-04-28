@@ -1,10 +1,9 @@
-import type { InferGetStaticPropsType } from 'next';
+import type { InferGetServerSidePropsType } from 'next';
 
-import { getStaticProps } from '@/src/components/pages/home/props';
+import { getServerSideProps } from '@/src/components/pages/home/props';
 import { Terms } from '@/src/components/pages/terms';
-import { getStaticPaths } from '@/src/lib/getStatic';
 
-const Page = (props: InferGetStaticPropsType<typeof getStaticProps>) => <Terms {...props} />;
+const Page = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => <Terms {...props} />;
 
-export { getStaticPaths, getStaticProps };
+export { getServerSideProps };
 export default Page;
