@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ShoppingCartIcon } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useRef } from 'react';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
@@ -17,8 +17,7 @@ export const CartDrawer = ({ activeOrder }: { activeOrder?: ActiveOrderType }) =
   const { isOpen, open, close } = useCart();
   const currencyCode = activeOrder?.currencyCode || CurrencyCode.USD;
   const discountsSum = useMemo(() => {
-    const discounts = activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
-    return discounts;
+    return activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
   }, [activeOrder]);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -98,7 +97,7 @@ const CartComponentMain = styled(motion.div)`
 
     background: ${(p) => p.theme.gray(0)};
     border-left: 1px solid ${(p) => p.theme.gray(100)};
-    box-shadow: 0rem 0.2rem 1rem ${(p) => p.theme.shadow};
+    box-shadow: 0 0.2rem 1rem ${(p) => p.theme.shadow};
 `;
 
 const CartContainer = styled(Stack)`

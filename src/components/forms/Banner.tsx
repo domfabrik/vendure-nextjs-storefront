@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, HTMLMotionProps, motion } from 'framer-motion';
 import { AlertCircle, X } from 'lucide-react';
+import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import { forwardRef } from 'react';
 import { GlobalError } from 'react-hook-form';
 import { Stack } from '@/src/components/atoms/Stack';

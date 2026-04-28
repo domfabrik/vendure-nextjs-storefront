@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
-import { AnimatePresence, motion } from 'framer-motion';
 import { CreditCard } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'next-i18next';
 import React, { forwardRef, InputHTMLAttributes, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';

@@ -5,7 +5,7 @@ import { ItemProps, ItemRef } from '../types';
 export const GalleryItem = ({ set, remove, open, ...rest }: ItemProps) => {
   if (!set || !remove || !open) return null;
 
-  const ref = useRef<HTMLElement>() as ItemRef;
+  const ref = useRef<HTMLElement>(null) as ItemRef;
   const onClick = useCallback(() => open(ref), [ref]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import React, { forwardRef, SelectHTMLAttributes } from 'react';
 import { FieldError } from 'react-hook-form';
 import { Stack } from '@/src/components/atoms/Stack';

@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Info, MoveLeft } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Trans, useTranslation } from 'next-i18next';
 import { useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';

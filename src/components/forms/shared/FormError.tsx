@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Stack } from '@/src/components/atoms/Stack';
 
 export const FormErrorWrapper = styled(Stack)`

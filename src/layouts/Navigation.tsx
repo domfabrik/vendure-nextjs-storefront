@@ -9,8 +9,8 @@ import { useCart } from '@/src/state/cart';
 // import { Cart } from '@/src/layouts/Cart';
 // import { LanguageSwitcher } from '@/src/components';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { SearchIcon } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useRef } from 'react';
 import { IconButton } from '@/src/components/molecules/Button';

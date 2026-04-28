@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ShoppingCartIcon, Trash2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'next-i18next';
 import { useMemo, useState } from 'react';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';

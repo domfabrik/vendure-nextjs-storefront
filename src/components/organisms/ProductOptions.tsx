@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { Stack, TP } from '@/src/components/atoms';
 import { ProductOptionsGroup } from '@/src/state/product/types';
 

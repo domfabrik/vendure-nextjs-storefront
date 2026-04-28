@@ -1,4 +1,4 @@
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 import { Stack } from '@/src/components/atoms/Stack';

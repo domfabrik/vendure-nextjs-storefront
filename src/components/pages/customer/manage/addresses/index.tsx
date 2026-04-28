@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { InferGetServerSidePropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import { useRef } from 'react';

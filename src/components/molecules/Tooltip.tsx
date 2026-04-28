@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
-import * as React from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { cloneElement, ReactElement } from 'react';
 import { Arrow, Placement, useHover, useLayer } from 'react-laag';
 import { TP } from '@/src/components/atoms';
 
-export const Tooltip = ({ children, text, position, offset }: { text: string; children: JSX.Element; position?: Placement; offset?: number }) => {
+export const Tooltip = ({ children, text, position, offset }: { text: string; children: ReactElement; position?: Placement; offset?: number }) => {
   const [isOver, hoverProps] = useHover({ delayEnter: 100, delayLeave: 300 });
 
   const { triggerProps, layerProps, arrowProps, renderLayer } = useLayer({
@@ -17,7 +17,7 @@ export const Tooltip = ({ children, text, position, offset }: { text: string; ch
 
   return (
     <>
-      {React.cloneElement(children, {
+      {cloneElement(children, {
         ...triggerProps,
         ...hoverProps,
       })}
@@ -57,5 +57,5 @@ const StyledTooltip = styled(motion.div)`
     padding: 0.4rem 0.8rem;
     border-radius: 0.4rem;
     background-color: ${({ theme }) => theme.gray(0)};
-    box-shadow: 0px 4px 16px ${({ theme }) => theme.shadow};
+    box-shadow: 0 4px 16px ${({ theme }) => theme.shadow};
 `;

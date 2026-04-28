@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'next-i18next';
 import { useRef, useState } from 'react';
 import { Stack, TP } from '@/src/components/atoms';

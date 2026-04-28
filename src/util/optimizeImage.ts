@@ -9,7 +9,7 @@ type CustomImageSize = {
 
 type OptimizeImage = {
   size: ImageSize | CustomImageSize;
-  src?: string;
+  src?: string | Blob;
 };
 
 export const optimizeImage = ({ size, src }: OptimizeImage) => {

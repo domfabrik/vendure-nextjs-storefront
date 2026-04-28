@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Eye } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { forwardRef, InputHTMLAttributes, useState } from 'react';
 import { FieldError } from 'react-hook-form';
 import { Stack } from '@/src/components/atoms/Stack';

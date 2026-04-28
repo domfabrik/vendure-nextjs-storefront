@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ReactNode } from 'react';
 import { ArrowLeft, ArrowRight } from '@/src/assets/svg';
 import { Stack } from '@/src/components/atoms';

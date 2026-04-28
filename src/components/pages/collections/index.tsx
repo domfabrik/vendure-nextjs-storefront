@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { InferGetStaticPropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import { ContentContainer, MainGrid, Stack, TH1, TP } from '@/src/components/atoms';

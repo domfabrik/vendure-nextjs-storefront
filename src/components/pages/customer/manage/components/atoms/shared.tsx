@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Button } from '@/src/components/molecules/Button';
 
 export const MotionCustomerWrap = styled(motion.div)`

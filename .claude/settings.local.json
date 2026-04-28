@@ -1,5 +1,15 @@
 {
   "permissions": {
-    "allow": ["Bash(npm run:*)", "Bash(yarn lint:*)", "Bash(npx biome:*)", "Bash(npm install:*)"]
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(yarn lint:*)",
+      "Bash(npx biome:*)",
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(npm view:*)",
+      "WebSearch",
+      "Bash(grep:*)",
+      "Bash(npm uninstall:*)"
+    ]
   }
 }

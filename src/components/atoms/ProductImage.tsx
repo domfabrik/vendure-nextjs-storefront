@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
-import { forwardRef, ImgHTMLAttributes } from 'react';
+import { ForwardedRef, forwardRef, ImgHTMLAttributes } from 'react';
 import { optimizeImage } from '@/src/util/optimizeImage';
 
 type ImageType = ImgHTMLAttributes<HTMLImageElement> & {
   size: 'thumbnail' | 'tile' | 'popup' | 'detail' | 'full' | 'thumbnail-big';
 };
 
-export const ProductImage = forwardRef((props: ImageType, ref: React.ForwardedRef<HTMLImageElement>) => {
+export const ProductImage = forwardRef((props: ImageType, ref: ForwardedRef<HTMLImageElement>) => {
   const { size, src, ...rest } = props;
   const better_src = optimizeImage({ size, src });
   return (
@@ -19,7 +19,7 @@ export const ProductImage = forwardRef((props: ImageType, ref: React.ForwardedRe
   );
 });
 
-export const ProductImageGrid = forwardRef((props: ImgHTMLAttributes<HTMLImageElement>, ref: React.ForwardedRef<HTMLImageElement>) => {
+export const ProductImageGrid = forwardRef((props: ImgHTMLAttributes<HTMLImageElement>, ref: ForwardedRef<HTMLImageElement>) => {
   const { src, ...rest } = props;
   const better_src = optimizeImage({ size: 'popup', src });
   return (
