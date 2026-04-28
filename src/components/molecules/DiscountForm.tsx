@@ -1,79 +1,87 @@
-import React, { useState } from 'react';
-import { TagIcon } from 'lucide-react';
 import styled from '@emotion/styled';
+import { TagIcon } from 'lucide-react';
+
+import { useState } from 'react';
 import { z } from 'zod';
-import { useTranslation } from 'next-i18next';
-import { FormError } from '@/src/components/forms';
 import { Stack } from '@/src/components/atoms';
+import { FormError } from '@/src/components/forms';
 
 export const DiscountForm = ({ applyCouponCode }: { applyCouponCode: (code: string) => Promise<boolean> }) => {
-    const { t } = useTranslation('common');
-    const [code, setCode] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>();
-    const schema = z.object({ code: z.string().min(1, t('discounts-errors.enter-code')) });
-    const submitCode = async () => {
-        if (!code || loading) return;
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>();
+  const schema = z.object({ code: z.string().min(1, 'Введите код') });
+  const submitCode = async () => {
+    if (!code || loading) return;
+    setError(undefined);
+    setLoading(true);
+    try {
+      const parsed = schema.safeParse({ code });
+      if (!parsed.success) {
+        setError(parsed.error.issues[0].message);
+        setLoading(false);
+        return;
+      }
+    } catch (_e) {
+      setCode('');
+      setError('Что-то пошло не так');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const success = await applyCouponCode(code);
+      if (success) {
+        setCode('');
         setError(undefined);
-        setLoading(true);
-        try {
-            const parsed = schema.safeParse({ code });
-            if (!parsed.success) {
-                setError(parsed.error.issues[0].message);
-                setLoading(false);
-                return;
-            }
-        } catch (e) {
-            setCode('');
-            setError(t('discounts-errors.something-went-wrong'));
-            setLoading(false);
-            return;
-        }
+        setLoading(false);
+      } else {
+        setError('Купон с таким кодом не найден');
+        setLoading(false);
+      }
+    } catch (_e) {
+      setCode('');
+      setError('Что-то пошло не так');
+      setLoading(false);
+    }
+  };
 
-        try {
-            const success = await applyCouponCode(code);
-            if (success) {
-                setCode('');
-                setError(undefined);
-                setLoading(false);
-            } else {
-                setError(t('discounts-errors.coupon-code-invalid'));
-                setLoading(false);
+  return (
+    <Stack
+      w100
+      column
+      gap="0.25rem"
+    >
+      <FakeForm>
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              submitCode();
             }
-        } catch (e) {
-            setCode('');
-            setError(t('discounts-errors.something-went-wrong'));
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Stack w100 column gap="0.25rem">
-            <FakeForm>
-                <Input
-                    value={code}
-                    onChange={e => setCode(e.target.value)}
-                    onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            submitCode();
-                        }
-                    }}
-                    placeholder={t('coupon-code')}
-                />
-                <Button type="button" disabled={loading} onClick={submitCode}>
-                    <TagIcon size={24} />
-                </Button>
-            </FakeForm>
-            <FormError
-                style={{ margin: 0 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: error ? 1 : 0 }}
-                transition={{ duration: 0.2 }}>
-                {error}
-            </FormError>
-        </Stack>
-    );
+          }}
+          placeholder={'Код:'}
+        />
+        <Button
+          type="button"
+          disabled={loading}
+          onClick={submitCode}
+        >
+          <TagIcon size={24} />
+        </Button>
+      </FakeForm>
+      <FormError
+        style={{ margin: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: error ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        {error}
+      </FormError>
+    </Stack>
+  );
 };
 
 const Button = styled.button`
@@ -109,5 +117,5 @@ const FakeForm = styled(Stack)`
     gap: 1.6rem;
 
     border-radius: 2px;
-    border: 1px solid ${p => p.theme.gray(100)};
+    border: 1px solid ${(p) => p.theme.gray(100)};
 `;

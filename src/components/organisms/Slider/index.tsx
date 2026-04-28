@@ -1,58 +1,80 @@
-import React, { ReactNode } from 'react';
-import { useSlider } from './hooks';
 import styled from '@emotion/styled';
-import { Stack } from '@/src/components/atoms';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
+import { ReactNode } from 'react';
 import { ArrowLeft, ArrowRight } from '@/src/assets/svg';
+import { Stack } from '@/src/components/atoms';
+import { useSlider } from './hooks';
 
 interface SliderProps {
-    withDots?: boolean;
-    withArrows?: number;
-    spacing?: number;
-    slides: ReactNode[];
+  withDots?: boolean;
+  withArrows?: number;
+  spacing?: number;
+  slides: ReactNode[];
 }
 
-export const Slider: React.FC<SliderProps> = ({ slides, withArrows, withDots, spacing = 0 }) => {
-    if (!slides?.length) return null;
-    const { jsEnabled, ref, nextSlide, prevSlide, goToSlide, currentSlide } = useSlider({
-        spacing,
-        loop: withArrows ? slides?.length > withArrows : true,
-    });
+export const Slider = ({ slides, withArrows, withDots, spacing = 0 }: SliderProps) => {
+  if (!slides?.length) return null;
+  const { jsEnabled, ref, nextSlide, prevSlide, goToSlide, currentSlide } = useSlider({
+    spacing,
+    loop: withArrows ? slides?.length > withArrows : true,
+  });
 
-    return (
-        <Wrapper column>
-            <Content>
-                {jsEnabled && withArrows && slides?.length > withArrows && (
-                    <Button whileTap={{ scale: 0.95 }} left={1} onClick={prevSlide}>
-                        <ArrowLeft />
-                    </Button>
-                )}
-                {jsEnabled ? (
-                    <StyledSlider className="keen-slider" ref={ref}>
-                        {slides.map((slide, idx) => (
-                            <StyledSlide column key={idx} className="keen-slider__slide">
-                                {slide}
-                            </StyledSlide>
-                        ))}
-                    </StyledSlider>
-                ) : (
-                    <StyledNoJSSlider gap={`${spacing / 10}rem`}>{slides}</StyledNoJSSlider>
-                )}
-                {jsEnabled && withArrows && slides?.length > withArrows && (
-                    <Button whileTap={{ scale: 0.95 }} onClick={nextSlide}>
-                        <ArrowRight />
-                    </Button>
-                )}
-            </Content>
-            {jsEnabled && slides?.length > 1 && withDots && (
-                <DotsWrapper justifyCenter itemsCenter gap="1rem">
-                    {slides.map((_, i) => (
-                        <Dot key={i} active={i === currentSlide} onClick={() => goToSlide(i)} />
-                    ))}
-                </DotsWrapper>
-            )}
-        </Wrapper>
-    );
+  return (
+    <Wrapper column>
+      <Content>
+        {jsEnabled && withArrows && slides?.length > withArrows && (
+          <Button
+            whileTap={{ scale: 0.95 }}
+            left={1}
+            onClick={prevSlide}
+          >
+            <ArrowLeft />
+          </Button>
+        )}
+        {jsEnabled ? (
+          <StyledSlider
+            className="keen-slider"
+            ref={ref}
+          >
+            {slides.map((slide, idx) => (
+              <StyledSlide
+                column
+                key={idx}
+                className="keen-slider__slide"
+              >
+                {slide}
+              </StyledSlide>
+            ))}
+          </StyledSlider>
+        ) : (
+          <StyledNoJSSlider gap={`${spacing / 10}rem`}>{slides}</StyledNoJSSlider>
+        )}
+        {jsEnabled && withArrows && slides?.length > withArrows && (
+          <Button
+            whileTap={{ scale: 0.95 }}
+            onClick={nextSlide}
+          >
+            <ArrowRight />
+          </Button>
+        )}
+      </Content>
+      {jsEnabled && slides?.length > 1 && withDots && (
+        <DotsWrapper
+          justifyCenter
+          itemsCenter
+          gap="1rem"
+        >
+          {slides.map((_, i) => (
+            <Dot
+              key={i}
+              active={i === currentSlide}
+              onClick={() => goToSlide(i)}
+            />
+          ))}
+        </DotsWrapper>
+      )}
+    </Wrapper>
+  );
 };
 
 const DotsWrapper = styled(Stack)`
@@ -79,7 +101,7 @@ const Button = styled(motion.button)<{ left?: number }>`
     appearance: none;
     border: none;
     background: ${({ theme }) => theme.background.third};
-    border-radius: ${p => p.theme.borderRadius};
+    border-radius: ${(p) => p.theme.borderRadius};
 
     display: flex;
     align-items: center;

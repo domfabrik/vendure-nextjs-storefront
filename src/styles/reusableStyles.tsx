@@ -26,16 +26,16 @@ export const HoverMenu = styled.div<{ customerMenu?: boolean; langSwitcher?: boo
     }
 
     ${({ customerMenu }) =>
-        customerMenu &&
-        `
+      customerMenu &&
+      `
         padding: 16px;
         right: 0;
         transform: none;
     `}
 
     ${({ langSwitcher }) =>
-        langSwitcher &&
-        `
+      langSwitcher &&
+      `
       left: 50%;
       top: 2.2rem;
       transform: translate(-50%, 15px);

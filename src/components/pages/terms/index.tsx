@@ -1,25 +1,27 @@
 import styled from '@emotion/styled';
 import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import { useTranslation } from 'next-i18next';
-import { Layout } from '@/src/layouts';
+
 import type { getServerSideProps } from '@/src/components/pages/home/props';
+import { Layout } from '@/src/layouts';
 import { termsContent } from './terms';
 
-export const Terms: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
-    const { t } = useTranslation('homepage');
-    return (
-        <Layout navigation={props.navigation} categories={props.categories} pageTitle={t('seo.home')}>
-            <HtmlContentTerms dangerouslySetInnerHTML={{ __html: termsContent }} />
-        </Layout>
-    );
+export const Terms = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  return (
+    <Layout
+      navigation={props.navigation}
+      categories={props.categories}
+      pageTitle={'Главная'}
+    >
+      <HtmlContentTerms dangerouslySetInnerHTML={{ __html: termsContent }} />
+    </Layout>
+  );
 };
 
 const HtmlContentTerms = styled.section`
     word-wrap: break-word;
     overflow-wrap: break-word;
     margin: auto;
-    padding: 6rem 0rem;
+    padding: 6rem 0;
     max-width: 1280px;
     h1 {
         font-size: 4rem;
@@ -31,14 +33,14 @@ const HtmlContentTerms = styled.section`
         font-weight: 600;
         line-height: 120%;
         color: #000;
-        margin: 4rem 0rem;
+        margin: 4rem 0;
     }
     p,
     span,
     a {
         font-size: 2rem;
         line-height: 150%;
-        margin: 1.4rem 0rem;
+        margin: 1.4rem 0;
         color: #000;
     }
     a:hover {
@@ -58,7 +60,7 @@ const HtmlContentTerms = styled.section`
         line-height: 150%;
         color: #000;
         list-style: inside;
-        margin: 0.4rem 0rem;
+        margin: 0.4rem 0;
     }
     ul {
         margin-bottom: 2.4rem;

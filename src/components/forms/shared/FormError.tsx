@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Stack } from '@/src/components/atoms/Stack';
 
 export const FormErrorWrapper = styled(Stack)`
@@ -7,14 +7,14 @@ export const FormErrorWrapper = styled(Stack)`
 `;
 
 export const FormRequired = styled.span`
-    color: ${p => p.theme.error};
+    color: ${(p) => p.theme.error};
     font-size: 1.2rem;
     font-weight: 500;
     margin: 0.4rem 0 0.8rem 0;
 `;
 
 export const FormError = styled(motion.span)`
-    color: ${p => p.theme.error};
+    color: ${(p) => p.theme.error};
     font-size: 1.2rem;
     font-weight: 500;
     margin: 0.4rem 0 0.8rem 0;

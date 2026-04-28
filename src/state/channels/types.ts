@@ -1,4 +1,4 @@
 export type ChannelsContainerType = {
-    locale: string;
-    channel: string;
+  locale: string;
+  channel: string;
 };

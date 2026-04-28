@@ -1,19 +1,24 @@
-import { TH2, Stack } from '@/src/components/atoms';
 import styled from '@emotion/styled';
-import React from 'react';
+
+import { Stack, TH2 } from '@/src/components/atoms';
 import { CollectionTileType } from '@/src/graphql/selectors';
 
 interface MainBarProps {
-    title: string;
-    categories: CollectionTileType[];
+  title: string;
+  categories: CollectionTileType[];
 }
 
-export const MainBar: React.FC<MainBarProps> = ({ title }) => {
-    return (
-        <Main w100 itemsCenter justifyBetween gap="2rem">
-            <Title>{title}</Title>
-        </Main>
-    );
+export const MainBar = ({ title }: MainBarProps) => {
+  return (
+    <Main
+      w100
+      itemsCenter
+      justifyBetween
+      gap="2rem"
+    >
+      <Title>{title}</Title>
+    </Main>
+  );
 };
 
 const Title = styled(TH2)`
@@ -21,7 +26,7 @@ const Title = styled(TH2)`
 `;
 
 const Main = styled(Stack)`
-    @media (max-width: ${p => p.theme.breakpoints.md}) {
+    @media (max-width: ${(p) => p.theme.breakpoints.md}) {
         flex-direction: column;
         align-items: flex-start;
     }

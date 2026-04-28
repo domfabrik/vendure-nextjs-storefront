@@ -1,32 +1,31 @@
-import React, { useEffect } from 'react';
-import { InferGetServerSidePropsType } from 'next';
-import { OrderSummary } from '../components/OrderSummary';
-import { OrderPayment } from '../components/OrderPayment';
-import { CheckoutLayout } from '@/src/layouts';
-import { useTranslation } from 'next-i18next';
-import { getServerSideProps } from './props';
 import styled from '@emotion/styled';
+import { InferGetServerSidePropsType } from 'next';
+
+import { useEffect } from 'react';
 import { ContentContainer, Stack } from '@/src/components/atoms';
+import { CheckoutLayout } from '@/src/layouts';
+import { OrderPayment } from '../components/OrderPayment';
+import { OrderSummary } from '../components/OrderSummary';
+import { getServerSideProps } from './props';
 
-export const PaymentPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
-    const { t } = useTranslation('checkout');
-    useEffect(() => {
-        window.onpopstate = () => window.history.forward();
-    }, []);
+export const PaymentPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  useEffect(() => {
+    window.onpopstate = () => window.history.forward();
+  }, []);
 
-    return (
-        <CheckoutLayout pageTitle={`${t('seoTitles.payment')}`}>
-            <Content>
-                <Wrapper justifyBetween>
-                    <OrderPayment
-                        availablePaymentMethods={props.eligiblePaymentMethods}
-                        stripeData={props.stripeData}
-                    />
-                    <OrderSummary />
-                </Wrapper>
-            </Content>
-        </CheckoutLayout>
-    );
+  return (
+    <CheckoutLayout pageTitle={`${'Оплата'}`}>
+      <Content>
+        <Wrapper justifyBetween>
+          <OrderPayment
+            availablePaymentMethods={props.eligiblePaymentMethods}
+            stripeData={props.stripeData}
+          />
+          <OrderSummary />
+        </Wrapper>
+      </Content>
+    </CheckoutLayout>
+  );
 };
 
 const Wrapper = styled(Stack)`

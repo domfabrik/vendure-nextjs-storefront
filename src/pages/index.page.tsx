@@ -1,10 +1,10 @@
-import Page, { getServerSideProps } from '@/src/pages/[channel]/index.page';
-import { Redirect } from '@/src/lib/redirect';
-import React from 'react';
 import type { InferGetServerSidePropsType } from 'next';
 
+import { Redirect } from '@/src/lib/redirect';
+import Page, { getServerSideProps } from '@/src/pages/[channel]/index.page';
+
 export default (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-    return Redirect({ children: <Page {...props} /> })();
+  return Redirect({ children: <Page {...props} /> })();
 };
 
 export { getServerSideProps };

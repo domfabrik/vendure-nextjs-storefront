@@ -1,66 +1,83 @@
-import { InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import { useTranslation } from 'next-i18next';
-import { Layout } from '@/src/layouts';
-import type { getServerSideProps } from '@/src/components/pages/home/props';
 import styled from '@emotion/styled';
+import { InferGetServerSidePropsType } from 'next';
+
+import type { getServerSideProps } from '@/src/components/pages/home/props';
+import { Layout } from '@/src/layouts';
 import aboutJson from './About.json';
 
 const faces: Array<{
-    photo: string;
-    name: string;
-    description: string;
-    position: string;
-    ln: string;
+  photo: string;
+  name: string;
+  description: string;
+  position: string;
+  ln: string;
 }> = aboutJson.faces;
 
-export const About: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
-    const { t } = useTranslation('homepage');
-    return (
-        <Layout navigation={props.navigation} categories={props.categories} pageTitle={t('seo.home')}>
-            <Container>
-                <h1>{aboutJson.title}</h1>
-                <h4>{aboutJson.description}</h4>
-                <Faces>
-                    {faces.map(f => (
-                        <Face key={f.name}>
-                            <FaceImage src={`/images/${f.photo}`} />
-                            <FaceText>
-                                <FaceName>{f.name}</FaceName>
-                                <FacePosition>{f.position}</FacePosition>
-                            </FaceText>
-                            <FaceDescription>{f.description}</FaceDescription>
-                            <CoolButtonA target="_blank" href={f.ln}>
-                                Connect
-                            </CoolButtonA>
-                        </Face>
-                    ))}
-                </Faces>
-                <TitleCard data-aos="fade-up">
-                    <h3>{aboutJson.TitleCard2.title}</h3>
-                    <p>{aboutJson.TitleCard2.text}</p>
-                </TitleCard>
-                <OpensourceContainer>
-                    {aboutJson.Opensource.map((item, i) => (
-                        <OpensourceItem key={item.name} data-aos="flip-right">
-                            <OpensourceItemContentWrapper href={item.href} target="_blank">
-                                <OpensourceItemContent>
-                                    <h5>{item.name}</h5>
-                                    <p>{aboutJson.Opensource[i].content}</p>
-                                </OpensourceItemContent>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fillRule="evenodd" clipRule="evenodd">
-                                    <path
-                                        style={{ fill: 'GrayText' }}
-                                        d="M14 4h-13v18h20v-11h1v12h-22v-20h14v1zm10 5h-1v-6.293l-11.646 11.647-.708-.708 11.647-11.646h-6.293v-1h8v8z"
-                                    />
-                                </svg>
-                            </OpensourceItemContentWrapper>
-                        </OpensourceItem>
-                    ))}
-                </OpensourceContainer>
-            </Container>
-        </Layout>
-    );
+export const About = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  return (
+    <Layout
+      navigation={props.navigation}
+      categories={props.categories}
+      pageTitle={'Главная'}
+    >
+      <Container>
+        <h1>{aboutJson.title}</h1>
+        <h4>{aboutJson.description}</h4>
+        <Faces>
+          {faces.map((f) => (
+            <Face key={f.name}>
+              <FaceImage src={`/images/${f.photo}`} />
+              <FaceText>
+                <FaceName>{f.name}</FaceName>
+                <FacePosition>{f.position}</FacePosition>
+              </FaceText>
+              <FaceDescription>{f.description}</FaceDescription>
+              <CoolButtonA
+                target="_blank"
+                href={f.ln}
+              >
+                Connect
+              </CoolButtonA>
+            </Face>
+          ))}
+        </Faces>
+        <TitleCard data-aos="fade-up">
+          <h3>{aboutJson.TitleCard2.title}</h3>
+          <p>{aboutJson.TitleCard2.text}</p>
+        </TitleCard>
+        <OpensourceContainer>
+          {aboutJson.Opensource.map((item, i) => (
+            <OpensourceItem
+              key={item.name}
+              data-aos="flip-right"
+            >
+              <OpensourceItemContentWrapper
+                href={item.href}
+                target="_blank"
+              >
+                <OpensourceItemContent>
+                  <h5>{item.name}</h5>
+                  <p>{aboutJson.Opensource[i].content}</p>
+                </OpensourceItemContent>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                >
+                  <path
+                    style={{ fill: 'GrayText' }}
+                    d="M14 4h-13v18h20v-11h1v12h-22v-20h14v1zm10 5h-1v-6.293l-11.646 11.647-.708-.708 11.647-11.646h-6.293v-1h8v8z"
+                  />
+                </svg>
+              </OpensourceItemContentWrapper>
+            </OpensourceItem>
+          ))}
+        </OpensourceContainer>
+      </Container>
+    </Layout>
+  );
 };
 const OpensourceContainer = styled.div`
     display: grid;
@@ -125,7 +142,7 @@ const CoolButtonA = styled.a`
     border: 1px solid;
     outline: 0;
     padding: 0.5rem 2rem;
-    box-shadow: blue 4px 4px 0px;
+    box-shadow: blue 4px 4px 0;
     :hover {
         color: #eee;
         background-color: #333;
@@ -183,7 +200,7 @@ const Face = styled.div`
     align-items: center;
     gap: 2rem;
     border-radius: 4px;
-    box-shadow: blue 4px 4px 0px;
+    box-shadow: blue 4px 4px 0;
 `;
 const FaceText = styled.div`
     display: flex;

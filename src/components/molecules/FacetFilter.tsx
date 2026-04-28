@@ -1,47 +1,53 @@
-import { Stack, TFacetHeading } from '@/src/components/atoms';
-import { FiltersFacetType } from '@/src/graphql/selectors';
 import styled from '@emotion/styled';
-import { CheckBox } from '@/src/components/forms';
-import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { Stack, TFacetHeading } from '@/src/components/atoms';
+import { CheckBox } from '@/src/components/forms';
+import { FiltersFacetType } from '@/src/graphql/selectors';
 
 interface FacetProps {
-    facet: FiltersFacetType;
-    selected?: string[];
-    onClick: (group: { id: string; name: string }, facet: { id: string; name: string }) => void;
+  facet: FiltersFacetType;
+  selected?: string[];
+  onClick: (group: { id: string; name: string }, facet: { id: string; name: string }) => void;
 }
 
-export const FacetFilterCheckbox: React.FC<FacetProps> = ({ facet: { id, name, values }, onClick, selected }) => {
-    const [open, setOpen] = useState<boolean>(true);
-    return (
-        <GridWrapper w100 column>
-            <GridTitle onClick={() => setOpen(!open)}>
-                <TFacetHeading capitalize size="1.5rem">
-                    {name}
-                </TFacetHeading>
-                <IconWrapper>
-                    <ChevronDown />
-                </IconWrapper>
-            </GridTitle>
-            <Grid open={open}>
-                <GridEntry>
-                    <CheckGrid>
-                        {values.map(v => {
-                            const isSelected = selected?.includes(v.id);
-                            return (
-                                <CheckBox
-                                    key={v.id}
-                                    label={`${v.name} (${v.count})`}
-                                    checked={isSelected}
-                                    onChange={() => onClick({ id, name }, v)}
-                                />
-                            );
-                        })}
-                    </CheckGrid>
-                </GridEntry>
-            </Grid>
-        </GridWrapper>
-    );
+export const FacetFilterCheckbox = ({ facet: { id, name, values }, onClick, selected }: FacetProps) => {
+  const [open, setOpen] = useState<boolean>(true);
+  return (
+    <GridWrapper
+      w100
+      column
+    >
+      <GridTitle onClick={() => setOpen(!open)}>
+        <TFacetHeading
+          capitalize
+          size="1.5rem"
+        >
+          {name}
+        </TFacetHeading>
+        <IconWrapper>
+          <ChevronDown />
+        </IconWrapper>
+      </GridTitle>
+      <Grid open={open}>
+        <GridEntry>
+          <CheckGrid>
+            {values.map((v) => {
+              const isSelected = selected?.includes(v.id);
+              return (
+                <CheckBox
+                  key={v.id}
+                  label={`${v.name} (${v.count})`}
+                  checked={isSelected}
+                  onChange={() => onClick({ id, name }, v)}
+                />
+              );
+            })}
+          </CheckGrid>
+        </GridEntry>
+      </Grid>
+    </GridWrapper>
+  );
 };
 
 const GridWrapper = styled(Stack)`
@@ -55,7 +61,7 @@ const Grid = styled.div<{ open: boolean }>`
     display: grid;
     grid-template-rows: ${({ open }) => (open ? '1fr' : '0fr')};
     transition: grid-template-rows 0.3s ease-in-out;
-    border-bottom: 1px solid ${p => p.theme.gray(100)};
+    border-bottom: 1px solid ${(p) => p.theme.gray(100)};
 `;
 
 const GridTitle = styled.button`

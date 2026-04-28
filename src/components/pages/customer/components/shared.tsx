@@ -1,5 +1,5 @@
-import { Stack } from '@/src/components/atoms/Stack';
 import styled from '@emotion/styled';
+import { Stack } from '@/src/components/atoms/Stack';
 
 export const FormContainer = styled(Stack)`
     width: 100%;

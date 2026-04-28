@@ -1,24 +1,24 @@
-import { Stack } from '@/src/components/atoms';
-import { IconButton } from '@/src/components/molecules/Button';
 import styled from '@emotion/styled';
 import { Minus, Plus } from 'lucide-react';
+import { Stack } from '@/src/components/atoms';
+import { IconButton } from '@/src/components/molecules/Button';
 
 export const QuantityCounter = ({ onChange, v }: { onChange: (v: number) => void; v: number }) => {
-    return (
-        <Main itemsCenter>
-            <IconButtonStatic onClick={() => onChange(v - 1)}>
-                <MinWidth>
-                    <Minus size={'2.5rem'} />
-                </MinWidth>
-            </IconButtonStatic>
-            <span>{v}</span>
-            <IconButtonStatic onClick={() => onChange(v + 1)}>
-                <MinWidth>
-                    <Plus size={'2.5rem'} />
-                </MinWidth>
-            </IconButtonStatic>
-        </Main>
-    );
+  return (
+    <Main itemsCenter>
+      <IconButtonStatic onClick={() => onChange(v - 1)}>
+        <MinWidth>
+          <Minus size={'2.5rem'} />
+        </MinWidth>
+      </IconButtonStatic>
+      <span>{v}</span>
+      <IconButtonStatic onClick={() => onChange(v + 1)}>
+        <MinWidth>
+          <Plus size={'2.5rem'} />
+        </MinWidth>
+      </IconButtonStatic>
+    </Main>
+  );
 };
 
 const MinWidth = styled.div`
@@ -32,8 +32,8 @@ const IconButtonStatic = styled(IconButton)`
 `;
 
 const Main = styled(Stack)`
-    border: 1px solid ${p => p.theme.gray(100)};
-    color: ${p => p.theme.gray(900)};
+    border: 1px solid ${(p) => p.theme.gray(100)};
+    color: ${(p) => p.theme.gray(900)};
     align-self: flex-start;
     width: auto;
     font-size: 2rem;
