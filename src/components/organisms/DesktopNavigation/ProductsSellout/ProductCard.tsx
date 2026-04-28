@@ -1,12 +1,9 @@
-import { useTranslation } from 'next-i18next';
-
 import { Link, Price, ProductImage, Stack, TP } from '@/src/components/atoms';
 import { Button } from '@/src/components/molecules/Button';
 import { CollectionTileProductVariantType } from '@/src/graphql/selectors';
 import { useCart } from '@/src/state/cart';
 
 export const ProductCard = ({ variant }: { variant: CollectionTileProductVariantType }) => {
-  const { t } = useTranslation('common');
   const { addToCart } = useCart();
   const optionInName = variant.name.replace(variant.product.name, '') !== '';
   const asset = variant.featuredAsset?.preview ? variant.featuredAsset.preview : variant.product.featuredAsset?.preview;
@@ -68,7 +65,7 @@ export const ProductCard = ({ variant }: { variant: CollectionTileProductVariant
           addToCart(variant.id, 1, true);
         }}
       >
-        {t('add-to-cart')}
+        {'В корзину'}
       </Button>
     </Stack>
   );

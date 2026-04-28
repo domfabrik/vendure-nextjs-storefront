@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { Trash2 } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Price } from '@/src/components/atoms/Price';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -17,7 +16,6 @@ interface Props {
 }
 
 export const CartBody = ({ currencyCode, activeOrder }: Props) => {
-  const { t } = useTranslation('common');
   const { setItemQuantityInCart, removeFromCart } = useCart();
   return (
     <CartList
@@ -71,7 +69,7 @@ export const CartBody = ({ currencyCode, activeOrder }: Props) => {
                       size="1rem"
                       upperCase
                     >
-                      {t('remove')}
+                      {'Удалить'}
                     </TP>
                   </Remove>
                 </Stack>
@@ -91,7 +89,7 @@ export const CartBody = ({ currencyCode, activeOrder }: Props) => {
           justifyCenter
           style={{ height: '100%' }}
         >
-          <TP>{t('cart-empty')}</TP>
+          <TP>{'Ваша корзина пуста'}</TP>
         </Stack>
       )}
     </CartList>

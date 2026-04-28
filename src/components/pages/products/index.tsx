@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Check, X } from 'lucide-react';
 import { InferGetStaticPropsType } from 'next';
-import { Trans, useTranslation } from 'next-i18next';
+
 import { useEffect, useState } from 'react';
 import { ContentContainer, Link, Price, Stack, TH1, TP } from '@/src/components/atoms';
 import { Breadcrumbs } from '@/src/components/molecules';
@@ -20,13 +20,11 @@ import { useChannels } from '@/src/state/channels';
 import { useProduct } from '@/src/state/product';
 
 export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { t } = useTranslation('products');
-  const { t: breadcrumb } = useTranslation('common');
   const ctx = useChannels();
   const { product, variant, addingError, productOptionsGroups, handleOptionClick, handleBuyNow, handleAddToCart } = useProduct();
 
   const breadcrumbs = [
-    { name: breadcrumb('breadcrumbs.home'), href: '/' },
+    { name: 'Главная', href: '/' },
     { name: props.product.name, href: `/products/${props.product.slug}` },
   ];
 
@@ -136,12 +134,7 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
                     size="1.5rem"
                     weight={500}
                   >
-                    <Trans
-                      i18nKey="stock-levels.low-stock"
-                      t={t}
-                      values={{ value: variant?.stockLevel }}
-                      components={{ 1: <span></span> }}
-                    />
+                    Торопитесь, осталось всего {variant?.stockLevel} шт.! 🔥
                   </MakeItQuick>
                 )}
                 <StockInfo
@@ -151,7 +144,7 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
                   gap="0.25rem"
                 >
                   {!variant ? null : Number(variant.stockLevel) > 0 ? <Check size="1.75rem" /> : <X />}
-                  <TP>{!variant ? null : Number(variant.stockLevel) > 0 ? t('stock-levels.in-stock') : t('stock-levels.out-of-stock')}</TP>
+                  <TP>{!variant ? null : Number(variant.stockLevel) > 0 ? 'В наличии' : 'Нет в наличии'}</TP>
                 </StockInfo>
               </Stack>
               {!variant ? null : Number(variant.stockLevel) <= 0 ? (
@@ -167,13 +160,13 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
                     style={{ textTransform: 'uppercase', padding: '1.5rem' }}
                     onClick={handleAddToCart}
                   >
-                    {t('add-to-cart')}
+                    {'В корзину'}
                   </FullWidthButton>
                   <FullWidthSecondaryButton
                     style={{ textTransform: 'uppercase', padding: '1.5rem' }}
                     onClick={handleBuyNow}
                   >
-                    {t('buy-now')}
+                    {'Купить сейчас'}
                   </FullWidthSecondaryButton>
                 </Stack>
               )}
@@ -181,14 +174,14 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
                 defaultOpenIndexes={[1]}
                 data={[
                   {
-                    title: t('details'),
+                    title: 'Характеристики',
                     children: (
                       <Stack
                         column
                         style={{ marginTop: '1.5rem' }}
                       >
                         <Stack>
-                          <TP color="subtitle">{t('sku')}</TP>
+                          <TP color="subtitle">{'Артикул'}</TP>
                           <TP color="subtitle">&nbsp;{variant?.sku}</TP>
                         </Stack>
                         {variant?.options.length ? (
@@ -204,7 +197,7 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
                     ),
                   },
                   {
-                    title: t('description'),
+                    title: 'Описание товара',
                     children: (
                       <TP
                         color="subtitle"
@@ -219,11 +212,11 @@ export const ProductPage = (props: InferGetStaticPropsType<typeof getStaticProps
             </StyledStack>
           </Main>
           <ProductPageProductsSlider
-            title={t('clients-also-bought')}
+            title={'Покупатели также приобрели'}
             products={props.clientsAlsoBought?.collection?.productVariants?.items ?? []}
           />
           <ProductPageProductsSlider
-            title={t('recently-viewed')}
+            title={'Недавно просмотренные'}
             products={recentlyProducts ?? []}
           />
         </Wrapper>

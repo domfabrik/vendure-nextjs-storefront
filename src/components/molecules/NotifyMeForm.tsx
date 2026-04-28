@@ -3,7 +3,6 @@
 import styled from '@emotion/styled';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,8 +10,7 @@ import { Stack } from '@/src/components/atoms';
 import { Button } from './Button';
 
 export const NotifyMeForm = () => {
-  const { t } = useTranslation('common');
-  const schema = z.object({ email: z.string().email(t('notifyMe.invalidEmail')) });
+  const schema = z.object({ email: z.string().email('Введите корректный email') });
   //get own mutation to add customer to notify list
   // const { myAddToNotifyList } = useCart();
   const {
@@ -30,10 +28,10 @@ export const NotifyMeForm = () => {
     //     if (data) {
     //          added to notify list
     //     } else {
-    //         setError('code', { message: t('notifyMe.backendError') });
+    //         setError('code', { message: "Не удалось подписаться, попробуйте позже" });
     //     }
     // } catch (error) {
-    //     setError('code', { message: t('commonError') });
+    //     setError('code', { message: "Что-то пошло не так" });
     // }
 
     reset();
@@ -48,9 +46,9 @@ export const NotifyMeForm = () => {
         <Stack style={{ height: '100%' }}>
           <Input
             {...register('email', { required: true })}
-            placeholder={t('notifyMe.placeholder')}
+            placeholder={'Уведомить меня'}
           />
-          <StyledButton type="submit">{t('send')}</StyledButton>
+          <StyledButton type="submit">{'Отправить'}</StyledButton>
         </Stack>
       </Form>
       <FormError

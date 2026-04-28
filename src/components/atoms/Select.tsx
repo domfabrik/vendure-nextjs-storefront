@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
+
 import { thv } from '@/src/theme';
 
 export function Select<T extends string | number>({
@@ -14,7 +14,6 @@ export function Select<T extends string | number>({
   value?: T;
   setValue: (v: T) => void;
 }) {
-  const { t } = useTranslation('common');
   return (
     <Main>
       <select
@@ -27,7 +26,7 @@ export function Select<T extends string | number>({
           value=""
           disabled
         >
-          {t('select-category')}
+          {'Выберите категорию'}
         </option>
         {options?.map((o) => (
           <option

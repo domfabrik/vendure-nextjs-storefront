@@ -1,5 +1,4 @@
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
 import { Link } from '@/src/components/atoms/Link';
@@ -11,14 +10,22 @@ import { Layout } from '@/src/layouts';
 import { Absolute, FormContainer, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
+const BACKEND_ERRORS: Record<string, string> = {
+  UNKNOWN_ERROR: 'Неизвестная ошибка',
+  VERIFICATION_TOKEN_INVALID_ERROR: 'Недействительный токен верификации',
+  VERIFICATION_TOKEN_EXPIRED_ERROR: 'Срок действия токена верификации истёк',
+  MISSING_PASSWORD_ERROR: 'Пароль не указан',
+  PASSWORD_VALIDATION_ERROR: 'Ошибка валидации пароля',
+  PASSWORD_ALREADY_SET_ERROR: 'Пароль уже установлен',
+  NATIVE_AUTH_STRATEGY_ERROR: 'Ошибка стратегии авторизации',
+};
+
 export const VerifyPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('customer');
-  const { t: tError } = useTranslation('common');
   return (
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={t('verify.title')}
+      pageTitle={'Подтверждение аккаунта'}
     >
       <ContentContainer>
         <FormContainer>
@@ -33,7 +40,7 @@ export const VerifyPage = (props: InferGetServerSidePropsType<typeof getServerSi
                   <Banner
                     initial={{ opacity: 1 }}
                     error={{
-                      message: tError(`errors.backend.${props.status.verifyCustomerAccount.errorCode}`),
+                      message: BACKEND_ERRORS[props.status.verifyCustomerAccount.errorCode] || 'Неизвестная ошибка',
                     }}
                   />
                 </Absolute>
@@ -43,8 +50,8 @@ export const VerifyPage = (props: InferGetServerSidePropsType<typeof getServerSi
                   column
                   gap="2rem"
                 >
-                  <TP>{t('verify.fail')}</TP>
-                  <Link href="/">{t('home')}</Link>
+                  <TP>{'Не удалось подтвердить аккаунт'}</TP>
+                  <Link href="/">{'Главная'}</Link>
                 </Stack>
               </>
             ) : (
@@ -54,8 +61,8 @@ export const VerifyPage = (props: InferGetServerSidePropsType<typeof getServerSi
                 column
                 gap="2rem"
               >
-                <TP>{t('verify.success')}</TP>
-                <Link href="/customer/sign-in">{t('signIn')}</Link>
+                <TP>{'Ваш аккаунт подтверждён'}</TP>
+                <Link href="/customer/sign-in">{'Войти'}</Link>
               </Stack>
             )}
           </FormWrapper>

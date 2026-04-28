@@ -1,13 +1,12 @@
 import styled from '@emotion/styled';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/router';
-import { Trans, useTranslation } from 'next-i18next';
+
 import { useEffect, useRef, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { LogoAexol } from '@/src/assets';
 import { Stack, TP } from '@/src/components';
 import { channels, DEFAULT_CHANNEL, DEFAULT_CHANNEL_SLUG, DEFAULT_LOCALE } from '@/src/lib/consts';
-import languageDetector from '@/src/lib/lngDetector';
 import { useChannels } from '@/src/state/channels';
 import { useOutsideClick } from '@/src/util/hooks/useOutsideClick';
 import { getFlagByCode } from '@/src/util/i18Helpers';
@@ -30,7 +29,6 @@ export const Picker = ({
   };
 }) => {
   const { channel, locale } = useChannels();
-  const { t } = useTranslation('common');
   const { query, push, pathname, asPath } = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,7 +53,6 @@ export const Picker = ({
     const channelAsLocale = channels.find((c) => c.slug === data.channel);
     const sameAsChannel = newLang === channelAsLocale?.slug;
 
-    languageDetector.cache?.(newLang);
     const haveChannel = pathname.includes('[channel]');
     const haveLocale = pathname.includes('[locale]');
     if (haveChannel) document.cookie = `channel=${channelAsLocale?.channel}; path=/`;
@@ -143,12 +140,7 @@ export const Picker = ({
               <LogoAexol />
               {changeModal?.modal ? (
                 <TP>
-                  <Trans
-                    values={{ country: changeModal.country_name }}
-                    components={{ 1: <strong></strong> }}
-                    i18nKey="picker.detected"
-                    t={t}
-                  />
+                  Мы определили вашу локацию как <strong>{changeModal.country_name}</strong>, хотите продолжить с выбранными параметрами?
                 </TP>
               ) : null}
             </Header>
@@ -171,7 +163,7 @@ export const Picker = ({
                         ),
                       };
                     })}
-                    placeholder={t('picker.ship-to-country')}
+                    placeholder={'Страна доставки'}
                     setSelected={(channel) => {
                       onChange(channel);
                       if (channel === value) return;
@@ -212,7 +204,7 @@ export const Picker = ({
                           };
                         }) ?? []
                     }
-                    placeholder={t('picker.change-language')}
+                    placeholder={'Сменить язык'}
                     setSelected={onChange}
                     selected={value}
                     renderSelected={(value) => (
@@ -227,12 +219,12 @@ export const Picker = ({
                   />
                 )}
               />
-              <WhiteStyledButton type="submit">{t('picker.save')} </WhiteStyledButton>
+              <WhiteStyledButton type="submit">{'Сохранить'} </WhiteStyledButton>
               <WhiteStyledButton
                 type="button"
                 onClick={() => setIsOpen(false)}
               >
-                {t('picker.cancel')}
+                {'Отмена'}
               </WhiteStyledButton>
             </StyledForm>
           </PickerWrapper>
@@ -292,7 +284,6 @@ const Overlay = styled.div`
     align-items: center;
     gap: 2rem;
     backdrop-filter: blur(0.2rem);
-    z-index: 100;
     padding: 0 2rem;
     z-index: 3000;
 `;

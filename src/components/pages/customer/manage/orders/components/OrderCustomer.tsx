@@ -1,5 +1,4 @@
 import { Mail, Phone, User } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Stack, TP } from '@/src/components';
 
@@ -13,8 +12,6 @@ interface OrderCustomerProps {
 }
 
 export const OrderCustomer = ({ customer }: OrderCustomerProps) => {
-  const { t } = useTranslation('customer');
-
   return (
     <Stack
       column
@@ -34,7 +31,7 @@ export const OrderCustomer = ({ customer }: OrderCustomerProps) => {
               size="1.25rem"
               weight={500}
             >
-              {t('orderPage.customerName')}
+              {'Имя покупателя'}
             </TP>
           </Stack>
           <TP>
@@ -56,7 +53,7 @@ export const OrderCustomer = ({ customer }: OrderCustomerProps) => {
               size="1.25rem"
               weight={500}
             >
-              {t('orderPage.email')}
+              {'Email'}
             </TP>
           </Stack>
           <TP>{customer?.emailAddress}</TP>
@@ -75,7 +72,7 @@ export const OrderCustomer = ({ customer }: OrderCustomerProps) => {
                 size="1.25rem"
                 weight={500}
               >
-                {t('orderPage.phone')}
+                {'Телефон'}
               </TP>
             </Stack>
             <TP>{customer?.phoneNumber}</TP>

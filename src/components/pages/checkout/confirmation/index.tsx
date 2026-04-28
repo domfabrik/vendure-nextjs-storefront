@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { useEffect, useState } from 'react';
 import { ContentContainer, Stack, TP } from '@/src/components/atoms';
 import { storefrontApiQuery } from '@/src/graphql/client';
@@ -15,7 +15,6 @@ const MAX_RETRIES = 3;
 
 export const ConfirmationPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const ctx = useChannels();
-  const { t } = useTranslation('checkout');
   const [order, setOrder] = useState<OrderType | null>(props.orderByCode);
   const push = usePush();
 
@@ -43,7 +42,7 @@ export const ConfirmationPage = (props: InferGetServerSidePropsType<typeof getSe
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={`${t('seoTitles.confirmation')}`}
+      pageTitle={`${'Подтверждение'}`}
     >
       {order ? (
         <Content>
@@ -59,7 +58,7 @@ export const ConfirmationPage = (props: InferGetServerSidePropsType<typeof getSe
             justifyCenter
             itemsCenter
           >
-            <TP>{t('confirmation.orderNotFound')}</TP>
+            <TP>{'Заказ не найден'}</TP>
           </Stack>
         </Content>
       )}

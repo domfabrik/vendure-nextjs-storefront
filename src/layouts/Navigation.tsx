@@ -11,7 +11,7 @@ import { useCart } from '@/src/state/cart';
 
 import { SearchIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
+
 import { useEffect, useRef } from 'react';
 import { IconButton } from '@/src/components/molecules/Button';
 import { AnnouncementBar } from '@/src/components/organisms/AnnouncementBar';
@@ -36,7 +36,6 @@ interface NavigationProps {
 }
 
 export const Navigation = ({ navigation, categories, changeModal }: NavigationProps) => {
-  const { t } = useTranslation('common');
   const { isLogged, cart } = useCart();
   const navigationSearch = useNavigationSearch();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -64,7 +63,7 @@ export const Navigation = ({ navigation, categories, changeModal }: NavigationPr
   }, []);
 
   // THIS SHOULD COME FROM PLUGIN
-  const announcementsBar = t('announcements-bar', { returnObjects: true }) as string[];
+  const announcementsBar = ['ЛУЧШИЕ ТОВАРЫ', 'БЕСПЛАТНАЯ ДОСТАВКА ОТ 5000 ₽', 'БЕЗОПАСНАЯ ОПЛАТА', 'ВОЗВРАТ В ТЕЧЕНИЕ 30 ДНЕЙ'] as string[];
   const entries = [
     { text: announcementsBar[0], href: '/collections/home-garden' },
     { text: announcementsBar[1], href: '/' },

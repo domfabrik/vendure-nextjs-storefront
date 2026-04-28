@@ -1,50 +1,44 @@
-import { useTranslation } from 'next-i18next';
 import * as z from 'zod';
 
 export const useValidationSchema = () => {
-  const { t } = useTranslation('checkout');
-
   const userObject = z.object({
     emailAddress: z.string().email(),
-    firstName: z.string().min(1, { message: t('orderForm.errors.firstName.required') }),
-    lastName: z.string().min(1, { message: t('orderForm.errors.lastName.required') }),
-    phoneNumber: z
-      .string()
-      .min(1, { message: t('orderForm.errors.phone.required') })
-      .optional(),
+    firstName: z.string().min(1, { message: 'Имя обязательно' }),
+    lastName: z.string().min(1, { message: 'Фамилия обязательна' }),
+    phoneNumber: z.string().min(1, { message: 'Телефон обязателен' }).optional(),
 
-    deliveryMethod: z.string().min(1, { message: t('deliveryMethod.errors.required') }),
+    deliveryMethod: z.string().min(1, { message: 'Способ доставки обязателен' }),
 
-    terms: z.boolean().refine((value) => value, { message: t('orderForm.errors.terms.required') }),
+    terms: z.boolean().refine((value) => value, { message: 'Необходимо принять условия использования' }),
 
     shippingDifferentThanBilling: z.boolean(),
     // userNeedInvoice: z.boolean(),
     createAccount: z.boolean().default(false).optional(),
 
-    // NIP: z.string().min(1, { message: t('orderForm.errors.NIP.required') }),
-    // password: z.string().min(8, { message: t('orderForm.errors.password.required') }),
-    // confirmPassword: z.string().min(8, { message: t('orderForm.errors.confirmPassword.required') }),
+    // NIP: z.string().min(1, { message: "ИНН обязателен" }),
+    // password: z.string().min(8, { message: "Пароль обязателен" }),
+    // confirmPassword: z.string().min(8, { message: "Подтверждение пароля обязательно" }),
   });
 
   const billingObject = z.object({
-    fullName: z.string().min(1, { message: t('orderForm.errors.fullName.required') }),
-    streetLine1: z.string().min(1, { message: t('orderForm.errors.streetLine1.required') }),
+    fullName: z.string().min(1, { message: 'Полное имя обязательно' }),
+    streetLine1: z.string().min(1, { message: 'Адрес обязателен' }),
     streetLine2: z.string().optional(),
-    city: z.string().min(1, { message: t('orderForm.errors.city.required') }),
-    countryCode: z.string().length(2, { message: t('orderForm.errors.countryCode.required') }),
-    province: z.string().min(1, { message: t('orderForm.errors.province.required') }),
-    postalCode: z.string().min(1, { message: t('orderForm.errors.postalCode.required') }),
+    city: z.string().min(1, { message: 'Город обязателен' }),
+    countryCode: z.string().length(2, { message: 'Страна обязательна' }),
+    province: z.string().min(1, { message: 'Область/регион обязательны' }),
+    postalCode: z.string().min(1, { message: 'Почтовый индекс обязателен' }),
     company: z.string().optional(),
   });
 
   const shippingObject = z.object({
-    fullName: z.string().min(1, { message: t('orderForm.errors.fullName.required') }),
-    streetLine1: z.string().min(1, { message: t('orderForm.errors.streetLine1.required') }),
+    fullName: z.string().min(1, { message: 'Полное имя обязательно' }),
+    streetLine1: z.string().min(1, { message: 'Адрес обязателен' }),
     streetLine2: z.string().optional(),
-    city: z.string().min(1, { message: t('orderForm.errors.city.required') }),
-    countryCode: z.string().length(2, { message: t('orderForm.errors.countryCode.required') }),
-    province: z.string().min(1, { message: t('orderForm.errors.province.required') }),
-    postalCode: z.string().min(1, { message: t('orderForm.errors.postalCode.required') }),
+    city: z.string().min(1, { message: 'Город обязателен' }),
+    countryCode: z.string().length(2, { message: 'Страна обязательна' }),
+    province: z.string().min(1, { message: 'Область/регион обязательны' }),
+    postalCode: z.string().min(1, { message: 'Почтовый индекс обязателен' }),
     company: z.string().optional(),
   });
 
@@ -62,7 +56,7 @@ export const useValidationSchema = () => {
   // const NIPSchema = z.discriminatedUnion('userNeedInvoice', [
   //     z.object({
   //         userNeedInvoice: z.literal(true),
-  //         NIP: z.string().min(1, { message: t('orderForm.errors.NIP.required') }),
+  //         NIP: z.string().min(1, { message: "ИНН обязателен" }),
   //     }),
   //     z.object({
   //         userNeedInvoice: z.literal(false),
@@ -72,21 +66,19 @@ export const useValidationSchema = () => {
     .discriminatedUnion('createAccount', [
       z.object({
         createAccount: z.literal(true),
-        password: z.string().min(8, { message: t('orderForm.errors.password.required') }),
-        confirmPassword: z.string().min(8, { message: t('orderForm.errors.confirmPassword.required') }),
+        password: z.string().min(8, { message: 'Пароль обязателен' }),
+        confirmPassword: z.string().min(8, { message: 'Подтверждение пароля обязательно' }),
       }),
       z.object({
         createAccount: z.literal(false),
       }),
     ])
     .refine((value) => (value.createAccount ? value.password === value.confirmPassword : true), {
-      message: t('orderForm.errors.confirmPassword.notMatch'),
+      message: 'Пароли не совпадают',
       path: ['confirmPassword'],
     });
 
   const mainIntersection = z.intersection(defaultSchema, userObject);
-  const schema = z.intersection(passwordSchema, mainIntersection);
-  // const schema = z.intersection(NIPSchema, userAccountIntersection);
 
-  return schema;
+  return z.intersection(passwordSchema, mainIntersection);
 };

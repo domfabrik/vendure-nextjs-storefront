@@ -1,5 +1,3 @@
-import { useTranslation } from 'next-i18next';
-
 import { Price } from '@/src/components/atoms/Price';
 import { ProductImage } from '@/src/components/atoms/ProductImage';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -13,7 +11,6 @@ interface Props {
 }
 
 export const OrderLine = ({ currencyCode, line }: Props) => {
-  const { t } = useTranslation('customer');
   const optionInName = line.productVariant.name.replace(line.productVariant.product.name, '') !== '';
 
   return (
@@ -58,7 +55,7 @@ export const OrderLine = ({ currencyCode, line }: Props) => {
             size="1.25rem"
             weight={500}
           >
-            {t('orderPage.quantity')}
+            {'Количество'}
           </TP>
           <TP size="1.25rem">{line.quantity}</TP>
         </Stack>

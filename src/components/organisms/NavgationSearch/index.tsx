@@ -1,14 +1,13 @@
 import styled from '@emotion/styled';
 import { ArrowRight, SearchIcon, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+
 import { Link, Stack, TP, TypoGraphy } from '@/src/components/atoms';
 import { ProductImageWithInfo } from '../../molecules/ProductImageWithInfo';
 import { useNavigationSearch } from './hooks';
 import { PopularSearches } from './PopularSearches';
 
 export const NavigationSearch = ({ loading, searchQuery, searchResults, totalItems, setSearchQuery, closeSearch, onSubmit }: ReturnType<typeof useNavigationSearch>) => {
-  const { t } = useTranslation('common');
   const popularSearches = ['Computer', 'Tablet', 'Plant', 'Gloves', 'Mouse'];
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +35,7 @@ export const NavigationSearch = ({ loading, searchQuery, searchResults, totalIte
           <Input
             onKeyDown={(e) => e.key === 'Escape' && closeSearch()}
             ref={inputRef}
-            placeholder={t('search-for-best-products')}
+            placeholder={'Поиск лучших товаров'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             type="text"
@@ -57,20 +56,16 @@ export const NavigationSearch = ({ loading, searchQuery, searchResults, totalIte
               weight={400}
               noWrap
             >
-              {t('popular-searches-heading')}
+              {'Популярные запросы'}
             </TypoGraphy>
           </PopularSearches>
           {searchQuery.length < 3 ? (
-            <TP>{t('search-query-to-short')}</TP>
+            <TP>{'Поисковый запрос должен содержать минимум 3 символа'}</TP>
           ) : loading ? (
-            <TP>{t('search-results-loading')}</TP>
+            <TP>{'Загрузка результатов...'}</TP>
           ) : searchResults.length === 0 ? (
             <TP>
-              <Trans
-                i18nKey="search-results-no-results"
-                values={{ searchQuery }}
-                components={{ 1: <strong></strong> }}
-              />
+              Ничего не найдено по запросу <strong>{searchQuery}</strong>
             </TP>
           ) : (
             <Wrapper
@@ -88,7 +83,7 @@ export const NavigationSearch = ({ loading, searchQuery, searchResults, totalIte
                     size={'2rem'}
                     weight={400}
                   >
-                    {t('search-results-header')}
+                    {'Результаты поиска'}
                   </TypoGraphy>
                   <Results
                     w100
@@ -126,11 +121,7 @@ export const NavigationSearch = ({ loading, searchQuery, searchResults, totalIte
                 </Stack>
               </Container>
               <StyledLink href={`/search?q=${searchQuery}`}>
-                <Trans
-                  i18nKey="search-results-total"
-                  components={{ 1: <strong></strong> }}
-                  values={{ totalItems, searchQuery }}
-                />
+                Найдено {totalItems} результатов по запросу <strong>{searchQuery}</strong>
                 <IconWrapper>
                   <ArrowRight size="1.5rem" />
                 </IconWrapper>

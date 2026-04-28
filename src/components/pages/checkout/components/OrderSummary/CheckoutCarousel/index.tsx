@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
 
 import { Stack } from '@/src/components/atoms/Stack';
 import { TH2 } from '@/src/components/atoms/TypoGraphy';
@@ -14,8 +13,6 @@ interface CheckoutCarouselProps {
 export const CheckoutCarousel = ({ alsoBoughtProducts }: CheckoutCarouselProps) => {
   if (!alsoBoughtProducts?.length) return null;
   const { addToCheckout } = useCheckout();
-  const { t } = useTranslation('checkout');
-
   const slides = alsoBoughtProducts.map((variant) => {
     return (
       <ProductVariantTile
@@ -24,7 +21,7 @@ export const CheckoutCarousel = ({ alsoBoughtProducts }: CheckoutCarouselProps) 
         variant={variant}
         key={variant.id}
         addToCart={{
-          text: t('orderSummary.customerAlsoBought.addToOrder'),
+          text: 'Добавить к заказу',
           action: async (id) => await addToCheckout(id, 1),
         }}
       />
@@ -41,7 +38,7 @@ export const CheckoutCarousel = ({ alsoBoughtProducts }: CheckoutCarouselProps) 
         size="2rem"
         weight={600}
       >
-        {t('orderSummary.customerAlsoBought.title')}
+        {'Покупатели также приобрели'}
       </TH2>
       <Slider
         slides={slides}

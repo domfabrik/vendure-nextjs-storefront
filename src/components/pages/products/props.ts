@@ -6,7 +6,7 @@ import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getStaticProps = async (context: ContextModel<{ slug?: string }>) => {
   const r = await makeStaticProps(['common', 'products'])(context);
-  const language = r.props._nextI18Next?.initialLocale || 'en';
+  const language = r.context?.locale || 'ru';
   const { slug } = context.params || {};
   const api = SSGQuery(r.context);
 

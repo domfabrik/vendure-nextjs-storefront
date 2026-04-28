@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
+
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Divider } from '@/src/components/atoms/Divider';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -18,7 +18,6 @@ interface OrderSummaryProps {
 
 export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummaryProps>) => {
   const { activeOrder, applyCouponCode, removeCouponCode } = useCheckout();
-  const { t } = useTranslation('checkout');
   // const { asPath } = useRouter();
   // const step = asPath.includes('payment') ? 'payment' : 'shipping';
   const currencyCode = activeOrder?.currencyCode ?? CurrencyCode.USD;
@@ -46,7 +45,7 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
             size="3rem"
             weight={500}
           >
-            {t('orderSummary.title')}
+            {'Сводка заказа'}
           </TH2>
           <Stack column>
             {activeOrder?.lines.map((line) => (
@@ -62,11 +61,11 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
               gap="2.5rem"
             >
               <Stack justifyBetween>
-                <TP>{t('orderSummary.subtotal')}</TP>
+                <TP>{'Подытог'}</TP>
                 <TP>{priceFormatter(activeOrder?.subTotalWithTax ?? 0, currencyCode)}</TP>
               </Stack>
               <Stack justifyBetween>
-                <TP>{t('orderSummary.shipping')}</TP>
+                <TP>{'Доставка'}</TP>
                 <TP>{priceFormatter(activeOrder?.shippingWithTax ?? 0, currencyCode)}</TP>
               </Stack>
               {!!shipping && jsEnabled && (
@@ -92,7 +91,7 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
                   size="1.75rem"
                   weight={600}
                 >
-                  {t('orderSummary.total')}
+                  {'Итого'}
                 </TP>
                 <TP
                   size="1.75rem"

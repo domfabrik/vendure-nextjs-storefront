@@ -1,5 +1,4 @@
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { Stack } from '@/src/components/atoms';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
@@ -10,12 +9,11 @@ import { CustomerNavigation } from './components/CustomerNavigation';
 import { getServerSideProps } from './props';
 
 export const ManageAccountPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('customer');
   return (
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={t('accountPage.title')}
+      pageTitle={'Мой аккаунт'}
     >
       <ContentContainer>
         <Stack

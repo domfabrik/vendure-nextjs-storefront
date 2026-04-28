@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
 
 import { Link } from '@/src/components/atoms/Link';
 import { Price } from '@/src/components/atoms/Price';
@@ -12,7 +11,6 @@ import { ActiveOrderType } from '@/src/graphql/selectors';
 import { dateFormatter } from '@/src/util/dateFormatter';
 
 export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
-  const { t } = useTranslation('customer');
   return order ? (
     <LastOrderWrap
       w100
@@ -29,7 +27,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
           size="1.75rem"
           weight={600}
         >
-          {t('accountPage.lastOrder.title')}
+          {'Последний заказ'}
         </TP>
         <OrderState
           itemsCenter
@@ -52,7 +50,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
               size="1.25rem"
               weight={500}
             >
-              {t('accountPage.lastOrder.orderCode')}:&nbsp;
+              {'Код заказа'}:&nbsp;
             </TP>
             <TP size="1.5rem">{order.code}</TP>
           </Stack>
@@ -61,7 +59,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
               size="1.25rem"
               weight={500}
             >
-              {t('accountPage.lastOrder.orderDate')}:&nbsp;
+              {'Дата заказа'}:&nbsp;
             </TP>
             <TP size="1.25rem">{dateFormatter(order.createdAt, 'date')}</TP>
           </Stack>
@@ -70,7 +68,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
               size="1.25rem"
               weight={500}
             >
-              {t('accountPage.lastOrder.totalQuantity')}:&nbsp;
+              {'Общее количество'}:&nbsp;
             </TP>
             <TP size="1.25rem">{order?.totalQuantity}</TP>
           </Stack>
@@ -79,7 +77,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
               size="1.25rem"
               weight={500}
             >
-              {t('accountPage.lastOrder.totalProducts')}:&nbsp;
+              {'Всего товаров'}:&nbsp;
             </TP>
             <TP size="1.25rem">{order?.lines.length}</TP>
           </Stack>
@@ -88,7 +86,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
               size="1.25rem"
               weight={500}
             >
-              {t('accountPage.lastOrder.totalPrice')}:&nbsp;
+              {'Общая сумма'}:&nbsp;
             </TP>
             <Price
               size="1.25rem"
@@ -101,7 +99,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
           href={`/customer/manage/orders/${order?.code}`}
           style={{ alignSelf: 'flex-end' }}
         >
-          <StyledButton>{t('accountPage.lastOrder.viewOrder')}</StyledButton>
+          <StyledButton>{'Просмотр заказа'}</StyledButton>
         </StyledLink>
       </Stack>
     </LastOrderWrap>
@@ -111,7 +109,7 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
         size="1.75rem"
         weight={600}
       >
-        {t('accountPage.lastOrder.noOrders')}
+        {'У вас пока нет заказов'}
       </TP>
     </Stack>
   );

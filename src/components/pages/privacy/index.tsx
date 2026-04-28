@@ -1,18 +1,16 @@
 import styled from '@emotion/styled';
 import { InferGetStaticPropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import type { getStaticProps } from '@/src/components/pages/home/props';
 import { Layout } from '@/src/layouts';
 import { privacyContent } from './privacy';
 
 export const Privacy = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { t } = useTranslation('homepage');
   return (
     <Layout
       navigation={props.navigation}
       categories={props.categories}
-      pageTitle={t('seo.home')}
+      pageTitle={'Главная'}
     >
       <HtmlContentPrivacyPolicy dangerouslySetInnerHTML={{ __html: privacyContent }} />
     </Layout>
@@ -23,7 +21,7 @@ const HtmlContentPrivacyPolicy = styled.section`
     word-wrap: break-word;
     overflow-wrap: break-word;
     margin: auto;
-    padding: 6rem 0rem;
+    padding: 6rem 0;
     max-width: 1280px;
     h1 {
         font-size: 4rem;
@@ -35,7 +33,7 @@ const HtmlContentPrivacyPolicy = styled.section`
         font-weight: 600;
         line-height: 120%;
         color: #000;
-        margin: 4rem 0rem;
+        margin: 4rem 0;
     }
     p,
     a {

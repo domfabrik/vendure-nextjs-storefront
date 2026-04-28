@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'motion/react';
-import { useTranslation } from 'next-i18next';
+
 import { useState } from 'react';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
@@ -13,7 +13,6 @@ interface Props {
 }
 
 export const CustomerForm = ({ initialCustomer }: Props) => {
-  const { t } = useTranslation('customer');
   const [view, setView] = useState<'details' | 'password'>('details');
   const handleView = (view: 'details' | 'password') => setView(view);
 
@@ -32,20 +31,20 @@ export const CustomerForm = ({ initialCustomer }: Props) => {
           size="2.5rem"
           weight={600}
         >
-          {t('accountPage.title')}
+          {'Мой аккаунт'}
         </TP>
         <Stack gap="0.5rem">
           <StyledButton
             active={view === 'details'}
             onClick={() => handleView('details')}
           >
-            {t('accountPage.detailsForm.title')}
+            {'Данные аккаунта'}
           </StyledButton>
           <StyledButton
             active={view === 'password'}
             onClick={() => handleView('password')}
           >
-            {t('accountPage.passwordForm.title')}
+            {'Смена пароля'}
           </StyledButton>
         </Stack>
       </Stack>

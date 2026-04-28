@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useTranslation } from 'next-i18next';
+
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -19,18 +19,13 @@ type CustomerDataForm = {
 
 export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: ActiveCustomerType }) => {
   const ctx = useChannels();
-  const { t } = useTranslation('customer');
-  const { t: tErrors } = useTranslation('common');
   const [activeCustomer, setActiveCustomer] = useState<ActiveCustomerType>(initialCustomer);
   const [successBanner, setSuccessBanner] = useState<string>();
 
   const customerSchema = z.object({
-    firstName: z.string().min(1, { message: tErrors('errors.firstName.required') }),
-    lastName: z.string().min(1, { message: tErrors('errors.lastName.required') }),
-    phoneNumber: z
-      .string()
-      .min(1, { message: tErrors('errors.phoneNumber.required') })
-      .optional(),
+    firstName: z.string().min(1, { message: 'Имя обязательно' }),
+    lastName: z.string().min(1, { message: 'Фамилия обязательна' }),
+    phoneNumber: z.string().min(1, { message: 'Номер телефона обязателен' }).optional(),
   });
 
   const {
@@ -45,7 +40,7 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
       lastName: activeCustomer?.lastName || '',
       phoneNumber: activeCustomer?.phoneNumber,
     },
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema) as any,
   });
 
   const onCustomerDataChange: SubmitHandler<CustomerDataForm> = async (input) => {
@@ -60,15 +55,15 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
       });
 
       if (!updateCustomer) {
-        setError('root', { message: tErrors('errors.backend.UNKNOWN_ERROR') });
+        setError('root', { message: 'Неизвестная ошибка' });
 
         return;
       }
 
       setActiveCustomer((p) => ({ ...p, ...updateCustomer }));
-      setSuccessBanner(t('accountPage.detailsForm.successMessage'));
+      setSuccessBanner('Данные аккаунта успешно обновлены');
     } catch {
-      setError('root', { message: tErrors('errors.backend.UNKNOWN_ERROR') });
+      setError('root', { message: 'Неизвестная ошибка' });
     }
   };
 
@@ -110,7 +105,7 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
           >
             <Input
               {...register('addressEmail')}
-              label={t('accountPage.detailsForm.addressEmail')}
+              label={'Email'}
               disabled
             />
             <Stack
@@ -118,18 +113,18 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
               gap="1.25rem"
             >
               <Input
-                label={t('accountPage.detailsForm.firstName')}
+                label={'Имя'}
                 {...register('firstName')}
                 error={errors.firstName}
               />
               <Input
-                label={t('accountPage.detailsForm.lastName')}
+                label={'Фамилия'}
                 {...register('lastName')}
                 error={errors.lastName}
               />
             </Stack>
             <Input
-              label={t('accountPage.detailsForm.phoneNumber')}
+              label={'Телефон'}
               {...register('phoneNumber')}
               error={errors.phoneNumber}
             />
@@ -138,7 +133,7 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
             loading={isSubmitting}
             type="submit"
           >
-            {t('accountPage.detailsForm.changeDetails')}
+            {'Изменить данные'}
           </StyledButton>
         </Form>
       </MotionCustomerWrap>

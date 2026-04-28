@@ -4,5 +4,6 @@ import { ResetPasswordPage } from '@/src/components/pages/customer/reset-passwor
 import { getServerSideProps } from '@/src/components/pages/customer/reset-password/props';
 
 const Page = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => <ResetPasswordPage {...props} />;
+
 export { getServerSideProps };
 export default Page;

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -21,7 +21,6 @@ const GET_MORE = 4;
 
 export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const ctx = useChannels();
-  const { t } = useTranslation('customer');
   const [query, setQuery] = useState('');
   const [more, setMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,7 +95,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={t('ordersPage.title')}
+      pageTitle={'Мои заказы'}
     >
       <ContentContainer>
         <Stack
@@ -119,7 +118,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
               size="2.5rem"
               weight={600}
             >
-              {t('ordersPage.title')}
+              {'Мои заказы'}
             </TP>
             <Main
               column
@@ -127,8 +126,8 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
               gap="1.5rem"
             >
               <Input
-                label={t('ordersPage.searchOrder')}
-                placeholder={t('ordersPage.lookForOrder')}
+                label={'Поиск заказа'}
+                placeholder={'Найти заказ по коду'}
                 onChange={onSearch}
               />
               <Wrap
@@ -144,7 +143,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
                     />
                   ))
                 ) : (
-                  <TP>{t('ordersPage.loading')}</TP>
+                  <TP>{'Загрузка заказов...'}</TP>
                 )}
               </Wrap>
               {props.activeCustomer?.orders.totalItems > activeOrders?.length && (
@@ -153,7 +152,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
                     loading={more}
                     onClick={onLoadMore}
                   >
-                    {t('ordersPage.loadMore')}
+                    {'Загрузить ещё'}
                   </StyledButton>
                 </ButtonWrap>
               )}

@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,20 +14,50 @@ import { useChannels } from '@/src/state/channels';
 import { Absolute, Form, FormContainer, FormContent, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
+const BACKEND_ERRORS: Record<string, string> = {
+  UNKNOWN_ERROR: 'Неизвестная ошибка',
+  NATIVE_AUTH_STRATEGY_ERROR: 'Ошибка стратегии авторизации',
+  INVALID_CREDENTIALS_ERROR: 'Неверные учётные данные',
+  ORDER_STATE_TRANSITION_ERROR: 'Ошибка смены статуса заказа',
+  EMAIL_ADDRESS_CONFLICT_ERROR: 'Этот email уже используется',
+  GUEST_CHECKOUT_ERROR: 'Ошибка гостевого оформления',
+  ORDER_LIMIT_ERROR: 'Превышен лимит заказа',
+  NEGATIVE_QUANTITY_ERROR: 'Количество не может быть отрицательным',
+  INSUFFICIENT_STOCK_ERROR: 'Недостаточно товара на складе',
+  COUPON_CODE_INVALID_ERROR: 'Недействительный купон',
+  COUPON_CODE_EXPIRED_ERROR: 'Срок действия купона истёк',
+  COUPON_CODE_LIMIT_ERROR: 'Лимит использования купона исчерпан',
+  ORDER_MODIFICATION_ERROR: 'Ошибка изменения заказа',
+  INELIGIBLE_SHIPPING_METHOD_ERROR: 'Недоступный способ доставки',
+  NO_ACTIVE_ORDER_ERROR: 'Нет активного заказа',
+  ORDER_PAYMENT_STATE_ERROR: 'Ошибка статуса оплаты заказа',
+  INELIGIBLE_PAYMENT_METHOD_ERROR: 'Недоступный способ оплаты',
+  PAYMENT_FAILED_ERROR: 'Ошибка оплаты',
+  PAYMENT_DECLINED_ERROR: 'Оплата отклонена',
+  ALREADY_LOGGED_IN_ERROR: 'Вы уже авторизованы',
+  MISSING_PASSWORD_ERROR: 'Пароль не указан',
+  PASSWORD_VALIDATION_ERROR: 'Ошибка валидации пароля',
+  PASSWORD_ALREADY_SET_ERROR: 'Пароль уже установлен',
+  VERIFICATION_TOKEN_INVALID_ERROR: 'Недействительный токен верификации',
+  VERIFICATION_TOKEN_EXPIRED_ERROR: 'Срок действия токена верификации истёк',
+  IDENTIFIER_CHANGE_TOKEN_INVALID_ERROR: 'Недействительный токен смены идентификатора',
+  IDENTIFIER_CHANGE_TOKEN_EXPIRED_ERROR: 'Срок действия токена смены идентификатора истёк',
+  PASSWORD_RESET_TOKEN_INVALID_ERROR: 'Недействительный токен сброса пароля',
+  PASSWORD_RESET_TOKEN_EXPIRED_ERROR: 'Срок действия токена сброса пароля истёк',
+  NOT_VERIFIED_ERROR: 'Аккаунт не подтверждён',
+};
+
 type FormValues = { password: string; confirmPassword: string };
 
 export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const ctx = useChannels();
-  const { t } = useTranslation('customer');
-  const { t: tErrors } = useTranslation('common');
-
   const schema = z
     .object({
-      password: z.string().min(8, tErrors('errors.password.minLength')).max(25, tErrors('errors.password.maxLength')),
-      confirmPassword: z.string().min(8, tErrors('errors.password.minLength')).max(25, tErrors('errors.password.maxLength')),
+      password: z.string().min(8, 'Пароль должен содержать минимум 8 символов').max(25, 'Пароль не может быть длиннее 25 символов'),
+      confirmPassword: z.string().min(8, 'Пароль должен содержать минимум 8 символов').max(25, 'Пароль не может быть длиннее 25 символов'),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: tErrors('errors.confirmPassword.mustMatch'),
+      message: 'Пароли должны совпадать',
       path: ['confirmPassword'],
     });
 
@@ -80,9 +109,9 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
         return;
       }
 
-      setError('root', { message: tErrors(`errors.backend.${resetPassword.errorCode}`) });
+      setError('root', { message: BACKEND_ERRORS[resetPassword.errorCode] || 'Неизвестная ошибка' });
     } catch {
-      setError('root', { message: tErrors(`errors.backend.UNKNOWN_ERROR`) });
+      setError('root', { message: 'Неизвестная ошибка' });
     }
   };
 
@@ -90,7 +119,7 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={t('resetPasswordTitle')}
+      pageTitle={'Сброс пароля'}
     >
       <ContentContainer>
         <FormContainer>
@@ -100,7 +129,7 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
               clearErrors={() => setError('root', { message: undefined })}
             />
           </Absolute>
-          <TP weight={600}>{t('resetPasswordTitle')}</TP>
+          <TP weight={600}>{'Сброс пароля'}</TP>
           <FormWrapper
             column
             itemsCenter
@@ -115,13 +144,13 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <Input
                   error={errors.password}
-                  label={t('newPassword')}
+                  label={'Новый пароль'}
                   type="password"
                   {...register('password')}
                 />
                 <Input
                   error={errors.confirmPassword}
-                  label={t('confirmNewPassword')}
+                  label={'Подтвердите новый пароль'}
                   type="password"
                   {...register('confirmPassword')}
                 />
@@ -129,7 +158,7 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
                   loading={isSubmitting}
                   type="submit"
                 >
-                  {t('resetPassword')}
+                  {'Сбросить пароль'}
                 </Button>
               </Form>
             </FormContent>

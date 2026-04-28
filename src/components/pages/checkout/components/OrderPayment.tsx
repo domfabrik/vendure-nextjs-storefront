@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { CreditCard } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
+
 import React, { forwardRef, InputHTMLAttributes, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Stack, TP } from '@/src/components/atoms';
@@ -15,6 +15,16 @@ import { useChannels } from '@/src/state/channels';
 import { useCheckout } from '@/src/state/checkout';
 
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
+
+const BACKEND_ERRORS: Record<string, string> = {
+  UNKNOWN_ERROR: 'Неизвестная ошибка',
+  ORDER_PAYMENT_STATE_ERROR: 'Ошибка статуса оплаты заказа',
+  INELIGIBLE_PAYMENT_METHOD_ERROR: 'Недоступный способ оплаты',
+  PAYMENT_FAILED_ERROR: 'Ошибка оплаты',
+  PAYMENT_DECLINED_ERROR: 'Оплата отклонена',
+  NO_ACTIVE_ORDER_ERROR: 'Нет активного заказа',
+  ORDER_STATE_TRANSITION_ERROR: 'Ошибка смены статуса заказа',
+};
 
 interface OrderPaymentProps {
   availablePaymentMethods?: AvailablePaymentMethodsType[];
@@ -35,8 +45,6 @@ const POSITIVE_DEFAULT_PAYMENT_STATUSES = ['PaymentAuthorized', 'PaymentSettled'
 
 export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPaymentProps) => {
   const ctx = useChannels();
-  const { t } = useTranslation('checkout');
-  const { t: tError } = useTranslation('common');
   const { activeOrder } = useCheckout();
   const push = usePush();
 
@@ -106,13 +114,13 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
         ],
       });
       if (addPaymentToOrder.__typename !== 'Order') {
-        setError(tError(`errors.backend.${addPaymentToOrder.errorCode}`));
+        setError(BACKEND_ERRORS[addPaymentToOrder.errorCode] || 'Неизвестная ошибка');
       } else if (POSITIVE_DEFAULT_PAYMENT_STATUSES.includes(addPaymentToOrder.state)) {
         push(`/checkout/confirmation/${addPaymentToOrder.code}`);
       }
     } catch (e) {
       console.log(e);
-      setError(tError(`errors.backend.UNKNOWN_ERROR`));
+      setError(BACKEND_ERRORS.UNKNOWN_ERROR || 'Неизвестная ошибка');
     }
   };
 
@@ -176,7 +184,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
               size="1.5rem"
               weight={600}
             >
-              {t('paymentMethod.title')}
+              {'Это тестовая оплата только для демонстрации'}
             </TP>
           </GridTitle>
           <Grid>
@@ -190,7 +198,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
                   <PaymentButton
                     id="dummy-method-success"
                     value="dummy-method-success"
-                    label={t('paymentMethod.dummyMethods.success')}
+                    label={'Тестовая оплата — успех'}
                     icon={<StyledCreditCard method="success" />}
                     checked={watch('payment') === 'dummy-method-success'}
                     {...register('payment', { required: true })}
@@ -198,7 +206,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
                   {/* <PaymentButton
                                         id="dummy-method-error"
                                         value="dummy-method-error"
-                                        label={t('paymentMethod.dummyMethods.error')}
+                                        label={"Тестовая оплата — ошибка"}
                                         icon={<StyledCreditCard method="error" />}
                                         checked={watch('payment') === 'dummy-method-error'}
                                         {...register('payment', { required: true })}
@@ -206,7 +214,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
                                     <PaymentButton
                                         id="dummy-method-decline"
                                         value="dummy-method-decline"
-                                        label={t('paymentMethod.dummyMethods.decline')}
+                                        label={"Тестовая оплата — отклонение"}
                                         icon={<StyledCreditCard method="decline" />}
                                         checked={watch('payment') === 'dummy-method-decline'}
                                         {...register('payment', { required: true })}
@@ -228,7 +236,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
                 loading={isSubmitting}
                 type="submit"
               >
-                {t('paymentMethod.submit')}
+                {'Оплатить'}
               </Button>
             </AnimationStack>
           ) : (
@@ -240,7 +248,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
                 size="1.5rem"
                 weight={600}
               >
-                {t('paymentMethod.selectToContinue')}
+                {'Выберите способ оплаты для продолжения'}
               </TP>
             </Stack>
           )}

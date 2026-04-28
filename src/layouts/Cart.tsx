@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { ShoppingCartIcon, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
+
 import { useMemo, useState } from 'react';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
 import { Divider } from '@/src/components/atoms/Divider';
@@ -18,7 +18,6 @@ import { CurrencyCode } from '@/src/zeus';
 
 export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
   const { setItemQuantityInCart, removeFromCart, removeCouponCode, applyCouponCode } = useCart();
-  const { t } = useTranslation('common');
   const [isOpen, setOpen] = useState(false);
 
   // helper function to close the menu
@@ -55,10 +54,10 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                     itemsCenter
                     gap="1.25rem"
                   >
-                    <TH2>{t('your-cart')}</TH2>
+                    <TH2>{'Ваша корзина'}</TH2>
                     {activeOrder?.totalQuantity ? (
                       <TP style={{ marginTop: '0.8rem' }}>
-                        ({activeOrder?.totalQuantity} {t('items')})
+                        ({activeOrder?.totalQuantity} {'товаров'})
                       </TP>
                     ) : null}
                   </Stack>
@@ -111,7 +110,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                                 size="1.25rem"
                                 upperCase
                               >
-                                {t('remove')}
+                                {'Удалить'}
                               </TP>
                             </Remove>
                           </Stack>
@@ -146,7 +145,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                       size="2.5rem"
                       weight={600}
                     >
-                      {t('cart-summary')}
+                      {'Итого по корзине'}
                     </TP>
                     {activeOrder && activeOrder.totalQuantity > 0 ? (
                       <Stack
@@ -155,19 +154,19 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                       >
                         {activeOrder?.totalWithTax ? (
                           <Stack justifyBetween>
-                            <TP>{t('price')}</TP>
+                            <TP>{'Цена'}</TP>
                             <TP>{priceFormatter(activeOrder?.totalWithTax, currencyCode)}</TP>
                           </Stack>
                         ) : null}
                         {discountsSum !== 0 ? (
                           <Stack justifyBetween>
-                            <TP>{t('discount')}</TP>
+                            <TP>{'Скидка'}</TP>
                             <TP>-{priceFormatter(discountsSum, currencyCode)}</TP>
                           </Stack>
                         ) : null}
                         {activeOrder?.shippingWithTax ? (
                           <Stack justifyBetween>
-                            <TP>{t('shipping')}</TP>
+                            <TP>{'Доставка'}</TP>
                             <TP>{priceFormatter(activeOrder?.shippingWithTax, currencyCode)}</TP>
                           </Stack>
                         ) : null}
@@ -184,7 +183,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                                 <X size={16} />
                               </Remove>
                               <TP>
-                                {t('coupon-code')} {d.description}
+                                {'Код:'} {d.description}
                               </TP>
                             </Stack>
                             <TP>{priceFormatter(d.amountWithTax, currencyCode)}</TP>
@@ -197,7 +196,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                         >
                           {activeOrder?.totalWithTax ? (
                             <Stack justifyBetween>
-                              <TP>{t('subtotal')}</TP>
+                              <TP>{'Подытог'}</TP>
                               <TP>{priceFormatter(activeOrder.subTotalWithTax, currencyCode)}</TP>
                             </Stack>
                           ) : null}
@@ -205,7 +204,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                           <Divider />
                           {activeOrder?.totalWithTax ? (
                             <Stack justifyBetween>
-                              <TP>{t('total')}</TP>
+                              <TP>{'Итого'}</TP>
                               <TP>{priceFormatter(activeOrder.totalWithTax, currencyCode)}</TP>
                             </Stack>
                           ) : null}
@@ -213,8 +212,8 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                             column
                             gap="3rem"
                           >
-                            <StyledLink href="/checkout">{t('proceed-to-checkout')}</StyledLink>
-                            <StyledButton onClick={close}>{t('continue-shopping')}</StyledButton>
+                            <StyledLink href="/checkout">{'Оформить заказ'}</StyledLink>
+                            <StyledButton onClick={close}>{'Продолжить покупки'}</StyledButton>
                           </Stack>
                         </Stack>
                       </Stack>
@@ -224,12 +223,12 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                         itemsCenter
                         gap="3rem"
                       >
-                        <TP weight={600}>{t('empty-cart')}</TP>
+                        <TP weight={600}>{'Ваша корзина пуста'}</TP>
                         <StyledButton
                           dark
                           onClick={close}
                         >
-                          {t('continue-shopping')}
+                          {'Продолжить покупки'}
                         </StyledButton>
                       </Stack>
                     )}

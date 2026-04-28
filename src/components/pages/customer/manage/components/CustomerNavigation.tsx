@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
 
 import { Link } from '@/src/components/atoms/Link';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -12,18 +11,17 @@ import { usePush } from '@/src/lib/redirect';
 import { useChannels } from '@/src/state/channels';
 
 const routes = [
-  { href: '/customer/manage', sub: [''], label: 'navigation.manageAccount' as const },
-  { href: '/customer/manage/addresses', sub: [''], label: 'navigation.manageAddresses' as const },
+  { href: '/customer/manage', sub: [''], label: 'Мой аккаунт' },
+  { href: '/customer/manage/addresses', sub: [''], label: 'Мои адреса' },
   {
     href: '/customer/manage/orders',
     sub: ['/customer/manage/orders/[code]'],
-    label: 'navigation.manageOrders' as const,
+    label: 'Мои заказы',
   },
 ];
 
 export const CustomerNavigation = () => {
   const ctx = useChannels();
-  const { t } = useTranslation('customer');
   const { pathname } = useRouter();
   const push = usePush();
   const onClick = async () => {
@@ -42,7 +40,7 @@ export const CustomerNavigation = () => {
             key={route.href}
           >
             <MenuItem href={route.href}>
-              <TP>{t(route.label)}</TP>
+              <TP>{route.label}</TP>
               <UnderLine
                 initial={{ width: 0 }}
                 animate={{
@@ -59,7 +57,7 @@ export const CustomerNavigation = () => {
             upperCase
             color="contrast"
           >
-            {t('navigation.logout')}
+            {'Выйти'}
           </TP>
         </Button>
       </Stack>

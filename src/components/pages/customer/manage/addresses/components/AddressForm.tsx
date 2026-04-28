@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard, Truck } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
+
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -23,18 +23,16 @@ export const AddressForm = ({
   country?: string;
   onModalClose?: () => void;
 }) => {
-  const { t } = useTranslation('customer');
-
   const schema = z.object({
-    countryCode: z.string().length(2, { message: t('addressForm.errors.countryCode.required') }),
-    streetLine1: z.string().min(1, { message: t('addressForm.errors.streetLine1.required') }),
+    countryCode: z.string().length(2, { message: 'Страна обязательна' }),
+    streetLine1: z.string().min(1, { message: 'Адрес обязателен' }),
     streetLine2: z.string().optional(),
-    city: z.string().min(1, { message: t('addressForm.errors.city.required') }),
+    city: z.string().min(1, { message: 'Город обязателен' }),
     company: z.string().optional(),
-    fullName: z.string().min(1, { message: t('addressForm.errors.fullName.required') }),
-    phoneNumber: z.string().min(1, { message: t('addressForm.errors.phone.required') }),
-    postalCode: z.string().min(1, { message: t('addressForm.errors.postalCode.required') }),
-    province: z.string().min(1, { message: t('addressForm.errors.province.required') }),
+    fullName: z.string().min(1, { message: 'Полное имя обязательно' }),
+    phoneNumber: z.string().min(1, { message: 'Телефон обязателен' }),
+    postalCode: z.string().min(1, { message: 'Почтовый индекс обязателен' }),
+    province: z.string().min(1, { message: 'Область/регион обязательны' }),
     defaultBillingAddress: z.boolean().optional(),
     defaultShippingAddress: z.boolean().optional(),
   });
@@ -60,7 +58,7 @@ export const AddressForm = ({
           defaultShippingAddress: addressToEdit.defaultShippingAddress,
         }
       : undefined,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
   });
 
   return (
@@ -73,7 +71,7 @@ export const AddressForm = ({
         size="2.5rem"
         weight={600}
       >
-        {t('addressForm.title')}
+        {'Мои адреса'}
       </TP>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Stack
@@ -83,7 +81,7 @@ export const AddressForm = ({
         >
           <Input
             {...register('fullName')}
-            label={t('addressForm.fullName')}
+            label={'Полное имя'}
             error={errors.fullName}
           />
           <Stack
@@ -93,7 +91,7 @@ export const AddressForm = ({
           >
             <Input
               type="tel"
-              label={t('addressForm.phone')}
+              label={'Телефон'}
               {...register('phoneNumber', {
                 onChange: (e) => (e.target.value = e.target.value.replace(/[^0-9]/g, '')),
               })}
@@ -101,7 +99,7 @@ export const AddressForm = ({
             />
             <Input
               {...register('company')}
-              label={t('addressForm.company')}
+              label={'Компания'}
               error={errors.company}
             />
           </Stack>
@@ -112,19 +110,19 @@ export const AddressForm = ({
           >
             <Input
               {...register('streetLine1')}
-              label={t('addressForm.streetLine1')}
+              label={'Адрес'}
               error={errors.streetLine1}
             />
             <Input
               {...register('streetLine2')}
-              label={t('addressForm.streetLine2')}
+              label={'Квартира, офис и т.д.'}
               error={errors.streetLine2}
             />
           </Stack>
           {availableCountries && (
             <CountrySelect
               {...register('countryCode')}
-              label={t('addressForm.countryCode')}
+              label={'Страна'}
               defaultValue={country}
               options={availableCountries}
               error={errors.countryCode}
@@ -132,17 +130,17 @@ export const AddressForm = ({
           )}
           <Input
             {...register('city')}
-            label={t('addressForm.city')}
+            label={'Город'}
             error={errors.city}
           />
           <Input
             {...register('postalCode')}
-            label={t('addressForm.postalCode')}
+            label={'Почтовый индекс'}
             error={errors.postalCode}
           />
           <Input
             {...register('province')}
-            label={t('addressForm.province')}
+            label={'Область / Регион'}
             error={errors.province}
           />
         </Stack>
@@ -164,7 +162,7 @@ export const AddressForm = ({
                 type="checkbox"
                 {...register('defaultBillingAddress')}
               />
-              <label htmlFor="defaultBillingAddress">{t('addressForm.defaultBillingAddress')}</label>
+              <label htmlFor="defaultBillingAddress">{'Адрес для счёта по умолчанию'}</label>
             </CheckboxStack>
             <CheckboxStack
               itemsCenter
@@ -175,7 +173,7 @@ export const AddressForm = ({
                 type="checkbox"
                 {...register('defaultShippingAddress')}
               />
-              <label htmlFor="defaultShippingAddress">{t('addressForm.defaultShippingAddress')}</label>
+              <label htmlFor="defaultShippingAddress">{'Адрес доставки по умолчанию'}</label>
             </CheckboxStack>
           </Stack>
           <Stack
@@ -190,14 +188,14 @@ export const AddressForm = ({
                 onClick={onModalClose}
                 type="button"
               >
-                {t('addressForm.cancel')}
+                {'Отмена'}
               </Button>
             )}
             <FullWidthButton
               loading={isSubmitting}
               type="submit"
             >
-              {addressToEdit ? t('addressForm.update') : t('addressForm.add')}
+              {addressToEdit ? 'Обновить адрес' : 'Добавить адрес'}
             </FullWidthButton>
           </Stack>
         </Stack>

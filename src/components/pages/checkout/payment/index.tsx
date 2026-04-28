@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { useEffect } from 'react';
 import { ContentContainer, Stack } from '@/src/components/atoms';
 import { CheckoutLayout } from '@/src/layouts';
@@ -9,13 +9,12 @@ import { OrderSummary } from '../components/OrderSummary';
 import { getServerSideProps } from './props';
 
 export const PaymentPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('checkout');
   useEffect(() => {
     window.onpopstate = () => window.history.forward();
   }, []);
 
   return (
-    <CheckoutLayout pageTitle={`${t('seoTitles.payment')}`}>
+    <CheckoutLayout pageTitle={`${'Оплата'}`}>
       <Content>
         <Wrapper justifyBetween>
           <OrderPayment

@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer } from '@/src/components/atoms';
 import { CheckoutLayout } from '@/src/layouts';
@@ -9,11 +8,10 @@ import { CheckoutCarousel } from './components/OrderSummary/CheckoutCarousel';
 import { getServerSideProps } from './props';
 
 export const CheckoutPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('checkout');
   const { availableCountries, alsoBoughtProducts, eligibleShippingMethods, activeCustomer } = props;
 
   return (
-    <CheckoutLayout pageTitle={`${t('seoTitles.checkout')}`}>
+    <CheckoutLayout pageTitle={`${'Оформление заказа'}`}>
       <Content>
         <OrderForm
           availableCountries={availableCountries}

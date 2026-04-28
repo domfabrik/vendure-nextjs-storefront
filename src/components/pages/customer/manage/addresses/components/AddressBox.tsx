@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { CreditCard, Factory, Pen, Trash2, Truck } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
@@ -16,7 +15,6 @@ interface Props {
 }
 
 export const AddressBox = ({ address, selected, onEdit, onDelete, deleting }: Props) => {
-  const { t } = useTranslation('customer');
   const showProvince = address.city === address.province;
   return (
     <CustomerAddress
@@ -86,7 +84,7 @@ export const AddressBox = ({ address, selected, onEdit, onDelete, deleting }: Pr
                 color="contrast"
                 size="1.25rem"
               >
-                {t('addressForm.edit')}
+                {'Редактировать адрес'}
               </TP>
               <Edit size={'1.5rem'} />
             </Option>
@@ -100,7 +98,7 @@ export const AddressBox = ({ address, selected, onEdit, onDelete, deleting }: Pr
                 color="contrast"
                 size="1.25rem"
               >
-                {t('addressForm.delete')}
+                {'Удалить адрес'}
               </TP>
               <Delete size={'1.5rem'} />
             </Option>

@@ -1,12 +1,14 @@
 import styled from '@emotion/styled';
 import { ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
+
 import { useRef, useState } from 'react';
 import { Stack, TP } from '@/src/components/atoms';
 import { Sort } from '@/src/state/collection/types';
 import { sortOptions } from '@/src/state/collection/utils';
 import { useOutsideClick } from '@/src/util/hooks/useOutsideClick';
+
+const SORT_DIRECTIONS: Record<string, string> = { ASC: 'По возрастанию', DESC: 'По убыванию' };
 
 interface Props {
   sort: Sort;
@@ -14,7 +16,6 @@ interface Props {
 }
 
 export const SortBy = ({ handleSort, sort }: Props) => {
-  const { t } = useTranslation('collections');
   const [open, setOpen] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -33,7 +34,7 @@ export const SortBy = ({ handleSort, sort }: Props) => {
           gap="0.75rem"
         >
           <Stack itemsEnd>
-            <TP capitalize>{t('sort-by')}</TP>
+            <TP capitalize>{'Сортировка'}</TP>
           </Stack>
           <IconWrapper
             justifyCenter
@@ -73,7 +74,7 @@ export const SortBy = ({ handleSort, sort }: Props) => {
                       weight={400}
                       size="1.5rem"
                     >
-                      ({t(`sort-directions.${o.direction}`)})
+                      ({SORT_DIRECTIONS[o.direction] || o.direction})
                     </TP>
                   </Stack>
                 </StyledOption>

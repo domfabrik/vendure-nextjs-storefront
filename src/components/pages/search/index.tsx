@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Filter, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { ContentContainer, MainGrid, Stack, TP } from '@/src/components/atoms';
 import { IconButton } from '@/src/components/molecules/Button';
 import { FacetFilterCheckbox } from '@/src/components/molecules/FacetFilter';
@@ -15,14 +15,13 @@ import { useCollection } from '@/src/state/collection';
 import { getServerSideProps } from './props';
 
 export const SearchPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('collections');
   const { searchPhrase, products, facetValues, filtersOpen, setFiltersOpen, paginationInfo, changePage, filters, applyFilter, removeFilter, sort, handleSort } = useCollection();
 
   return (
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={`${t('search-results')} ${searchPhrase}`}
+      pageTitle={`${'Результаты поиска'} ${searchPhrase}`}
     >
       <ContentContainer>
         <AnimatePresence>
@@ -50,7 +49,7 @@ export const SearchPage = (props: InferGetServerSidePropsType<typeof getServerSi
                       weight={400}
                       upperCase
                     >
-                      {t('filters')}
+                      {'Фильтры'}
                     </TP>
                     <IconButton onClick={() => setFiltersOpen(false)}>
                       <X />
@@ -80,7 +79,7 @@ export const SearchPage = (props: InferGetServerSidePropsType<typeof getServerSi
         >
           <MainBar
             categories={props.collections}
-            title={`${t('search-results')} ${searchPhrase}`}
+            title={`${'Результаты поиска'} ${searchPhrase}`}
           />
           <Stack
             itemsCenter
@@ -89,8 +88,8 @@ export const SearchPage = (props: InferGetServerSidePropsType<typeof getServerSi
             w100
           >
             <Filters onClick={() => setFiltersOpen(true)}>
-              <TP>{t('filters')}</TP>
-              <IconButton title={t('filters')}>
+              <TP>{'Фильтры'}</TP>
+              <IconButton title={'Фильтры'}>
                 <Filter />
               </IconButton>
             </Filters>

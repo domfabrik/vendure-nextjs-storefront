@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
+
 import { useState } from 'react';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
@@ -19,7 +19,6 @@ interface Props {
 }
 
 export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) => {
-  const { t } = useTranslation('common');
   const { close, applyCouponCode, removeCouponCode } = useCart();
   const [loading, setLoading] = useState(false);
   const push = usePush();
@@ -44,17 +43,17 @@ export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) =
             >
               <Stack column>
                 <Stack justifyBetween>
-                  <TP>{t('subtotal')}</TP>
+                  <TP>{'Подытог'}</TP>
                   <TP>{priceFormatter((activeOrder?.subTotalWithTax || 0) + discountsSum, currencyCode)}</TP>
                 </Stack>
                 {discountsSum > 0 ? (
                   <Stack justifyBetween>
-                    <TP>{t('discount')}</TP>
+                    <TP>{'Скидка'}</TP>
                     <TP>-{priceFormatter(discountsSum, currencyCode)}</TP>
                   </Stack>
                 ) : null}
                 <Stack justifyBetween>
-                  <TP weight={600}>{t('total')}</TP>
+                  <TP weight={600}>{'Итого'}</TP>
                   <TP weight={600}>{priceFormatter(activeOrder?.subTotalWithTax || 0, currencyCode)}</TP>
                 </Stack>
               </Stack>
@@ -81,11 +80,11 @@ export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) =
               push('/checkout');
             }}
           >
-            {t('proceed-to-checkout')}
+            {'Оформить заказ'}
           </StyledButton>
         </>
       ) : (
-        <StyledButton onClick={close}>{t('continue-shopping')}</StyledButton>
+        <StyledButton onClick={close}>{'Продолжить покупки'}</StyledButton>
       )}
     </CartFooterWrapper>
   );
@@ -99,7 +98,6 @@ const CartFooterWrapper = styled(Stack)<{ haveItems?: boolean }>`
 
 const StyledButton = styled(Button)<{ dark?: boolean }>`
     appearance: none;
-    border: none;
     background: ${(p) => (p.dark ? p.theme.gray(1000) : p.theme.gray(0))};
 
     width: 100%;

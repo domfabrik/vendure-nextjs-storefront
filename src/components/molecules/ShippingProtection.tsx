@@ -1,13 +1,11 @@
 import styled from '@emotion/styled';
 import { BoxIcon } from 'lucide-react';
-import { Trans, useTranslation } from 'next-i18next';
 
 import { Stack, TP } from '@/src/components/atoms';
 import { priceFormatter } from '@/src/util/priceFormatter';
 import { CurrencyCode } from '@/src/zeus';
 
 export const ShippingProtection = ({ value, active, onClick, currencyCode }: { value: number; active: boolean; onClick: (value: boolean) => void; currencyCode: CurrencyCode }) => {
-  const { t } = useTranslation('common');
   return (
     <Stack
       itemsCenter
@@ -23,18 +21,13 @@ export const ShippingProtection = ({ value, active, onClick, currencyCode }: { v
             size="1.5rem"
             weight={500}
           >
-            {t('shipping-protection.title')}
+            {'Защита доставки'}
           </TP>
           <TP
             size="1.25rem"
             weight={400}
           >
-            <Trans
-              i18nKey="shipping-protection.subtitle"
-              t={t}
-              values={{ value: priceFormatter(value, currencyCode) }}
-              components={{ 1: <span></span> }}
-            />
+            От повреждений, потери и кражи за <span>{priceFormatter(value, currencyCode)}</span>
           </TP>
         </Stack>
       </Stack>

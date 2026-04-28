@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { Minus, Plus, Trash2 } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Divider } from '@/src/components/atoms/Divider';
 import { Price } from '@/src/components/atoms/Price';
@@ -23,7 +22,6 @@ export const Line = ({
   currencyCode = CurrencyCode.USD,
 }: LineProps) => {
   const { removeFromCheckout, changeQuantity } = useCheckout();
-  const { t } = useTranslation('checkout');
   const optionInName = productVariant.name.replace(productVariant.product.name, '') !== '';
   const isPriceDiscounted = linePriceWithTax !== discountedLinePriceWithTax;
   return (
@@ -73,7 +71,7 @@ export const Line = ({
                   size="1.25rem"
                   weight={600}
                 >
-                  {t('orderSummary.quantity')} {quantity}
+                  {'Количество'} {quantity}
                 </TypoGraphy>
               </Stack>
             </Stack>
@@ -117,7 +115,7 @@ export const Line = ({
                 </Action>
               </Stack>
               <Action onClick={() => removeFromCheckout(id)}>
-                <TP size="1.25rem">{t('orderSummary.remove')}</TP>
+                <TP size="1.25rem">{'Удалить'}</TP>
                 <Trash2 size={16} />
               </Action>
             </>

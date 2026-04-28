@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Filter, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { InferGetStaticPropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { ContentContainer, MainGrid, Stack, TH1, TP } from '@/src/components/atoms';
 import { Breadcrumbs } from '@/src/components/molecules';
 import { IconButton } from '@/src/components/molecules/Button';
@@ -15,13 +15,11 @@ import { useCollection } from '@/src/state/collection';
 import { getStaticProps } from './props';
 
 const CollectionPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { t } = useTranslation('collections');
-  const { t: breadcrumb } = useTranslation('common');
   const { collection, products, facetValues, filtersOpen, setFiltersOpen, paginationInfo, changePage, filters, applyFilter, removeFilter, sort, handleSort } = useCollection();
 
   const breadcrumbs = [
     {
-      name: breadcrumb('breadcrumbs.home'),
+      name: 'Главная',
       href: '/',
     },
     {
@@ -65,7 +63,7 @@ const CollectionPage = (props: InferGetStaticPropsType<typeof getStaticProps>) =
                       weight={400}
                       upperCase
                     >
-                      {t('filters')}
+                      {'Фильтры'}
                     </TP>
                     <IconButton onClick={() => setFiltersOpen(false)}>
                       <X />
@@ -105,8 +103,8 @@ const CollectionPage = (props: InferGetStaticPropsType<typeof getStaticProps>) =
               gap="2.5rem"
             >
               <Filters onClick={() => setFiltersOpen(true)}>
-                <TP>{t('filters')}</TP>
-                <IconButton title={t('filters')}>
+                <TP>{'Фильтры'}</TP>
+                <IconButton title={'Фильтры'}>
                   <Filter />
                 </IconButton>
               </Filters>

@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import { CreditCard, MoveLeft, ShoppingCart, Truck } from 'lucide-react';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer, Divider, Link, Price, Stack, TP } from '@/src/components/atoms';
 import { Discounts } from '@/src/components/molecules/Discounts';
@@ -17,7 +16,6 @@ import { OrderShippingStatus } from '../components/OrderShippingStatus';
 import { getServerSideProps } from './props';
 
 export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('customer');
   const order = props.activeCustomer?.orders.items?.[0];
   const currencyCode = order?.currencyCode;
 
@@ -28,7 +26,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={`${t('orderPage.title')} #${order?.code}`}
+      pageTitle={`${'Заказ'} #${order?.code}`}
     >
       <ContentContainer>
         <Stack
@@ -52,7 +50,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
             >
               <StyledLink href="/customer/manage/orders">
                 <MoveLeft size={20} />
-                {t('orderPage.backToOrders')}
+                {'К моим заказам'}
               </StyledLink>
               <Stack
                 itemsStart
@@ -66,7 +64,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                     size="2rem"
                     weight={500}
                   >
-                    {t('orderPage.orderCode')}
+                    {'Код заказа'}
                   </TP>
                   <TP>#{order?.code}</TP>
                 </Stack>
@@ -88,7 +86,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                 <OrderShippingStatus
                   currencyCode={currencyCode}
                   shipping={shippingMethod}
-                  label={t('orderPage.shippingMethod')}
+                  label={'Способ доставки'}
                 />
                 <Stack
                   w100
@@ -96,12 +94,12 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                 >
                   <OrderAddress
                     address={order?.shippingAddress}
-                    label={t('orderPage.shippingAddress')}
+                    label={'Адрес доставки'}
                     icon={<Truck size={'1.6rem'} />}
                   />
                   <OrderAddress
                     address={order?.billingAddress}
-                    label={t('orderPage.billingAddress')}
+                    label={'Адрес для счёта'}
                     icon={<CreditCard size={'1.6rem'} />}
                   />
                 </Stack>
@@ -121,7 +119,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                       size="1.25rem"
                       weight={500}
                     >
-                      {t('orderPage.items')}
+                      {'Товары'}
                     </TP>
                   </Stack>
                   {order?.lines?.map((line) => (
@@ -145,7 +143,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                     size="1.5rem"
                     weight={500}
                   >
-                    {t('orderPage.totalPrice')}
+                    {'Общая сумма'}
                   </TP>
                   <Price
                     currencyCode={currencyCode}

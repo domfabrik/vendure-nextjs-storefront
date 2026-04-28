@@ -1,9 +1,10 @@
 import { CreditCard } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
 import { PaymentType } from '@/src/graphql/selectors';
+
+const PAYMENT_STATES: Record<string, string> = { Authorized: 'Авторизована', Settled: 'Подтверждена', Declined: 'Отклонена' };
 
 interface Props {
   payment?: PaymentType;
@@ -13,7 +14,6 @@ const validPaymentStates = ['Authorized', 'Settled', 'Declined'] as const;
 //TODO: Add all possible payment states
 
 export const OrderPaymentState = ({ payment }: Props) => {
-  const { t } = useTranslation('common');
   if (!payment) return null;
 
   return (
@@ -31,7 +31,7 @@ export const OrderPaymentState = ({ payment }: Props) => {
             weight={500}
             size="1rem"
           >
-            {t(`paymentStates.${payment.state as (typeof validPaymentStates)[number]}`)}
+            {PAYMENT_STATES[payment.state as (typeof validPaymentStates)[number]] || (payment.state as (typeof validPaymentStates)[number])}
           </TP>
         )}
       </Stack>

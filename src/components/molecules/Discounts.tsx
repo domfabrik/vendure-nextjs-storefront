@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { X } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Price, Stack, TP } from '@/src/components/atoms';
 import { DiscountsType } from '@/src/graphql/selectors';
@@ -14,8 +13,6 @@ interface Props {
 }
 
 export const Discounts = ({ discounts, removeCouponCode, currencyCode, withLabel }: Props) => {
-  const { t } = useTranslation('common');
-
   if (!discounts || discounts.length === 0) return null;
   return (
     <Stack column>
@@ -24,7 +21,7 @@ export const Discounts = ({ discounts, removeCouponCode, currencyCode, withLabel
           size="1.5rem"
           weight={500}
         >
-          {t('discount')}
+          {'Скидка'}
         </TP>
       )}
       {discounts.map((discount) => (
@@ -42,7 +39,7 @@ export const Discounts = ({ discounts, removeCouponCode, currencyCode, withLabel
               </Remove>
             )}
             <TP size="1.5rem">
-              {t('coupon-code')} {discount.description}
+              {'Код:'} {discount.description}
             </TP>
           </Stack>
           <Price

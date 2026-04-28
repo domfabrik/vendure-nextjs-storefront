@@ -1,5 +1,3 @@
-import { useTranslation } from 'next-i18next';
-
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP, TypoGraphy } from '@/src/components/atoms/TypoGraphy';
 
@@ -11,7 +9,6 @@ const states = ['Payment', 'Shipped', 'Delivered'];
 
 export const CustomerOrderStatus = ({ state }: Props) => {
   const _state = states.includes(state) ? state : states[0];
-  const { t } = useTranslation('customer');
   return (
     <Stack itemsStart>
       {states.map((s) =>
@@ -25,7 +22,7 @@ export const CustomerOrderStatus = ({ state }: Props) => {
               size="2rem"
               weight={500}
             >
-              {t('orderPage.orderStatus')}
+              {'Статус заказа'}
             </TypoGraphy>
             <TP>{s}</TP>
           </Stack>

@@ -9,4 +9,4 @@ export default (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   return Redirect({ children: <Page {...props} /> })();
 };
 
-export { getStaticProps, getStaticPaths };
+export { getStaticPaths, getStaticProps };

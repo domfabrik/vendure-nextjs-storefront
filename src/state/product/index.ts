@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+
 import { useEffect, useMemo, useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { ProductDetailType } from '@/src/graphql/selectors';
@@ -10,7 +10,6 @@ import { findRelatedVariant, productEmptyState, setRecentlyViewedInCookie } from
 
 const useProductContainer = createContainer<ProductContainerType, { product: ProductDetailType }>((initialState) => {
   if (!initialState?.product) return productEmptyState;
-  const { t } = useTranslation('common');
   const push = usePush();
   const { addToCart } = useCart();
   const [selectedOptions, setSelectedOptions] = useState<{
@@ -84,14 +83,14 @@ const useProductContainer = createContainer<ProductContainerType, { product: Pro
 
   const handleAddToCart = async () => {
     if (variant?.id) await addToCart(variant.id, 1, true);
-    else setAddingError(t('select-options'));
+    else setAddingError('Пожалуйста, выберите параметры');
   };
 
   const handleBuyNow = async () => {
     if (variant?.id) {
       await addToCart(variant.id, 1);
       push('/checkout');
-    } else setAddingError(t('select-options'));
+    } else setAddingError('Пожалуйста, выберите параметры');
   };
 
   const handleOptionClick = (groupId: string, id: string) => {

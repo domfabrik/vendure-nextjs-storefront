@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { CheckCircle2, X } from 'lucide-react';
-import { Trans, useTranslation } from 'next-i18next';
 
 import { Price } from '@/src/components';
 import { Divider } from '@/src/components/atoms/Divider';
@@ -13,8 +12,6 @@ import { priceFormatter } from '@/src/util/priceFormatter';
 import { CurrencyCode } from '@/src/zeus';
 
 export const OrderConfirmation = ({ code, order }: { code: string; order?: OrderType }) => {
-  const { t } = useTranslation('checkout');
-
   const currencyCode = order?.currencyCode || CurrencyCode.USD;
   const discounts = order?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
 
@@ -57,23 +54,17 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
                   size={44}
                 />
               )}
-              <TH2>{t('orderSummary.title')}</TH2>
+              <TH2>{'Сводка заказа'}</TH2>
             </Stack>
             <TP size="2rem">
               {orderState === 'Cancelled' ? (
-                <Trans
-                  values={{ code }}
-                  components={{ 1: <strong></strong> }}
-                  i18nKey="confirmation.orderCancelled"
-                  t={t}
-                />
+                <>
+                  Ваш заказ <strong>{code}</strong> отменён
+                </>
               ) : (
-                <Trans
-                  i18nKey="confirmation.orderReceived"
-                  t={t}
-                  values={{ code }}
-                  components={{ 1: <strong></strong> }}
-                />
+                <>
+                  Ваш заказ <strong>{code}</strong> принят
+                </>
               )}
             </TP>
           </Stack>
@@ -84,15 +75,15 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
               gap="1rem"
             >
               <Stack justifyBetween>
-                <TP>{t('orderSummary.subtotal')}</TP>
+                <TP>{'Подытог'}</TP>
                 <TP weight={600}>{priceFormatter(order?.subTotalWithTax || 0, currencyCode)}</TP>
               </Stack>
               <Stack justifyBetween>
-                <TP>{t('orderSummary.discount')}</TP>
+                <TP>{'Скидка'}</TP>
                 <TP weight={600}>{priceFormatter(discounts, currencyCode)}</TP>
               </Stack>
               <Stack justifyBetween>
-                <TP>{t('orderSummary.shipping')}</TP>
+                <TP>{'Доставка'}</TP>
                 <TP weight={600}> {priceFormatter(order?.shippingWithTax || 0, currencyCode)}</TP>
               </Stack>
               {order?.discounts && order?.discounts.length > 0 ? <Divider /> : null}
@@ -103,7 +94,7 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
               />
               <Divider />
               <Stack justifyBetween>
-                <TP>{t('orderSummary.total')}</TP>
+                <TP>{'Итого'}</TP>
                 <TP weight={600}>{priceFormatter((order?.totalWithTax ?? 0) - discounts, currencyCode)}</TP>
               </Stack>
             </Stack>
@@ -134,7 +125,7 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
                       {!isDefaultVariant ? `${line.productVariant.product.name} ${line.productVariant.name}` : line.productVariant.name}
                     </TP>
                     <Stack gap="0.75rem">
-                      <TP size="1.5rem">{t('orderSummary.quantity')} </TP>
+                      <TP size="1.5rem">{'Количество'} </TP>
                       <TP
                         size="1.5rem"
                         weight={500}

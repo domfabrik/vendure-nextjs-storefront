@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'motion/react';
 import { InferGetServerSidePropsType } from 'next';
-import { useTranslation } from 'next-i18next';
+
 import { useRef } from 'react';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -17,7 +17,6 @@ import { useAddresses } from './hooks';
 import { getServerSideProps } from './props';
 
 export const AddressesPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation('customer');
   const ctx = useChannels();
   const { activeCustomer, addressToEdit, deleting, onDelete, onEdit, onModalClose, onSubmitCreate, onSubmitEdit } = useAddresses(props.activeCustomer, ctx);
 
@@ -30,7 +29,7 @@ export const AddressesPage = (props: InferGetServerSidePropsType<typeof getServe
     <Layout
       categories={props.collections}
       navigation={props.navigation}
-      pageTitle={t('addressesPageTitle')}
+      pageTitle={'Адреса'}
     >
       <AnimatePresence>
         {addressToEdit && (

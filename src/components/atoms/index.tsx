@@ -1,7 +1,6 @@
 export * from './ContentContainer';
 export * from './CustomHelmet';
 export * from './Divider';
-export * from './LanguageSwitcher';
 export * from './Link';
 export * from './MainGrid';
 export * from './NotifyFooterForm';

@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Info, MoveLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Trans, useTranslation } from 'next-i18next';
+
 import { useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from '@/src/components/atoms/Link';
@@ -20,6 +20,39 @@ import { baseCountryFromLanguage } from '@/src/util/baseCountryFromLanguage';
 import { DeliveryMethod } from '../DeliveryMethod';
 import { OrderSummary } from '../OrderSummary';
 import { useValidationSchema } from './useValidationSchema';
+
+const BACKEND_ERRORS: Record<string, string> = {
+  UNKNOWN_ERROR: 'Неизвестная ошибка',
+  NATIVE_AUTH_STRATEGY_ERROR: 'Ошибка стратегии авторизации',
+  INVALID_CREDENTIALS_ERROR: 'Неверные учётные данные',
+  ORDER_STATE_TRANSITION_ERROR: 'Ошибка смены статуса заказа',
+  EMAIL_ADDRESS_CONFLICT_ERROR: 'Этот email уже используется',
+  GUEST_CHECKOUT_ERROR: 'Ошибка гостевого оформления',
+  ORDER_LIMIT_ERROR: 'Превышен лимит заказа',
+  NEGATIVE_QUANTITY_ERROR: 'Количество не может быть отрицательным',
+  INSUFFICIENT_STOCK_ERROR: 'Недостаточно товара на складе',
+  COUPON_CODE_INVALID_ERROR: 'Недействительный купон',
+  COUPON_CODE_EXPIRED_ERROR: 'Срок действия купона истёк',
+  COUPON_CODE_LIMIT_ERROR: 'Лимит использования купона исчерпан',
+  ORDER_MODIFICATION_ERROR: 'Ошибка изменения заказа',
+  INELIGIBLE_SHIPPING_METHOD_ERROR: 'Недоступный способ доставки',
+  NO_ACTIVE_ORDER_ERROR: 'Нет активного заказа',
+  ORDER_PAYMENT_STATE_ERROR: 'Ошибка статуса оплаты заказа',
+  INELIGIBLE_PAYMENT_METHOD_ERROR: 'Недоступный способ оплаты',
+  PAYMENT_FAILED_ERROR: 'Ошибка оплаты',
+  PAYMENT_DECLINED_ERROR: 'Оплата отклонена',
+  ALREADY_LOGGED_IN_ERROR: 'Вы уже авторизованы',
+  MISSING_PASSWORD_ERROR: 'Пароль не указан',
+  PASSWORD_VALIDATION_ERROR: 'Ошибка валидации пароля',
+  PASSWORD_ALREADY_SET_ERROR: 'Пароль уже установлен',
+  VERIFICATION_TOKEN_INVALID_ERROR: 'Недействительный токен верификации',
+  VERIFICATION_TOKEN_EXPIRED_ERROR: 'Срок действия токена верификации истёк',
+  IDENTIFIER_CHANGE_TOKEN_INVALID_ERROR: 'Недействительный токен смены идентификатора',
+  IDENTIFIER_CHANGE_TOKEN_EXPIRED_ERROR: 'Срок действия токена смены идентификатора истёк',
+  PASSWORD_RESET_TOKEN_INVALID_ERROR: 'Недействительный токен сброса пароля',
+  PASSWORD_RESET_TOKEN_EXPIRED_ERROR: 'Срок действия токена сброса пароля истёк',
+  NOT_VERIFIED_ERROR: 'Аккаунт не подтверждён',
+};
 
 type FormValues = CreateCustomerType & {
   deliveryMethod?: string;
@@ -51,9 +84,6 @@ const isAddressesEqual = (a: object, b?: object) => {
 export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods }: OrderFormProps) => {
   const ctx = useChannels();
   const { activeOrder, changeShippingMethod } = useCheckout();
-
-  const { t } = useTranslation('checkout');
-  const { t: tErrors } = useTranslation('common');
   const push = usePush();
   const schema = useValidationSchema();
 
@@ -107,7 +137,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
           },
         }
       : undefined,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
   });
 
   const onSubmit: SubmitHandler<FormValues> = async ({
@@ -129,7 +159,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       }
       const { nextOrderStates } = await storefrontApiQuery(ctx)({ nextOrderStates: true });
       if (!nextOrderStates.includes('ArrangingPayment')) {
-        setError('root', { message: tErrors(`errors.backend.UNKNOWN_ERROR`) });
+        setError('root', { message: 'Неизвестная ошибка' });
         return;
       }
       // Set the billing address for the order
@@ -152,7 +182,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       });
 
       if (setOrderBillingAddress?.__typename !== 'Order') {
-        setError('root', { message: tErrors(`errors.backend.${setOrderBillingAddress.errorCode}`) });
+        setError('root', { message: BACKEND_ERRORS[setOrderBillingAddress.errorCode] || 'Неизвестная ошибка' });
         return;
       }
 
@@ -171,7 +201,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
         });
 
         if (setOrderShippingAddress?.__typename === 'NoActiveOrderError') {
-          setError('root', { message: tErrors(`errors.backend.NO_ACTIVE_ORDER_ERROR`) });
+          setError('root', { message: 'Нет активного заказа' });
           return;
         }
       } else {
@@ -188,7 +218,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
         });
 
         if (setOrderShippingAddress?.__typename === 'NoActiveOrderError') {
-          setError('root', { message: tErrors(`errors.backend.NO_ACTIVE_ORDER_ERROR`) });
+          setError('root', { message: 'Нет активного заказа' });
           return;
         }
       }
@@ -212,11 +242,11 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
           if (setCustomerForOrder.__typename === 'EmailAddressConflictError') {
             // TODO: IN THIS CASE WE SHOULD SHOW THE LOGIN FORM or ADD A LINK TO LOGIN
             setError('emailAddress', {
-              message: tErrors(`errors.backend.${setCustomerForOrder.errorCode}`),
+              message: BACKEND_ERRORS[setCustomerForOrder.errorCode] || 'Неизвестная ошибка',
             });
             setFocus('emailAddress');
           } else {
-            setError('root', { message: tErrors(`errors.backend.${setCustomerForOrder.errorCode}`) });
+            setError('root', { message: BACKEND_ERRORS[setCustomerForOrder.errorCode] || 'Неизвестная ошибка' });
           }
           return;
         }
@@ -269,18 +299,18 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       }
 
       if (!transitionOrderToState) {
-        setError('root', { message: tErrors(`errors.backend.UNKNOWN_ERROR`) });
+        setError('root', { message: 'Неизвестная ошибка' });
         return;
       }
 
       if (transitionOrderToState?.__typename !== 'Order') {
-        setError('root', { message: tErrors(`errors.backend.${transitionOrderToState.errorCode}`) });
+        setError('root', { message: BACKEND_ERRORS[transitionOrderToState.errorCode] || 'Неизвестная ошибка' });
         return;
       }
       // Redirect to payment page
       push('/checkout/payment');
     } catch (_error) {
-      setError('root', { message: tErrors(`errors.backend.UNKNOWN_ERROR`) });
+      setError('root', { message: 'Неизвестная ошибка' });
     }
   };
 
@@ -297,14 +327,10 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
           size="2rem"
           weight={500}
         >
-          {t('orderForm.emptyCart')}
+          {'Ваша корзина пуста'}
         </TH2>
         <EmptyCartDescription>
-          <Trans
-            i18nKey="orderForm.emptyCartDescription"
-            t={t}
-            components={{ 1: <Link href="/"></Link> }}
-          />
+          В вашей корзине нет товаров. Нажмите <Link href="/">здесь</Link>, чтобы продолжить покупки.
         </EmptyCartDescription>
       </Stack>
     </Stack>
@@ -359,10 +385,10 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     color="contrast"
                     upperCase
                   >
-                    {t('orderForm.continueToPayment')}
+                    {'Перейти к оплате'}
                   </TP>
                 </StyledButton>
-                <LinkButton href="/">{t('orderForm.continueShopping')}</LinkButton>
+                <LinkButton href="/">{'Продолжить покупки'}</LinkButton>
               </Stack>
             }
           />
@@ -396,7 +422,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     size="2rem"
                     weight={500}
                   >
-                    {t('orderForm.contactInfo')}
+                    {'Контактная информация'}
                   </TH2>
                 </Stack>
 
@@ -411,15 +437,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   >
                     <Input
                       {...register('firstName')}
-                      placeholder={t('orderForm.placeholders.firstName')}
-                      label={t('orderForm.firstName')}
+                      placeholder={'Имя'}
+                      label={'Имя'}
                       error={errors.firstName}
                       required
                     />
                     <Input
                       {...register('lastName')}
-                      placeholder={t('orderForm.placeholders.lastName')}
-                      label={t('orderForm.lastName')}
+                      placeholder={'Фамилия'}
+                      label={'Фамилия'}
                       error={errors.lastName}
                       required
                     />
@@ -432,15 +458,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                       {...register('phoneNumber', {
                         onChange: (e) => (e.target.value = e.target.value.replace(/[^0-9]/g, '')),
                       })}
-                      placeholder={t('orderForm.placeholders.phoneNumber')}
+                      placeholder={'Номер телефона'}
                       type="tel"
-                      label={t('orderForm.phone')}
+                      label={'Телефон'}
                       error={errors.phoneNumber}
                     />
                     <Input
                       {...register('emailAddress')}
-                      placeholder={t('orderForm.placeholders.emailAddress')}
-                      label={t('orderForm.emailAddress')}
+                      placeholder={'Email'}
+                      label={'Email'}
                       error={errors.emailAddress}
                       required
                       disabled={!!activeCustomer?.id}
@@ -456,7 +482,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   weight={500}
                   style={{ marginBottom: '1.75rem' }}
                 >
-                  {t('orderForm.billingInfo')}
+                  {'Адрес для счёта'}
                 </TH2>
                 <Stack
                   w100
@@ -469,15 +495,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   >
                     <Input
                       {...register('billing.fullName')}
-                      placeholder={t('orderForm.placeholders.fullName')}
-                      label={t('orderForm.fullName')}
+                      placeholder={'Полное имя'}
+                      label={'Полное имя'}
                       error={errors.billing?.fullName}
                       required
                     />
                     <Input
                       {...register('billing.city')}
-                      placeholder={t('orderForm.placeholders.city')}
-                      label={t('orderForm.city')}
+                      placeholder={'Город'}
+                      label={'Город'}
                       error={errors.billing?.city}
                       required
                     />
@@ -488,15 +514,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   >
                     <Input
                       {...register('billing.streetLine1')}
-                      placeholder={t('orderForm.placeholders.streetLine1')}
-                      label={t('orderForm.streetLine1')}
+                      placeholder={'Адрес'}
+                      label={'Адрес'}
                       error={errors.billing?.streetLine1}
                       required
                     />
                     <Input
                       {...register('billing.streetLine2')}
-                      placeholder={t('orderForm.placeholders.streetLine2')}
-                      label={t('orderForm.streetLine2')}
+                      placeholder={'Квартира, офис и т.д.'}
+                      label={'Квартира, офис и т.д.'}
                       error={errors.billing?.streetLine2}
                     />
                   </Stack>
@@ -506,15 +532,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   >
                     <Input
                       {...register('billing.province')}
-                      placeholder={t('orderForm.placeholders.province')}
-                      label={t('orderForm.province')}
+                      placeholder={'Область / Регион'}
+                      label={'Область / Регион'}
                       error={errors.billing?.province}
                       required
                     />
                     <Input
                       {...register('billing.postalCode')}
-                      placeholder={t('orderForm.placeholders.postalCode')}
-                      label={t('orderForm.postalCode')}
+                      placeholder={'Почтовый индекс'}
+                      label={'Почтовый индекс'}
                       error={errors.billing?.postalCode}
                       required
                     />
@@ -525,15 +551,15 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                   >
                     <Input
                       {...register('billing.company')}
-                      placeholder={t('orderForm.placeholders.company')}
-                      label={t('orderForm.company')}
+                      placeholder={'Компания'}
+                      label={'Компания'}
                       error={errors.billing?.company}
                     />
                     {availableCountries && (
                       <CountrySelect
                         {...register('billing.countryCode')}
-                        placeholder={t('orderForm.placeholders.countryCode')}
-                        label={t('orderForm.countryCode')}
+                        placeholder={'Страна'}
+                        label={'Страна'}
                         defaultValue={countryCode}
                         options={availableCountries}
                         error={errors.billing?.countryCode}
@@ -556,12 +582,12 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                                 setValue('NIP', '');
                             },
                         })}
-                        label={t('orderForm.userNeedInvoice')}
+                        label={"Нужен счёт-фактура?"}
                     /> */}
               <CheckBox
                 {...register('shippingDifferentThanBilling')}
                 checked={watch('shippingDifferentThanBilling')}
-                label={t('orderForm.shippingDifferentThanBilling')}
+                label={'Адрес доставки отличается от адреса для счёта?'}
               />
             </Stack>
 
@@ -575,7 +601,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                             transition={{ duration: 0.2 }}>
                             <Input
                                 {...register('NIP')}
-                                label={t('orderForm.NIP')}
+                                label={"ИНН"}
                                 error={errors.NIP}
                                 placeholder="NIP"
                                 required
@@ -598,7 +624,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     weight={500}
                     style={{ marginBottom: '1.75rem' }}
                   >
-                    {t('orderForm.shippingInfo')}
+                    {'Адрес доставки'}
                   </TH2>
                   <Stack column>
                     <Stack
@@ -607,13 +633,13 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     >
                       <Input
                         {...register('shipping.fullName')}
-                        label={t('orderForm.fullName')}
+                        label={'Полное имя'}
                         error={errors.shipping?.fullName}
                         required
                       />
                       <Input
                         {...register('shipping.company')}
-                        label={t('orderForm.company')}
+                        label={'Компания'}
                         error={errors.shipping?.company}
                       />
                     </Stack>
@@ -623,13 +649,13 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     >
                       <Input
                         {...register('shipping.streetLine1')}
-                        label={t('orderForm.streetLine1')}
+                        label={'Адрес'}
                         error={errors.shipping?.province}
                         required
                       />
                       <Input
                         {...register('shipping.streetLine2')}
-                        label={t('orderForm.streetLine2')}
+                        label={'Квартира, офис и т.д.'}
                         error={errors.shipping?.postalCode}
                         required
                       />
@@ -640,14 +666,14 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     >
                       <Input
                         {...register('shipping.city')}
-                        label={t('orderForm.city')}
+                        label={'Город'}
                         error={errors.shipping?.city}
                         required
                       />
                       {availableCountries && (
                         <CountrySelect
                           {...register('shipping.countryCode')}
-                          label={t('orderForm.countryCode')}
+                          label={'Страна'}
                           defaultValue={countryCode}
                           options={availableCountries}
                           error={errors.shipping?.countryCode}
@@ -658,13 +684,13 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     <Stack gap="1.75rem">
                       <Input
                         {...register('shipping.province')}
-                        label={t('orderForm.province')}
+                        label={'Область / Регион'}
                         error={errors.shipping?.province}
                         required
                       />
                       <Input
                         {...register('shipping.postalCode')}
-                        label={t('orderForm.postalCode')}
+                        label={'Почтовый индекс'}
                         error={errors.shipping?.postalCode}
                         required
                       />
@@ -686,13 +712,13 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                 >
                   <CheckBox
                     {...register('createAccount')}
-                    label={t('orderForm.createAccount')}
+                    label={'Создать аккаунт?'}
                   />
                   <Stack
                     itemsCenter
                     justifyCenter
                   >
-                    <Tooltip text={t('orderForm.whatAccountGives')}>
+                    <Tooltip text={'Аккаунт даёт доступ к истории и статусу заказов. Также позволяет изменять личные данные и адреса.'}>
                       <Info size={12} />
                     </Tooltip>
                   </Stack>
@@ -707,14 +733,14 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                     <Input
                       {...register('password')}
                       type="password"
-                      label={t('orderForm.password')}
+                      label={'Пароль'}
                       error={errors.password}
                       required
                     />
                     <Input
                       {...register('confirmPassword')}
                       type="password"
-                      label={t('orderForm.confirmPassword')}
+                      label={'Подтвердите пароль'}
                       error={errors.confirmPassword}
                       required
                     />
@@ -733,18 +759,16 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                 {...register('terms')}
                 // error={errors.terms}
                 label={
-                  <Trans
-                    i18nKey="orderForm.terms"
-                    t={t}
-                    components={{
-                      1: (
-                        <Link
-                          style={{ zIndex: 2, position: 'relative' }}
-                          href="/checkout"
-                        />
-                      ),
-                    }}
-                  />
+                  <>
+                    Я принимаю{' '}
+                    <Link
+                      style={{ zIndex: 2, position: 'relative' }}
+                      href="/checkout"
+                    >
+                      условия использования
+                    </Link>
+                    .
+                  </>
                 }
                 required
               />

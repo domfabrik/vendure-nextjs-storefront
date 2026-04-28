@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { X } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { Stack } from '@/src/components/atoms/Stack';
 import { TH2, TP } from '@/src/components/atoms/TypoGraphy';
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export const CartHeader = ({ activeOrder }: Props) => {
-  const { t } = useTranslation('common');
   const { close } = useCart();
   return (
     <CartHeaderWrapper
@@ -24,10 +22,10 @@ export const CartHeader = ({ activeOrder }: Props) => {
         itemsEnd
         gap="1rem"
       >
-        <TH2>{t('your-cart')}</TH2>
+        <TH2>{'Ваша корзина'}</TH2>
         {activeOrder?.totalQuantity ? (
           <TP style={{ marginBottom: '0.5rem' }}>
-            ({activeOrder?.lines.length} {t('items')})
+            ({activeOrder?.lines.length} {'товаров'})
           </TP>
         ) : null}
       </Stack>

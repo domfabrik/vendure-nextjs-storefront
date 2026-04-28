@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer, Link, NotifyFooterForm, Stack, TypoGraphy } from '@/src/components/atoms';
 import { Socials } from '@/src/components/atoms/Socials';
@@ -7,9 +6,11 @@ import { NavigationType } from '@/src/graphql/selectors';
 import { RootNode } from '@/src/util/arrayToTree';
 
 export const Footer = ({ navigation }: { navigation: RootNode<NavigationType> | null }) => {
-  const { t } = useTranslation('common');
-
-  const footerLaw = t('footer.law', { returnObjects: true });
+  const footerLaw = [
+    { name: 'О нас', href: '/about' },
+    { name: 'Политика конфиденциальности', href: '/privacy' },
+    { name: 'Условия использования', href: '/terms' },
+  ];
 
   return (
     <Wrapper>
@@ -30,14 +31,14 @@ export const Footer = ({ navigation }: { navigation: RootNode<NavigationType> | 
                   weight={400}
                   size="2.5rem"
                 >
-                  {t('footer.notify.header')}
+                  {'Будьте в курсе!'}
                 </TypoGraphy>
                 <TypoGraphy
                   as="p"
                   weight={400}
                   size="1.5rem"
                 >
-                  {t('footer.notify.paragraph')}
+                  {'Подпишитесь на рассылку для эксклюзивных предложений и советов'}
                 </TypoGraphy>
               </Stack>
               <NotifyFooterForm />
@@ -141,7 +142,7 @@ const Container = styled(Stack)`
     gap: 2rem;
     padding: 3rem 0;
     @media (min-width: ${(p) => p.theme.breakpoints.ssm}) {
-        padding: 13.5rem 0 14.5rem 0rem;
+        padding: 13.5rem 0 14.5rem 0;
     }
     @media (min-width: ${(p) => p.theme.breakpoints.lg}) {
         gap: 0;

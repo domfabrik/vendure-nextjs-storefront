@@ -1,17 +1,16 @@
 import styled from '@emotion/styled';
 import { TagIcon } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
+
 import { useState } from 'react';
 import { z } from 'zod';
 import { Stack } from '@/src/components/atoms';
 import { FormError } from '@/src/components/forms';
 
 export const DiscountForm = ({ applyCouponCode }: { applyCouponCode: (code: string) => Promise<boolean> }) => {
-  const { t } = useTranslation('common');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
-  const schema = z.object({ code: z.string().min(1, t('discounts-errors.enter-code')) });
+  const schema = z.object({ code: z.string().min(1, 'Введите код') });
   const submitCode = async () => {
     if (!code || loading) return;
     setError(undefined);
@@ -25,7 +24,7 @@ export const DiscountForm = ({ applyCouponCode }: { applyCouponCode: (code: stri
       }
     } catch (_e) {
       setCode('');
-      setError(t('discounts-errors.something-went-wrong'));
+      setError('Что-то пошло не так');
       setLoading(false);
       return;
     }
@@ -37,12 +36,12 @@ export const DiscountForm = ({ applyCouponCode }: { applyCouponCode: (code: stri
         setError(undefined);
         setLoading(false);
       } else {
-        setError(t('discounts-errors.coupon-code-invalid'));
+        setError('Купон с таким кодом не найден');
         setLoading(false);
       }
     } catch (_e) {
       setCode('');
-      setError(t('discounts-errors.something-went-wrong'));
+      setError('Что-то пошло не так');
       setLoading(false);
     }
   };
@@ -63,7 +62,7 @@ export const DiscountForm = ({ applyCouponCode }: { applyCouponCode: (code: stri
               submitCode();
             }
           }}
-          placeholder={t('coupon-code')}
+          placeholder={'Код:'}
         />
         <Button
           type="button"

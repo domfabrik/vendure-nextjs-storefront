@@ -1,9 +1,24 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
 
 import { Stack, TP } from '@/src/components/atoms';
 import { OrderStateType } from '@/src/graphql/selectors';
 import { orderStateToIcon } from '@/src/util/orderStateToIcon';
+
+const ORDER_STATES: Record<string, string> = {
+  Created: 'Создан',
+  Draft: 'Черновик',
+  AddingItems: 'Добавление товаров',
+  Cancelled: 'Отменён',
+  ArrangingPayment: 'Ожидание оплаты',
+  PaymentAuthorized: 'Оплата авторизована',
+  PaymentSettled: 'Оплата подтверждена',
+  PartiallyShipped: 'Частично отправлен',
+  Shipped: 'Отправлен',
+  PartiallyDelivered: 'Частично доставлен',
+  Delivered: 'Доставлен',
+  Modifying: 'Изменение',
+  ArrangingAdditionalPayment: 'Дополнительная оплата',
+};
 
 interface Props {
   state: string;
@@ -15,7 +30,6 @@ interface Props {
 }
 
 export const OrderState = ({ state, size = 'small', column, withoutText, itemsCenter, itemsEnd = true }: Props) => {
-  const { t } = useTranslation('common');
   const iconSize = size === 'small' ? 20 : size === 'medium' ? 30 : 40;
   return (
     <Stack
@@ -36,7 +50,7 @@ export const OrderState = ({ state, size = 'small', column, withoutText, itemsCe
           v={size}
           weight={500}
         >
-          {t(`orderStates.${state as OrderStateType}`)}
+          {ORDER_STATES[state as OrderStateType] || (state as OrderStateType)}
         </StyledTP>
       )}
     </Stack>

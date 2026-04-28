@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { motion } from 'motion/react';
-import { useTranslation } from 'next-i18next';
 
 import { Link } from '@/src/components/atoms/Link';
 import { Price } from '@/src/components/atoms/Price';
@@ -12,7 +11,6 @@ import { ActiveOrderType } from '@/src/graphql/selectors';
 import { dateFormatter } from '@/src/util/dateFormatter';
 
 export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
-  const { t } = useTranslation('customer');
   return (
     <ClickableStack key={order.id}>
       <ContentStack
@@ -51,7 +49,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                     size="1.5rem"
                     weight={500}
                   >
-                    {t('ordersPage.orderDate')}:&nbsp;
+                    {'Дата заказа'}:&nbsp;
                   </TP>
                   <TP>{dateFormatter(order.createdAt)}</TP>
                 </Stack>
@@ -63,7 +61,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                     size="1.5rem"
                     weight={500}
                   >
-                    {t('ordersPage.orderCode')}:&nbsp;
+                    {'Код заказа'}:&nbsp;
                   </TP>
                   <TP>{order.code}</TP>
                 </Stack>
@@ -82,7 +80,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                   size="1.5rem"
                   weight={500}
                 >
-                  {t('ordersPage.totalQuantity')}:&nbsp;
+                  {'Общее количество'}:&nbsp;
                 </TP>
                 <TP>{order.totalQuantity}</TP>
               </Stack>
@@ -94,7 +92,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                   size="1.5rem"
                   weight={500}
                 >
-                  {t('ordersPage.totalItems')}:&nbsp;
+                  {'Всего товаров'}:&nbsp;
                 </TP>
                 <TP>{order.lines.length}</TP>
               </Stack>
@@ -106,7 +104,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                   size="1.5rem"
                   weight={500}
                 >
-                  {t('ordersPage.totalPrice')}:&nbsp;
+                  {'Общая сумма'}:&nbsp;
                 </TP>
                 <Price
                   currencyCode={order.currencyCode}
@@ -136,7 +134,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                 size="1.5rem"
                 weight={500}
               >
-                {t('ordersPage.viewOrder')}
+                {'Просмотр заказа'}
               </TP>
             </Styled>
           </Link>

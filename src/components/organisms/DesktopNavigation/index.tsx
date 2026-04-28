@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer, Link, Stack } from '@/src/components/atoms';
 import { NavigationType } from '@/src/graphql/selectors';
@@ -14,7 +13,6 @@ interface NavProps {
 }
 
 export const DesktopNavigation = ({ navigation }: NavProps) => {
-  const { t } = useTranslation('common');
   const { addToCart } = useCart();
   return (
     <DesktopStack
@@ -48,13 +46,13 @@ export const DesktopNavigation = ({ navigation }: NavProps) => {
                   <NavigationLinks collection={collection} />
                   <Stack gap="3.5rem">
                     <ProductsSellout
-                      title={t('featured-products')}
+                      title={'Рекомендуемые товары'}
                       addToCart={addToCart}
-                      addToCartLabel={t('add-to-cart')}
+                      addToCartLabel={'В корзину'}
                       collection={collection}
                     />
                     <RelatedCollections
-                      title={t('best-collections')}
+                      title={'Лучшие коллекции'}
                       collection={collection}
                     />
                   </Stack>

@@ -3,7 +3,7 @@ import 'keen-slider/keen-slider.min.css';
 import { Global, ThemeProvider } from '@emotion/react';
 import { AppProps } from 'next/app';
 import { Nunito_Sans } from 'next/font/google';
-import { appWithTranslation } from 'next-i18next';
+
 import { CartProvider } from '@/src/state/cart';
 import { CheckoutProvider } from '@/src/state/checkout';
 import { CollectionProvider } from '@/src/state/collection';
@@ -52,4 +52,4 @@ const App = ({ Component, pageProps }: AppProps) => {
   );
 };
 
-export default appWithTranslation(App);
+export default App;

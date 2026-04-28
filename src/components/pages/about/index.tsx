@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { InferGetStaticPropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import type { getStaticProps } from '@/src/components/pages/home/props';
 import { Layout } from '@/src/layouts';
@@ -15,12 +14,11 @@ const faces: Array<{
 }> = aboutJson.faces;
 
 export const About = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { t } = useTranslation('homepage');
   return (
     <Layout
       navigation={props.navigation}
       categories={props.categories}
-      pageTitle={t('seo.home')}
+      pageTitle={'Главная'}
     >
       <Container>
         <h1>{aboutJson.title}</h1>
@@ -144,7 +142,7 @@ const CoolButtonA = styled.a`
     border: 1px solid;
     outline: 0;
     padding: 0.5rem 2rem;
-    box-shadow: blue 4px 4px 0px;
+    box-shadow: blue 4px 4px 0;
     :hover {
         color: #eee;
         background-color: #333;
@@ -202,7 +200,7 @@ const Face = styled.div`
     align-items: center;
     gap: 2rem;
     border-radius: 4px;
-    box-shadow: blue 4px 4px 0px;
+    box-shadow: blue 4px 4px 0;
 `;
 const FaceText = styled.div`
     display: flex;

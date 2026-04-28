@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { InferGetStaticPropsType } from 'next';
-import { useTranslation } from 'next-i18next';
 
 import { ContentContainer, Stack } from '@/src/components/atoms';
 import { Hero } from '@/src/components/organisms/Hero';
@@ -13,13 +12,11 @@ const Main = styled(Stack)`
 `;
 
 export const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { t } = useTranslation('homepage');
-
   return (
     <Layout
       navigation={props.navigation}
       categories={props.categories}
-      pageTitle={t('seo.home')}
+      pageTitle={'Главная'}
     >
       <Main
         w100
@@ -27,17 +24,17 @@ export const Home = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         gap="4rem"
       >
         <Hero
-          cta={t('hero-cta')}
-          h1={t('hero-h1')}
-          h2={t('hero-h2')}
-          desc={t('hero-p')}
+          cta={'смотреть все'}
+          h1={'Лучшие товары для зимы'}
+          h2={'Почувствуйте волшебство праздников'}
+          desc={'Акции на подарки и другие товары'}
           link="/collections/home-garden"
           image={props.products?.find((p) => p.slug.includes('laptop'))?.productAsset?.preview ?? (props.products[0]?.productAsset?.preview || '')}
         />
         <ContentContainer>
           <HomePageSliders
             sliders={props.sliders}
-            seeAllText={t('see-all')}
+            seeAllText={'Смотреть все'}
           />
         </ContentContainer>
       </Main>

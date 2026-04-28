@@ -1,14 +1,12 @@
 import styled from '@emotion/styled';
 import { SendHorizonal } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type NotifyForm = { email: string };
 export const NotifyFooterForm = () => {
-  const { t } = useTranslation('common');
   const { register, handleSubmit } = useForm<NotifyForm>();
-  const onSubmit: SubmitHandler<NotifyForm> = (data) => window.alert(`${t('footer.notify.alert')} ${data.email}`);
+  const onSubmit: SubmitHandler<NotifyForm> = (data) => window.alert(`${'Подписка оформлена!'} ${data.email}`);
 
   return (
     <NotifyWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -21,7 +19,7 @@ export const NotifyFooterForm = () => {
           },
         })}
         type="text"
-        placeholder={t('footer.notify.placeholder')}
+        placeholder={'email@example.com'}
       />
       <button
         type="submit"

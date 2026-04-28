@@ -1,9 +1,4 @@
-// import nextI18nextConfig from '@/next-i18next.config';
-
 import { GetServerSidePropsContext } from 'next';
-import { i18n } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import resources from '@/src/@types/resources';
 import { channels } from './consts';
 import { getContext } from './utils';
 
@@ -37,27 +32,19 @@ export const localizeGetStaticPaths = <T>(
   }>,
 ) => {
   const allPaths = getAllPossibleWithChannels();
-  const paths = allPaths.flatMap((locale) =>
+  return allPaths.flatMap((locale) =>
     existingPaths.map((ep) => ({
       ...ep,
       params: { ...ep.params, ...locale.params },
     })),
   );
-  return paths;
 };
 
-export async function getI18nProps(ctx: ContextModel, ns: Array<keyof typeof resources> = ['common']) {
-  const locale = ctx?.params?.locale;
-  if (process.env.NODE_ENV === 'development') await i18n?.reloadResources();
-
-  const props = {
-    ...(await serverSideTranslations(locale, ns)),
-  };
-
-  return props;
+export async function getI18nProps(_ctx: ContextModel, _ns: string[] = ['common']) {
+  return {};
 }
 
-export function makeStaticProps(ns: Array<keyof typeof resources>) {
+export function makeStaticProps(ns: string[]) {
   return async function getStaticProps(ctx: ContextModel) {
     const context = getContext(ctx);
     return {
@@ -67,7 +54,7 @@ export function makeStaticProps(ns: Array<keyof typeof resources>) {
   };
 }
 
-export function makeServerSideProps(ns: Array<keyof typeof resources>) {
+export function makeServerSideProps(ns: string[]) {
   return async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const context = getContext(ctx);
     return {
