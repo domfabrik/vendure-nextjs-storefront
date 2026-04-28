@@ -1,4 +1,4 @@
-ARG NODE_VER=20
+ARG NODE_VER=25.2.1
 FROM node:${NODE_VER}-bookworm-slim AS deps
 
 WORKDIR /app
