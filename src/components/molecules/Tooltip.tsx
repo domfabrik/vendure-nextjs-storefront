@@ -1,53 +1,64 @@
 import styled from '@emotion/styled';
+import { arrow, autoUpdate, flip, offset, Placement, shift, useFloating, useHover, useInteractions } from '@floating-ui/react';
 import { AnimatePresence, motion } from 'motion/react';
-import { cloneElement, ReactElement } from 'react';
-import { Arrow, Placement, useHover, useLayer } from 'react-laag';
+import { ReactElement, useRef, useState } from 'react';
 import { TP } from '@/src/components/atoms';
 
-export const Tooltip = ({ children, text, position, offset }: { text: string; children: ReactElement; position?: Placement; offset?: number }) => {
-  const [isOver, hoverProps] = useHover({ delayEnter: 100, delayLeave: 300 });
+export const Tooltip = ({ children, text, position, offset: offsetValue }: { text: string; children: ReactElement; position?: Placement; offset?: number }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const arrowRef = useRef<HTMLDivElement>(null);
 
-  const { triggerProps, layerProps, arrowProps, renderLayer } = useLayer({
-    auto: true,
-    isOpen: isOver,
-    triggerOffset: offset || 12,
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
     placement: position || 'bottom-start',
-    preferY: position ? undefined : 'bottom',
+    middleware: [offset(offsetValue || 12), flip(), shift(), arrow({ element: arrowRef })],
+    whileElementsMounted: autoUpdate,
   });
+
+  const hover = useHover(context, { delay: { open: 100, close: 300 } });
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
 
   return (
     <>
-      {cloneElement(children, {
-        ...triggerProps,
-        ...hoverProps,
-      })}
-      {renderLayer(
-        <AnimatePresence>
-          {isOver && (
-            <StyledTooltip
-              initial={{ opacity: 0, scale: 0.3 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.3 }}
-              transition={{ duration: 0.1 }}
-              {...layerProps}
-            >
-              <TP size="1.25rem">{text}</TP>
-              <StyledArrow
-                {...(arrowProps as any)}
-                size={6}
-              />
-            </StyledTooltip>
-          )}
-        </AnimatePresence>,
-      )}
+      <span
+        ref={refs.setReference}
+        style={{ display: 'inline-flex' }}
+        {...getReferenceProps()}
+      >
+        {children}
+      </span>
+      <AnimatePresence>
+        {isOpen && (
+          <StyledTooltip
+            ref={refs.setFloating}
+            style={floatingStyles}
+            initial={{ opacity: 0, scale: 0.3 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.3 }}
+            transition={{ duration: 0.1 }}
+            {...getFloatingProps()}
+          >
+            <TP size="1.25rem">{text}</TP>
+            <StyledArrow ref={arrowRef} />
+          </StyledTooltip>
+        )}
+      </AnimatePresence>
     </>
   );
 };
 
-const StyledArrow = styled(Arrow)``;
+const StyledArrow = styled.div`
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: inherit;
+    transform: rotate(45deg);
+`;
 
 const StyledTooltip = styled(motion.div)`
     max-width: 20rem;
+    z-index: 1000;
 
     display: flex;
     align-items: center;
