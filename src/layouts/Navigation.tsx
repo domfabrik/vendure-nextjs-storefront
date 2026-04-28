@@ -1,41 +1,29 @@
 import styled from '@emotion/styled';
+import { SearchIcon } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef } from 'react';
 import { LogoAexol } from '@/src/assets';
 import { ContentContainer } from '@/src/components/atoms';
 import { Link } from '@/src/components/atoms/Link';
 import { Stack } from '@/src/components/atoms/Stack';
-import { UserMenu } from '@/src/components/molecules/UserMenu';
-import { useCart } from '@/src/state/cart';
-
-// import { Cart } from '@/src/layouts/Cart';
-// import { LanguageSwitcher } from '@/src/components';
-
-import { SearchIcon } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-
-import { useEffect, useRef } from 'react';
 import { IconButton } from '@/src/components/molecules/Button';
+import { UserMenu } from '@/src/components/molecules/UserMenu';
 import { AnnouncementBar } from '@/src/components/organisms/AnnouncementBar';
 import { DesktopNavigation } from '@/src/components/organisms/DesktopNavigation';
 import { NavigationSearch } from '@/src/components/organisms/NavgationSearch';
 import { useNavigationSearch } from '@/src/components/organisms/NavgationSearch/hooks';
-import { Picker } from '@/src/components/organisms/Picker';
 import { CollectionTileType, NavigationType } from '@/src/graphql/selectors';
 import { CartDrawer } from '@/src/layouts/CartDrawer';
+import { useCart } from '@/src/state/cart';
 import { RootNode } from '@/src/util/arrayToTree';
 import { CategoryBar } from './CategoryBar';
 
 interface NavigationProps {
   navigation: RootNode<NavigationType> | null;
   categories: CollectionTileType[];
-  changeModal?: {
-    modal: boolean;
-    channel: string;
-    locale: string;
-    country_name: string;
-  };
 }
 
-export const Navigation = ({ navigation, categories, changeModal }: NavigationProps) => {
+export const Navigation = ({ navigation, categories }: NavigationProps) => {
   const { isLogged, cart } = useCart();
   const navigationSearch = useNavigationSearch();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -120,7 +108,6 @@ export const Navigation = ({ navigation, categories, changeModal }: NavigationPr
               >
                 <SearchIcon />
               </IconButton>
-              <Picker changeModal={changeModal} />
               <UserMenu isLogged={isLogged} />
               <CartDrawer activeOrder={cart} />
             </Stack>

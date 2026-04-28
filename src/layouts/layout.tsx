@@ -12,7 +12,7 @@ import { useCollection } from '@/src/state/collection';
 import { useProduct } from '@/src/state/product';
 import { RootNode } from '@/src/util/arrayToTree';
 
-export const siteTitle = 'Aexol Next.js Storefront';
+export const siteTitle = 'Domfabrik';
 
 interface LayoutProps {
   pageTitle?: string;
