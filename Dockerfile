@@ -38,7 +38,6 @@ ENV NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN}
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/next-i18next.config.js ./next-i18next.config.js
 
 EXPOSE 3001
 
