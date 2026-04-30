@@ -90,7 +90,7 @@ export const privacyContent = `
         unsubscribe instructions included in our marketing communications. Please note that your consent to our
         marketing activities is voluntary and may be withdrawn by you at any time. - basis in Article 6(1)(f) of the
         GDPR; The Controller processes the Personal Data of users visiting the Controller's profiles in social media
-        (Linkedin, Facebook). This data is processed only in connection with keeping the profile, including to inform
+        (Linkedin). This data is processed only in connection with keeping the profile, including to inform
         users about the Controller's activity and to promote various types of events, services and products. - basis in
         Article 6(1)(f) of the GDPR;</p>
 
@@ -153,16 +153,6 @@ export const privacyContent = `
         processing by Google in the scope of the above service can be found at: <a
             href="https://policies.google.com/technologies/ads?hl=pl"
             title="https://policies.google.com/technologies/ads?hl=pl">https://policies.google.com/technologies/ads?hl=pl</a>
-    </p>
-
-    <h4>Facebook Pixel</h4>
-
-    <p>Facebook pixel is a tool that enables measuring the effectiveness of advertising campaigns executed by the
-        Controller on Facebook. The tool enables advanced data analytics in order to optimize the Controller's acts
-        together with the use of other tools offered by Facebook. Detailed information on data processing by Facebook can
-        be found at: <a
-            href="https://pl-pl.facebook.com/help/443357099140264?helpref=about_content"
-            title="https://pl-pl.facebook.com/help/443357099140264?helpref=about_content">https://pl-pl.facebook.com/help/443357099140264?helpref=about_content</a>
     </p>
 
     <h4>Google Tag Manager</h4>

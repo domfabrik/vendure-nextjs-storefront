@@ -1,5 +1,4 @@
 import { GetServerSidePropsContext } from 'next';
-
 import { SSGQuery } from '@/src/graphql/client';
 import { HomePageSlidersType, homePageSlidersSelector, ProductSearchSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
