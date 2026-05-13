@@ -108,17 +108,6 @@ export const SearchSelector = Selector('SearchResponse')({
 
 export type SearchType = FromSelector<typeof SearchSelector, 'SearchResponse', typeof scalars>;
 
-export const ProductSlugSelector = Selector('Product')({
-  name: true,
-  description: true,
-  id: true,
-  slug: true,
-  facetValues: {
-    name: true,
-    code: true,
-  },
-});
-
 export const ProductDetailsFacetSelector = Selector('FacetValue')({
   name: true,
   id: true,
@@ -196,35 +185,7 @@ export const ProductDetailSelector = Selector('Product')({
 
 export type ProductDetailType = FromSelector<typeof ProductDetailSelector, 'Product', typeof scalars>;
 
-export const NewestProductSelector = Selector('Product')({
-  name: true,
-  slug: true,
-  featuredAsset: {
-    source: true,
-    preview: true,
-  },
-});
-
-export type NewestProductType = FromSelector<typeof NewestProductSelector, 'Product', typeof scalars>;
-
 export type ProductTileType = FromSelector<typeof ProductTileSelector, 'Product', typeof scalars>;
-
-export const ProductVariantSelector = Selector('ProductVariant')({
-  id: true,
-  name: true,
-  slug: true,
-  collections: {
-    name: true,
-  },
-  variants: {
-    currencyCode: true,
-    price: true,
-  },
-  featuredAsset: {
-    source: true,
-    preview: true,
-  },
-});
 
 export const AvailableCountriesSelector = Selector('Country')({
   code: true,
@@ -463,37 +424,6 @@ export type LoginCustomerInputType = {
   password: string;
   rememberMe: boolean;
 };
-
-export const YAMLProductsSelector = Selector('Product')({
-  id: true,
-  name: true,
-  slug: true,
-  featuredAsset: {
-    source: true,
-    preview: true,
-  },
-  collections: {
-    name: true,
-    slug: true,
-  },
-  variants: {
-    id: true,
-    name: true,
-    currencyCode: true,
-    priceWithTax: true,
-    stockLevel: true,
-    assets: {
-      source: true,
-      preview: true,
-    },
-    featuredAsset: {
-      source: true,
-      preview: true,
-    },
-  },
-});
-
-export type YAMLProductsType = FromSelector<typeof YAMLProductsSelector, 'Product', typeof scalars>;
 
 export const productVariantTileSelector = Selector('ProductVariant')({
   id: true,

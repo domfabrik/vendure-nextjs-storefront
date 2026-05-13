@@ -2,12 +2,10 @@ import { GetServerSidePropsContext } from 'next';
 import { SSRQuery } from '@/src/graphql/client';
 import { ActiveOrderSelector, AvailablePaymentMethodsSelector } from '@/src/graphql/selectors';
 import { makeServerSideProps } from '@/src/lib/getStatic';
-import { prepareSSRRedirect, redirectFromDefaultChannelSSR } from '@/src/lib/redirect';
+import { prepareSSRRedirect } from '@/src/lib/redirect';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const r = await makeServerSideProps(['common', 'checkout'])(context);
-  const translationRedirect = redirectFromDefaultChannelSSR(context);
-  if (translationRedirect) return translationRedirect;
   const homePageRedirect = prepareSSRRedirect('/')(context);
   const api = SSRQuery(context);
 

@@ -3,13 +3,11 @@ import { SSRQuery } from '@/src/graphql/client';
 import { OrderSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
 import { makeServerSideProps } from '@/src/lib/getStatic';
-import { prepareSSRRedirect, redirectFromDefaultChannelSSR } from '@/src/lib/redirect';
+import { prepareSSRRedirect } from '@/src/lib/redirect';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const r = await makeServerSideProps(['common', 'checkout'])(context);
-  const translationRedirect = redirectFromDefaultChannelSSR(context);
-  if (translationRedirect) return translationRedirect;
   const homePageRedirect = prepareSSRRedirect('/')(context);
   const api = SSRQuery(context);
 
