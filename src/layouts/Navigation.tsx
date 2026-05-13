@@ -64,10 +64,14 @@ export const Navigation = ({ navigation, categories }: NavigationProps) => {
                 ariaLabel={'Home'}
                 href={'/'}
               >
-                <>
-                  <DesktopLogo src="/images/logo.svg" alt="DomFabrik" />
-                  <MobileLogo src="/images/short-logo.svg" alt="DomFabrik" />
-                </>
+                <DesktopLogo
+                  src="/images/logo.svg"
+                  alt="DomFabrik"
+                />
+                <MobileLogo
+                  src="/images/short-logo.svg"
+                  alt="DomFabrik"
+                />
               </Link>
             </Stack>
             <AnimatePresence>
