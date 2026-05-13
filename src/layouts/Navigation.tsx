@@ -8,7 +8,6 @@ import { Link } from '@/src/components/atoms/Link';
 import { Stack } from '@/src/components/atoms/Stack';
 import { IconButton } from '@/src/components/molecules/Button';
 import { UserMenu } from '@/src/components/molecules/UserMenu';
-import { AnnouncementBar } from '@/src/components/organisms/AnnouncementBar';
 import { DesktopNavigation } from '@/src/components/organisms/DesktopNavigation';
 import { NavigationSearch } from '@/src/components/organisms/NavgationSearch';
 import { useNavigationSearch } from '@/src/components/organisms/NavgationSearch/hooks';
@@ -51,21 +50,8 @@ export const Navigation = ({ navigation, categories }: NavigationProps) => {
     };
   }, []);
 
-  // THIS SHOULD COME FROM PLUGIN
-  const announcementsBar = ['ЛУЧШИЕ ТОВАРЫ', 'БЕСПЛАТНАЯ ДОСТАВКА ОТ 5000 ₽', 'БЕЗОПАСНАЯ ОПЛАТА', 'ВОЗВРАТ В ТЕЧЕНИЕ 30 ДНЕЙ'] as string[];
-  const entries = [
-    { text: announcementsBar[0], href: '/collections/home-garden' },
-    { text: announcementsBar[1], href: '/' },
-    { text: announcementsBar[2], href: '/' },
-    { text: announcementsBar[3], href: '/' },
-  ];
-
   return (
     <>
-      <AnnouncementBar
-        entries={entries}
-        secondsBetween={5}
-      />
       <StickyContainer>
         <ContentContainer>
           <Stack

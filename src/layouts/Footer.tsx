@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 
 import { ContentContainer, Link, NotifyFooterForm, Stack, TypoGraphy } from '@/src/components/atoms';
-import { Socials } from '@/src/components/atoms/Socials';
 import { NavigationType } from '@/src/graphql/selectors';
 import { RootNode } from '@/src/util/arrayToTree';
 
@@ -96,20 +95,9 @@ export const Footer = ({ navigation }: { navigation: RootNode<NavigationType> | 
                 </Link>
               ))}
             </Laws>
-            <Socials />
           </Stack>
         </ContentContainer>
       </LawsWrapper>
-      <LinkBar>
-        <Link
-          href="https://aexol.com/"
-          external
-        >
-          <p>
-            Made by <strong>Aexol</strong>
-          </p>
-        </Link>
-      </LinkBar>
     </Wrapper>
   );
 };
@@ -127,7 +115,6 @@ const Wrapper = styled.footer`
     a {
         text-transform: capitalize;
         color: ${({ theme }) => theme.text.main};
-        transform: opacity 0.25s ease-in-out;
         &:hover {
             opacity: 0.7;
         }
@@ -173,21 +160,5 @@ const Laws = styled(Stack)`
     gap: 1.5rem;
     @media (min-width: ${(p) => p.theme.breakpoints.ssm}) {
         gap: 5rem;
-    }
-`;
-const LinkBar = styled.div`
-    width: 100%;
-    height: fit-content;
-    background-color: ${({ theme }) => theme.background.third};
-    display: flex;
-    justify-content: center;
-    user-select: none;
-    & p {
-        font-size: 1rem;
-    }
-    & strong {
-        text-transform: uppercase;
-        font-weight: 900;
-        color: gray;
     }
 `;

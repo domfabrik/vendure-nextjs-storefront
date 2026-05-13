@@ -7,6 +7,5 @@ export * from './NotifyFooterForm';
 export * from './Price';
 export * from './ProductImage';
 export * from './Select';
-export * from './Socials';
 export * from './Stack';
 export * from './TypoGraphy';

@@ -29,21 +29,18 @@ export const CustomHelmet = ({
   const u = new URL((process.env.NEXT_PUBLIC_DOMAIN || 'https://shop.aexol.com') + asPath);
   const canonicalUrl = u.origin + u.pathname;
 
-  let metaDescription = product?.description || collection?.description || 'Demo store made by Aexol';
+  let metaDescription = product?.description || collection?.description || 'Официальный дилер мебельных фабрик Domfabrik';
   if (metaDescription.length > 160) {
     metaDescription = `${metaDescription.slice(0, 160 - 3)}...`;
     // console.log(`description of ${asPath} is too long`);
   }
 
   const seo = {
-    name: 'Aexol Demo Store',
+    name: 'Domfabrik',
     description: metaDescription,
-    pageUrl: `${asPath}`,
-    keywords: ['Aexol', 'Shop', 'E-commerce', 'React', 'Next.js', 'GraphQL', 'TypeScript', 'Demo', 'Example', 'Boilerplate', product?.name as string],
+    pageUrl: asPath,
     faviconUrl: `/favicon.ico`,
     logo: `/images/aexol_full_logo.png`,
-    facebook: 'https://www.facebook.com/Aexol',
-    twitter: 'https://twitter.com/aexol',
     image: product?.featuredAsset?.preview || collection?.featuredAsset?.preview || `/images/aexol_full_logo.png`,
   };
   // !seo.keywords.some(keyword => title.includes(keyword)) && console.log(`no keyword in title of ${seo.pageUrl}`);
@@ -64,10 +61,6 @@ export const CustomHelmet = ({
       <meta
         name="description"
         content={seo.description}
-      />
-      <meta
-        property="keywords"
-        content={seo.keywords.join(',')}
       />
       <meta
         property="og:image"
@@ -111,27 +104,6 @@ export const CustomHelmet = ({
           content={`${product.variants[0].currencyCode}`}
         />
       )}
-
-      <meta
-        property="article:publisher"
-        content={seo.facebook}
-      />
-      <meta
-        name="twitter:card"
-        content="summary_large_image"
-      />
-      <meta
-        name="twitter:title"
-        content={seo.name}
-      />
-      <meta
-        name="twitter:description"
-        content={seo.description}
-      />
-      <meta
-        name="twitter:url"
-        content={seo.twitter}
-      />
 
       {jsonLD && (
         <script
