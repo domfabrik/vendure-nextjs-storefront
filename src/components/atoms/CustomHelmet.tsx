@@ -26,7 +26,7 @@ export const CustomHelmet = ({
     title = `${pageTitle.slice(0, 60 - 3)}...`;
     // console.log(`title of ${asPath} is too long`);
   }
-  const u = new URL((process.env.NEXT_PUBLIC_DOMAIN || 'https://shop.aexol.com') + asPath);
+  const u = new URL((process.env.NEXT_PUBLIC_DOMAIN || 'https://domfabrik.ru') + asPath);
   const canonicalUrl = u.origin + u.pathname;
 
   let metaDescription = product?.description || collection?.description || 'Официальный дилер мебельных фабрик Domfabrik';
@@ -40,8 +40,8 @@ export const CustomHelmet = ({
     description: metaDescription,
     pageUrl: asPath,
     faviconUrl: `/favicon.ico`,
-    logo: `/images/aexol_full_logo.png`,
-    image: product?.featuredAsset?.preview || collection?.featuredAsset?.preview || `/images/aexol_full_logo.png`,
+    logo: `/images/logo.svg`,
+    image: product?.featuredAsset?.preview || collection?.featuredAsset?.preview || `/images/logo.svg`,
   };
   // !seo.keywords.some(keyword => title.includes(keyword)) && console.log(`no keyword in title of ${seo.pageUrl}`);
   // !seo.keywords.some(keyword => seo.description.includes(keyword)) &&
@@ -157,14 +157,9 @@ const doStoreLD = () => {
   return {
     '@context': 'https://schema.org/',
     '@type': 'OnlineStore',
-    name: 'Aexol demo shop',
-    description: 'Aexol demo shop is for demonstration purposes, change des to fit your usecase',
-    image: '/images/aexol_full_logo.png',
-    parentOrganization: {
-      '@type': 'OnlineBusiness',
-      name: 'Aexol',
-      url: 'http://aexol.com/',
-    },
+    name: 'DomFabrik',
+    description: 'Официальный дилер мебельных фабрик DomFabrik',
+    image: '/images/logo.svg',
   };
 };
 const generateJSONLD = ({ product, collection, variant }: { product?: ProductDetailType; collection?: CollectionType; variant?: ProductDetailType['variants'][number] }) => {

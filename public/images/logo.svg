@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 96" role="img" aria-label="DomFabrik">
+    <title>DomFabrik</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap');
+        .wm { font-family: 'Roboto', system-ui, sans-serif; font-size: 64px; letter-spacing: -1.6px; fill: #1B2B45; }
+        .wm-bold  { font-weight: 700; }
+        .wm-light { font-weight: 400; opacity: 0.55; }
+    </style>
+
+    <g>
+        <path d="M22 32 L48 14 L74 32"
+              stroke="#1B2B45" stroke-width="6" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M26 40 H50 a22 21 0 0 1 0 42 H26 Z M36 50 V72 H50 a11 11 0 0 0 0 -22 Z"
+              fill="#1B2B45" fill-rule="evenodd"/>
+    </g>
+
+    <text x="116" y="68" class="wm">
+        <tspan class="wm-bold">Dom</tspan><tspan class="wm-light">Fabrik</tspan>
+    </text>
+</svg>

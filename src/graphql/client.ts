@@ -5,7 +5,7 @@ import { chainOptions, fetchOptions, GraphQLError, GraphQLResponse, Thunder, Zeu
 let token: string | null = typeof window !== 'undefined' ? window.localStorage.getItem('token') : null;
 
 const trimShopApiSuffix = (value: string) => value.replace(/\/shop-api\/?$/, '');
-const publicVendureHost = trimShopApiSuffix(process.env.NEXT_PUBLIC_HOST ?? 'https://shop.aexol.com');
+const publicVendureHost = trimShopApiSuffix(process.env.NEXT_PUBLIC_HOST ?? 'https://domfabrik.ru');
 const internalVendureHost = typeof window === 'undefined' ? trimShopApiSuffix(process.env.VENDURE_SERVER_URL ?? publicVendureHost) : publicVendureHost;
 const internalAssetHost = `${internalVendureHost}/assets`;
 const publicAssetHost = `${publicVendureHost}/assets`;

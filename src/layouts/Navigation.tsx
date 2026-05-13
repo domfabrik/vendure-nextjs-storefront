@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import { SearchIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef } from 'react';
-import { LogoAexol } from '@/src/assets';
 import { ContentContainer } from '@/src/components/atoms';
 import { Link } from '@/src/components/atoms/Link';
 import { Stack } from '@/src/components/atoms/Stack';
@@ -65,7 +64,10 @@ export const Navigation = ({ navigation, categories }: NavigationProps) => {
                 ariaLabel={'Home'}
                 href={'/'}
               >
-                <LogoAexol width={60} />
+                <>
+                  <DesktopLogo src="/images/logo.svg" alt="DomFabrik" />
+                  <MobileLogo src="/images/short-logo.svg" alt="DomFabrik" />
+                </>
               </Link>
             </Stack>
             <AnimatePresence>
@@ -125,9 +127,6 @@ const StickyContainer = styled.nav`
     background: ${(p) => p.theme.gray(0)};
     z-index: 2137;
     border-bottom: 1px solid ${(p) => p.theme.gray(100)};
-    svg {
-        max-height: 4rem;
-    }
 `;
 
 const MobileNavigationContainer = styled.div`
@@ -143,5 +142,21 @@ const DesktopNavigationContainer = styled(motion.div)`
     display: none;
     @media (min-width: ${(p) => p.theme.breakpoints.md}) {
         display: block;
+    }
+`;
+
+const DesktopLogo = styled.img`
+    display: none;
+    height: 3.2rem;
+    @media (min-width: ${(p) => p.theme.breakpoints.md}) {
+        display: block;
+    }
+`;
+
+const MobileLogo = styled.img`
+    display: block;
+    height: 3.2rem;
+    @media (min-width: ${(p) => p.theme.breakpoints.md}) {
+        display: none;
     }
 `;
