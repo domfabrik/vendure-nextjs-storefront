@@ -3,7 +3,7 @@ import { Check, X } from 'lucide-react';
 import { InferGetServerSidePropsType } from 'next';
 
 import { useEffect, useState } from 'react';
-import { ContentContainer, Link, Price, Stack, TH1, TP } from '@/src/components/atoms';
+import { ContentContainer, Link, Price, Stack, TH1, TP, TypoGraphy } from '@/src/components/atoms';
 import { Breadcrumbs } from '@/src/components/molecules';
 import { FullWidthButton, FullWidthSecondaryButton } from '@/src/components/molecules/Button';
 import { NotifyMeForm } from '@/src/components/molecules/NotifyMeForm';
@@ -14,7 +14,6 @@ import { ProductPhotosPreview } from '@/src/components/organisms/ProductPhotosPr
 import { getServerSideProps } from '@/src/components/pages/products/props';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { ProductVariantTileType, productVariantTileSelector } from '@/src/graphql/selectors';
-// import { ProductPhotosPreview } from '@/src/components/organisms/ProductPhotosPreview';
 import { Layout } from '@/src/layouts';
 import { useChannels } from '@/src/state/channels';
 import { useProduct } from '@/src/state/product';
@@ -199,12 +198,12 @@ export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerS
                   {
                     title: 'Описание товара',
                     children: (
-                      <TP
+                      <TypoGraphy
+                        size="1.5rem"
+                        weight={400}
                         color="subtitle"
-                        style={{ marginTop: '1.5rem' }}
-                      >
-                        {product?.description}
-                      </TP>
+                        dangerouslySetInnerHTML={{ __html: product?.description || '' }}
+                      />
                     ),
                   },
                 ]}
