@@ -47,18 +47,6 @@ export const NavigationSearch = ({ loading, searchQuery, searchResults, totalIte
       </Stack>
       <SearchPosition w100>
         <SearchContent w100>
-          <PopularSearches
-            popularSearches={popularSearches}
-            onClick={(item) => setSearchQuery(item)}
-          >
-            <TypoGraphy
-              size="2rem"
-              weight={400}
-              noWrap
-            >
-              {'Популярные запросы'}
-            </TypoGraphy>
-          </PopularSearches>
           {searchQuery.length < 3 ? (
             <TP>{'Поисковый запрос должен содержать минимум 3 символа'}</TP>
           ) : loading ? (
