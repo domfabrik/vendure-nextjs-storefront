@@ -3,18 +3,16 @@ import styled from '@emotion/styled';
 import { Price } from '@/src/components/atoms';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
-import { ActiveOrderType, ShippingMethodType } from '@/src/graphql/selectors';
-import { CurrencyCode } from '@/src/zeus';
+import { ShippingMethodType } from '@/src/graphql/selectors';
 
 interface Props {
   selected?: string;
   onChange: (id: string) => void;
   error?: string;
   shippingMethods: ShippingMethodType[];
-  currencyCode?: ActiveOrderType['currencyCode'];
 }
 
-export const DeliveryMethod = ({ selected, onChange, error, shippingMethods, currencyCode = CurrencyCode.USD }: Props) => {
+export const DeliveryMethod = ({ selected, onChange, error, shippingMethods }: Props) => {
   return (
     <Stack
       w100
@@ -38,10 +36,7 @@ export const DeliveryMethod = ({ selected, onChange, error, shippingMethods, cur
             >
               {name}
             </TP>
-            <Price
-              price={price}
-              currencyCode={currencyCode}
-            />
+            <Price price={price} />
           </Box>
         ))}
       </Wrapper>

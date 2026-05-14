@@ -8,7 +8,6 @@ import { DiscountForm } from '@/src/components/molecules/DiscountForm';
 import { Discounts } from '@/src/components/molecules/Discounts';
 import { useCheckout } from '@/src/state/checkout';
 import { priceFormatter } from '@/src/util/priceFormatter';
-import { CurrencyCode } from '@/src/zeus';
 import { Line } from './Line';
 
 interface OrderSummaryProps {
@@ -20,8 +19,6 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
   const { activeOrder, applyCouponCode, removeCouponCode } = useCheckout();
   // const { asPath } = useRouter();
   // const step = asPath.includes('payment') ? 'payment' : 'shipping';
-  const currencyCode = activeOrder?.currencyCode ?? CurrencyCode.USD;
-
   // it is about hydration of discount form in checkout form
   const [jsEnabled, setJsEnabled] = useState(false);
   useEffect(() => {
@@ -50,7 +47,6 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
           <Stack column>
             {activeOrder?.lines.map((line) => (
               <Line
-                currencyCode={currencyCode}
                 isForm={!!shipping}
                 key={line.id}
                 line={line}
@@ -62,11 +58,11 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
             >
               <Stack justifyBetween>
                 <TP>{'Подытог'}</TP>
-                <TP>{priceFormatter(activeOrder?.subTotalWithTax ?? 0, currencyCode)}</TP>
+                <TP>{priceFormatter(activeOrder?.subTotalWithTax ?? 0)}</TP>
               </Stack>
               <Stack justifyBetween>
                 <TP>{'Доставка'}</TP>
-                <TP>{priceFormatter(activeOrder?.shippingWithTax ?? 0, currencyCode)}</TP>
+                <TP>{priceFormatter(activeOrder?.shippingWithTax ?? 0)}</TP>
               </Stack>
               {!!shipping && jsEnabled && (
                 <Stack
@@ -76,7 +72,6 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
                 >
                   <Discounts
                     discounts={activeOrder?.discounts}
-                    currencyCode={currencyCode}
                     removeCouponCode={removeCouponCode}
                   />
                   <Stack w100>
@@ -97,7 +92,7 @@ export const OrderSummary = ({ footer, shipping }: PropsWithChildren<OrderSummar
                   size="1.75rem"
                   weight={600}
                 >
-                  {priceFormatter(activeOrder?.totalWithTax ?? 0, currencyCode)}
+                  {priceFormatter(activeOrder?.totalWithTax ?? 0)}
                 </TP>
               </Stack>
               {footer}

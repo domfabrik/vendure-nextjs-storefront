@@ -14,7 +14,6 @@ import { QuantityCounter } from '@/src/components/molecules/QuantityCounter';
 import { ActiveOrderType } from '@/src/graphql/selectors';
 import { useCart } from '@/src/state/cart';
 import { priceFormatter } from '@/src/util/priceFormatter';
-import { CurrencyCode } from '@/src/zeus';
 
 export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
   const { setItemQuantityInCart, removeFromCart, removeCouponCode, applyCouponCode } = useCart();
@@ -26,7 +25,6 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
   };
   // Again, we're using framer-motion for the transition effect
 
-  const currencyCode = activeOrder?.currencyCode || CurrencyCode.USD;
   const discountsSum = useMemo(() => {
     return activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
   }, [activeOrder]);
@@ -126,12 +124,12 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                                   lineHeight: '2.4rem',
                                 }}
                               >
-                                {priceFormatter(linePriceWithTax, currencyCode)}
+                                {priceFormatter(linePriceWithTax)}
                               </TP>
-                              <TP style={{ color: 'red' }}>{priceFormatter(discountedLinePriceWithTax, currencyCode)}</TP>
+                              <TP style={{ color: 'red' }}>{priceFormatter(discountedLinePriceWithTax)}</TP>
                             </Stack>
                           ) : (
-                            <TP>{priceFormatter(linePriceWithTax, currencyCode)}</TP>
+                            <TP>{priceFormatter(linePriceWithTax)}</TP>
                           )}
                         </CartRow>
                       );
@@ -155,19 +153,19 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                         {activeOrder?.totalWithTax ? (
                           <Stack justifyBetween>
                             <TP>{'Цена'}</TP>
-                            <TP>{priceFormatter(activeOrder?.totalWithTax, currencyCode)}</TP>
+                            <TP>{priceFormatter(activeOrder?.totalWithTax)}</TP>
                           </Stack>
                         ) : null}
                         {discountsSum !== 0 ? (
                           <Stack justifyBetween>
                             <TP>{'Скидка'}</TP>
-                            <TP>-{priceFormatter(discountsSum, currencyCode)}</TP>
+                            <TP>-{priceFormatter(discountsSum)}</TP>
                           </Stack>
                         ) : null}
                         {activeOrder?.shippingWithTax ? (
                           <Stack justifyBetween>
                             <TP>{'Доставка'}</TP>
-                            <TP>{priceFormatter(activeOrder?.shippingWithTax, currencyCode)}</TP>
+                            <TP>{priceFormatter(activeOrder?.shippingWithTax)}</TP>
                           </Stack>
                         ) : null}
                         {activeOrder?.discounts?.map((d) => (
@@ -186,7 +184,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                                 {'Код:'} {d.description}
                               </TP>
                             </Stack>
-                            <TP>{priceFormatter(d.amountWithTax, currencyCode)}</TP>
+                            <TP>{priceFormatter(d.amountWithTax)}</TP>
                           </Stack>
                         ))}
                         <Divider style={{ margin: '3.2rem 0' }} />
@@ -197,7 +195,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                           {activeOrder?.totalWithTax ? (
                             <Stack justifyBetween>
                               <TP>{'Подытог'}</TP>
-                              <TP>{priceFormatter(activeOrder.subTotalWithTax, currencyCode)}</TP>
+                              <TP>{priceFormatter(activeOrder.subTotalWithTax)}</TP>
                             </Stack>
                           ) : null}
                           <DiscountForm applyCouponCode={applyCouponCode} />
@@ -205,7 +203,7 @@ export const Cart = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
                           {activeOrder?.totalWithTax ? (
                             <Stack justifyBetween>
                               <TP>{'Итого'}</TP>
-                              <TP>{priceFormatter(activeOrder.totalWithTax, currencyCode)}</TP>
+                              <TP>{priceFormatter(activeOrder.totalWithTax)}</TP>
                             </Stack>
                           ) : null}
                           <Stack

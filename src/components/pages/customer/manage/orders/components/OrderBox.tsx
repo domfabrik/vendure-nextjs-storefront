@@ -106,10 +106,7 @@ export const OrderBox = ({ order }: { order: ActiveOrderType }) => {
                 >
                   {'Общая сумма'}:&nbsp;
                 </TP>
-                <Price
-                  currencyCode={order.currencyCode}
-                  price={order.totalWithTax}
-                />
+                <Price price={order.totalWithTax} />
               </Stack>
             </Stack>
           </Stack>

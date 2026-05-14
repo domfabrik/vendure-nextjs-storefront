@@ -8,14 +8,12 @@ import { ProductImageWithInfo } from '@/src/components/molecules/ProductImageWit
 import { QuantityCounter } from '@/src/components/molecules/QuantityCounter';
 import { ActiveOrderType } from '@/src/graphql/selectors';
 import { useCart } from '@/src/state/cart';
-import { CurrencyCode } from '@/src/zeus';
 
 interface Props {
   activeOrder?: ActiveOrderType;
-  currencyCode: CurrencyCode;
 }
 
-export const CartBody = ({ currencyCode, activeOrder }: Props) => {
+export const CartBody = ({ activeOrder }: Props) => {
   const { setItemQuantityInCart, removeFromCart } = useCart();
   return (
     <CartList
@@ -75,7 +73,6 @@ export const CartBody = ({ currencyCode, activeOrder }: Props) => {
                 </Stack>
               </Stack>
               <Price
-                currencyCode={currencyCode}
                 price={unitPriceWithTax}
                 discountPrice={discountedLinePriceWithTax / quantity}
                 quantity={quantity}

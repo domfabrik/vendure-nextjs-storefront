@@ -17,7 +17,6 @@ import { getServerSideProps } from './props';
 
 export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const order = props.activeCustomer?.orders.items?.[0];
-  const currencyCode = order?.currencyCode;
 
   const paymentMethod = order?.payments?.[0];
   const shippingMethod = order?.shippingLines?.[0];
@@ -84,7 +83,6 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
               >
                 <OrderCustomer customer={order?.customer} />
                 <OrderShippingStatus
-                  currencyCode={currencyCode}
                   shipping={shippingMethod}
                   label={'Способ доставки'}
                 />
@@ -125,7 +123,6 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                   {order?.lines?.map((line) => (
                     <OrderLine
                       key={line.id}
-                      currencyCode={currencyCode}
                       line={line}
                     />
                   ))}
@@ -135,7 +132,6 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                   <Discounts
                     withLabel
                     discounts={order.discounts}
-                    currencyCode={currencyCode}
                   />
                 ) : null}
                 <Stack column>
@@ -145,10 +141,7 @@ export const OrderPage = (props: InferGetServerSidePropsType<typeof getServerSid
                   >
                     {'Общая сумма'}
                   </TP>
-                  <Price
-                    currencyCode={currencyCode}
-                    price={order?.totalWithTax}
-                  />
+                  <Price price={order?.totalWithTax} />
                 </Stack>
               </Stack>
             </Stack>

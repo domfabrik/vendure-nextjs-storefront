@@ -8,19 +8,13 @@ import { Stack } from '@/src/components/atoms/Stack';
 import { TP, TypoGraphy } from '@/src/components/atoms/TypoGraphy';
 import { ActiveOrderType, OrderType } from '@/src/graphql/selectors';
 import { useCheckout } from '@/src/state/checkout';
-import { CurrencyCode } from '@/src/zeus';
 
 interface LineProps {
   line: ActiveOrderType['lines'][number] | OrderType['lines'][number];
   isForm?: boolean;
-  currencyCode?: CurrencyCode;
 }
 
-export const Line = ({
-  isForm,
-  line: { id, productVariant, quantity, featuredAsset, unitPriceWithTax, linePriceWithTax, discountedLinePriceWithTax },
-  currencyCode = CurrencyCode.USD,
-}: LineProps) => {
+export const Line = ({ isForm, line: { id, productVariant, quantity, featuredAsset, unitPriceWithTax, linePriceWithTax, discountedLinePriceWithTax } }: LineProps) => {
   const { removeFromCheckout, changeQuantity } = useCheckout();
   const optionInName = productVariant.name.replace(productVariant.product.name, '') !== '';
   const isPriceDiscounted = linePriceWithTax !== discountedLinePriceWithTax;
@@ -87,14 +81,14 @@ export const Line = ({
               <Price
                 price={discountedLinePriceWithTax}
                 // beforePrice={productVariant.customFields?.beforePrice}
-                currencyCode={currencyCode}
+
                 quantity={1}
               />
             ) : (
               <Price
                 price={unitPriceWithTax}
                 // beforePrice={productVariant.customFields?.beforePrice}
-                currencyCode={currencyCode}
+
                 quantity={1}
               />
             )}

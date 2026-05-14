@@ -9,10 +9,8 @@ import { TH2, TP } from '@/src/components/atoms/TypoGraphy';
 import { Discounts } from '@/src/components/molecules/Discounts';
 import { OrderStateType, OrderType } from '@/src/graphql/selectors';
 import { priceFormatter } from '@/src/util/priceFormatter';
-import { CurrencyCode } from '@/src/zeus';
 
 export const OrderConfirmation = ({ code, order }: { code: string; order?: OrderType }) => {
-  const currencyCode = order?.currencyCode || CurrencyCode.USD;
   const discounts = order?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
 
   const orderState = order?.state as OrderStateType;
@@ -76,26 +74,25 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
             >
               <Stack justifyBetween>
                 <TP>{'Подытог'}</TP>
-                <TP weight={600}>{priceFormatter(order?.subTotalWithTax || 0, currencyCode)}</TP>
+                <TP weight={600}>{priceFormatter(order?.subTotalWithTax || 0)}</TP>
               </Stack>
               <Stack justifyBetween>
                 <TP>{'Скидка'}</TP>
-                <TP weight={600}>{priceFormatter(discounts, currencyCode)}</TP>
+                <TP weight={600}>{priceFormatter(discounts)}</TP>
               </Stack>
               <Stack justifyBetween>
                 <TP>{'Доставка'}</TP>
-                <TP weight={600}> {priceFormatter(order?.shippingWithTax || 0, currencyCode)}</TP>
+                <TP weight={600}> {priceFormatter(order?.shippingWithTax || 0)}</TP>
               </Stack>
               {order?.discounts && order?.discounts.length > 0 ? <Divider /> : null}
               <Discounts
                 withLabel
                 discounts={order?.discounts}
-                currencyCode={currencyCode}
               />
               <Divider />
               <Stack justifyBetween>
                 <TP>{'Итого'}</TP>
-                <TP weight={600}>{priceFormatter((order?.totalWithTax ?? 0) - discounts, currencyCode)}</TP>
+                <TP weight={600}>{priceFormatter((order?.totalWithTax ?? 0) - discounts)}</TP>
               </Stack>
             </Stack>
           )}
@@ -136,7 +133,6 @@ export const OrderConfirmation = ({ code, order }: { code: string; order?: Order
                   </Stack>
                 </Stack>
                 <Price
-                  currencyCode={currencyCode}
                   price={line.unitPriceWithTax}
                   discountPrice={line.discountedLinePriceWithTax / line.quantity}
                   quantity={line.quantity}

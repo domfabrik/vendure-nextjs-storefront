@@ -10,15 +10,13 @@ import { ActiveOrderType } from '@/src/graphql/selectors';
 import { usePush } from '@/src/lib/redirect';
 import { useCart } from '@/src/state/cart';
 import { priceFormatter } from '@/src/util/priceFormatter';
-import { CurrencyCode } from '@/src/zeus';
 
 interface Props {
   activeOrder?: ActiveOrderType;
-  currencyCode: CurrencyCode;
   discountsSum: number;
 }
 
-export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) => {
+export const CartFooter = ({ activeOrder, discountsSum }: Props) => {
   const { close, applyCouponCode, removeCouponCode } = useCart();
   const [loading, setLoading] = useState(false);
   const push = usePush();
@@ -44,17 +42,17 @@ export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) =
               <Stack column>
                 <Stack justifyBetween>
                   <TP>{'Подытог'}</TP>
-                  <TP>{priceFormatter((activeOrder?.subTotalWithTax || 0) + discountsSum, currencyCode)}</TP>
+                  <TP>{priceFormatter((activeOrder?.subTotalWithTax || 0) + discountsSum)}</TP>
                 </Stack>
                 {discountsSum > 0 ? (
                   <Stack justifyBetween>
                     <TP>{'Скидка'}</TP>
-                    <TP>-{priceFormatter(discountsSum, currencyCode)}</TP>
+                    <TP>-{priceFormatter(discountsSum)}</TP>
                   </Stack>
                 ) : null}
                 <Stack justifyBetween>
                   <TP weight={600}>{'Итого'}</TP>
-                  <TP weight={600}>{priceFormatter(activeOrder?.subTotalWithTax || 0, currencyCode)}</TP>
+                  <TP weight={600}>{priceFormatter(activeOrder?.subTotalWithTax || 0)}</TP>
                 </Stack>
               </Stack>
             </Stack>
@@ -68,7 +66,6 @@ export const CartFooter = ({ activeOrder, currencyCode, discountsSum }: Props) =
               <Discounts
                 discounts={activeOrder.discounts}
                 removeCouponCode={removeCouponCode}
-                currencyCode={currencyCode}
               />
             </Stack>
           </Stack>

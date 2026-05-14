@@ -3,14 +3,12 @@ import { ProductImage } from '@/src/components/atoms/ProductImage';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
 import { ActiveOrderType } from '@/src/graphql/selectors';
-import { CurrencyCode } from '@/src/zeus';
 
 interface Props {
   line: ActiveOrderType['lines'][number];
-  currencyCode: CurrencyCode;
 }
 
-export const OrderLine = ({ currencyCode, line }: Props) => {
+export const OrderLine = ({ line }: Props) => {
   const optionInName = line.productVariant.name.replace(line.productVariant.product.name, '') !== '';
 
   return (
@@ -43,7 +41,6 @@ export const OrderLine = ({ currencyCode, line }: Props) => {
           </TP>
         )}
         <Price
-          currencyCode={currencyCode}
           price={line.linePriceWithTax}
           discountPrice={line.discountedLinePriceWithTax}
         />

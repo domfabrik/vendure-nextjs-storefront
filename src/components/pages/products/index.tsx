@@ -107,12 +107,7 @@ export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerS
                     );
                   })}
                 <TH1 size="2.5rem">{product?.name}</TH1>
-                {variant && (
-                  <Price
-                    price={variant.priceWithTax}
-                    currencyCode={variant.currencyCode}
-                  />
-                )}
+                {variant && <Price price={variant.priceWithTax} />}
               </ProductInfoStack>
               <Stack w100>
                 {product && product.variants.length > 1 ? (

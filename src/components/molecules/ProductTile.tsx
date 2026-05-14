@@ -7,10 +7,10 @@ import { priceFormatter } from '@/src/util/priceFormatter';
 export const ProductTile = ({ product, collections, lazy }: { product: ProductSearchType; collections: CollectionTileType[]; lazy?: boolean }) => {
   const priceValue =
     'value' in product.priceWithTax
-      ? priceFormatter(product.priceWithTax.value, product.currencyCode)
+      ? priceFormatter(product.priceWithTax.value)
       : product.priceWithTax.min === product.priceWithTax.max
-        ? priceFormatter(product.priceWithTax.min, product.currencyCode)
-        : `${priceFormatter(product.priceWithTax.min, product.currencyCode)} - ${priceFormatter(product.priceWithTax.max, product.currencyCode)}`;
+        ? priceFormatter(product.priceWithTax.min)
+        : `${priceFormatter(product.priceWithTax.min)} - ${priceFormatter(product.priceWithTax.max)}`;
 
   return (
     <Main

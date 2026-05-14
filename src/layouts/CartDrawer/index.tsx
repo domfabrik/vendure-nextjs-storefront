@@ -8,14 +8,12 @@ import { IconButton } from '@/src/components/molecules/Button';
 import { ActiveOrderType } from '@/src/graphql/selectors';
 import { useCart } from '@/src/state/cart';
 import { useOutsideClick } from '@/src/util/hooks/useOutsideClick';
-import { CurrencyCode } from '@/src/zeus';
 import { CartBody } from './CartBody';
 import { CartFooter } from './CartFooter';
 import { CartHeader } from './CartHeader';
 
 export const CartDrawer = ({ activeOrder }: { activeOrder?: ActiveOrderType }) => {
   const { isOpen, open, close } = useCart();
-  const currencyCode = activeOrder?.currencyCode || CurrencyCode.USD;
   const discountsSum = useMemo(() => {
     return activeOrder?.discounts?.reduce((acc, discount) => acc - discount.amountWithTax, 0) ?? 0;
   }, [activeOrder]);
@@ -46,13 +44,9 @@ export const CartDrawer = ({ activeOrder }: { activeOrder?: ActiveOrderType }) =
           >
             <CartContainer column>
               <CartHeader activeOrder={activeOrder} />
-              <CartBody
-                activeOrder={activeOrder}
-                currencyCode={currencyCode}
-              />
+              <CartBody activeOrder={activeOrder} />
               <CartFooter
                 activeOrder={activeOrder}
-                currencyCode={currencyCode}
                 discountsSum={discountsSum}
               />
             </CartContainer>

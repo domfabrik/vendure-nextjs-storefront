@@ -80,10 +80,7 @@ export const ProductVariantTile = ({
             gap="0.5rem"
           >
             <TP>{variant.name}</TP>
-            <Price
-              price={variant.priceWithTax}
-              currencyCode={variant.currencyCode}
-            />
+            <Price price={variant.priceWithTax} />
           </Stack>
           {!withoutRatings && <Ratings rating={Math.random() * 5} />}
         </TextWrapper>

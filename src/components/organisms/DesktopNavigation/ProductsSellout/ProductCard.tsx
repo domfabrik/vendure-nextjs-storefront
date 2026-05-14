@@ -53,7 +53,6 @@ export const ProductCard = ({ variant }: { variant: CollectionTileProductVariant
             )}
             <Price
               size="1.25rem"
-              currencyCode={variant.currencyCode}
               price={variant.priceWithTax}
             />
           </Stack>

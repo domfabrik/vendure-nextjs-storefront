@@ -6,7 +6,6 @@ import { ProductImageWithInfo } from '@/src/components/molecules/ProductImageWit
 import { NavigationType } from '@/src/graphql/selectors';
 import { useCart } from '@/src/state/cart';
 import { RootNode } from '@/src/util/arrayToTree';
-import { CurrencyCode } from '@/src/zeus';
 import { Slider } from '../../Slider';
 
 type SliderItem = {
@@ -16,7 +15,6 @@ type SliderItem = {
   image: string;
   href: string;
   price: number;
-  currencyCode: CurrencyCode;
 };
 
 export const ProductsSellout = ({
@@ -45,7 +43,6 @@ export const ProductsSellout = ({
             image: variant.product.featuredAsset?.preview || '',
             href: `/products/${variant.product.slug}`,
             price: variant.priceWithTax,
-            currencyCode: variant.currencyCode,
           };
         });
         if (variants) acc.push(...variants);
@@ -96,12 +93,7 @@ export const ProductsSellout = ({
                 {val.title}
               </TP>
             )}
-            {val.price && val.currencyCode && (
-              <Price
-                currencyCode={val.currencyCode}
-                price={val.price}
-              />
-            )}
+            {val.price && <Price price={val.price} />}
           </Link>
         </Stack>
         <Button onClick={async () => await addToCart(val.id, 1, true)}>{addToCartLabel}</Button>

@@ -43,9 +43,7 @@ export const CustomHelmet = ({
     logo: `/images/logo.svg`,
     image: product?.featuredAsset?.preview || collection?.featuredAsset?.preview || `/images/logo.svg`,
   };
-  // !seo.keywords.some(keyword => title.includes(keyword)) && console.log(`no keyword in title of ${seo.pageUrl}`);
-  // !seo.keywords.some(keyword => seo.description.includes(keyword)) &&
-  //     console.log(`no keyword in desc of ${seo.pageUrl}`);
+
   return (
     <Head>
       <title>{title}</title>
@@ -98,10 +96,10 @@ export const CustomHelmet = ({
           content={`${product.variants[0].priceWithTax}`}
         />
       )}
-      {product?.variants[0].currencyCode && (
+      {product?.variants[0].priceWithTax && (
         <meta
           property="og:price:currency"
-          content={`${product.variants[0].currencyCode}`}
+          content="RUB"
         />
       )}
 
@@ -133,7 +131,7 @@ const doProductLD = (product: ProductDetailType) => {
     //   },
     offers: {
       '@type': 'Offer',
-      priceCurrency: product.variants[0].currencyCode,
+      priceCurrency: 'RUB',
       price: product.variants[0].priceWithTax,
       itemCondition: 'http://schema.org/UsedCondition',
       availability: Number(product.variants[0].stockLevel) > 0 ? 'http://schema.org/OutOfStock' : 'http://schema.org/InStock',

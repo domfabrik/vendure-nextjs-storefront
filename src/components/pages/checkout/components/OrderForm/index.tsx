@@ -365,7 +365,6 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                       clearErrors('deliveryMethod');
                     }}
                     shippingMethods={shippingMethods}
-                    currencyCode={activeOrder?.currencyCode}
                   />
                 </DeliveryMethodWrapper>
               ) : null

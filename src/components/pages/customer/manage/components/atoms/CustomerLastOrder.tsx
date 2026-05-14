@@ -90,7 +90,6 @@ export const CustomerLastOrder = ({ order }: { order?: ActiveOrderType }) => {
             </TP>
             <Price
               size="1.25rem"
-              currencyCode={order?.currencyCode}
               price={order?.totalWithTax}
             />
           </Stack>

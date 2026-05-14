@@ -3,16 +3,14 @@ import { X } from 'lucide-react';
 
 import { Price, Stack, TP } from '@/src/components/atoms';
 import { DiscountsType } from '@/src/graphql/selectors';
-import { CurrencyCode } from '@/src/zeus';
 
 interface Props {
   discounts: DiscountsType[] | undefined;
-  currencyCode: CurrencyCode;
   withLabel?: boolean;
   removeCouponCode?: (code: string) => void;
 }
 
-export const Discounts = ({ discounts, removeCouponCode, currencyCode, withLabel }: Props) => {
+export const Discounts = ({ discounts, removeCouponCode, withLabel }: Props) => {
   if (!discounts || discounts.length === 0) return null;
   return (
     <Stack column>
@@ -42,10 +40,7 @@ export const Discounts = ({ discounts, removeCouponCode, currencyCode, withLabel
               {'Код:'} {discount.description}
             </TP>
           </Stack>
-          <Price
-            price={discount.amountWithTax}
-            currencyCode={currencyCode}
-          />
+          <Price price={discount.amountWithTax} />
         </Stack>
       ))}
     </Stack>

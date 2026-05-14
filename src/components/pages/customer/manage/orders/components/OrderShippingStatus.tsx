@@ -2,15 +2,13 @@ import { PackageCheck } from 'lucide-react';
 
 import { Price, Stack, TP } from '@/src/components';
 import { ShippingLineType } from '@/src/graphql/selectors';
-import { CurrencyCode } from '@/src/zeus';
 
 interface OrderShippingStatusProps {
   label: string;
   shipping?: ShippingLineType;
-  currencyCode: CurrencyCode;
 }
 
-export const OrderShippingStatus = ({ currencyCode, shipping, label }: OrderShippingStatusProps) => {
+export const OrderShippingStatus = ({ shipping, label }: OrderShippingStatusProps) => {
   if (!shipping) return null;
   return (
     <Stack
@@ -30,10 +28,7 @@ export const OrderShippingStatus = ({ currencyCode, shipping, label }: OrderShip
         </TP>
       </Stack>
       <Stack itemsCenter>
-        <Price
-          currencyCode={currencyCode}
-          price={shipping?.priceWithTax}
-        />
+        <Price price={shipping?.priceWithTax} />
         <TP>&nbsp;- {shipping?.shippingMethod.name}</TP>
       </Stack>
     </Stack>
