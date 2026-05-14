@@ -13,7 +13,6 @@ import { Banner, Input } from '@/src/components/forms';
 import { Button } from '@/src/components/molecules/Button';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { Layout } from '@/src/layouts';
-import { useChannels } from '@/src/state/channels';
 import { Absolute, Form, FormContainer, FormContent, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
@@ -55,7 +54,6 @@ type FormValues = {
 };
 
 export const ForgotPasswordPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const [success, setSuccess] = useState<string>();
 
   const schema = z.object({
@@ -74,7 +72,7 @@ export const ForgotPasswordPage = (props: InferGetServerSidePropsType<typeof get
   const onSubmit: SubmitHandler<{ emailAddress: string }> = async (data) => {
     const { emailAddress } = data;
     try {
-      const { requestPasswordReset } = await storefrontApiMutation(ctx)({
+      const { requestPasswordReset } = await storefrontApiMutation()({
         requestPasswordReset: [
           { emailAddress },
           {

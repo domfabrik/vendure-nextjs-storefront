@@ -8,15 +8,13 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from '@/src/components/atoms/Link';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TH2, TP } from '@/src/components/atoms/TypoGraphy';
-import { Banner, CheckBox, CountrySelect, FormError, Input } from '@/src/components/forms';
+import { Banner, CheckBox, FormError, Input } from '@/src/components/forms';
 import { Button } from '@/src/components/molecules/Button';
 import { Tooltip } from '@/src/components/molecules/Tooltip';
 import { storefrontApiMutation, storefrontApiQuery } from '@/src/graphql/client';
-import { ActiveCustomerType, ActiveOrderSelector, AvailableCountriesType, CreateAddressType, CreateCustomerType, ShippingMethodType } from '@/src/graphql/selectors';
+import { ActiveCustomerType, ActiveOrderSelector, CreateAddressType, CreateCustomerType, ShippingMethodType } from '@/src/graphql/selectors';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { useCheckout } from '@/src/state/checkout';
-import { baseCountryFromLanguage } from '@/src/util/baseCountryFromLanguage';
 import { DeliveryMethod } from '../DeliveryMethod';
 import { OrderSummary } from '../OrderSummary';
 import { useValidationSchema } from './useValidationSchema';
@@ -59,8 +57,6 @@ type FormValues = CreateCustomerType & {
   shippingDifferentThanBilling?: boolean;
   shipping: CreateAddressType;
   billing: CreateAddressType;
-  // userNeedInvoice?: boolean;
-  // NIP?: string;
   createAccount?: boolean;
   password?: string;
   confirmPassword?: string;
@@ -68,7 +64,6 @@ type FormValues = CreateCustomerType & {
 };
 
 interface OrderFormProps {
-  availableCountries?: AvailableCountriesType[];
   activeCustomer: ActiveCustomerType | null;
   shippingMethods: ShippingMethodType[] | null;
 }
@@ -81,8 +76,7 @@ const isAddressesEqual = (a: object, b?: object) => {
   }
 };
 
-export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods }: OrderFormProps) => {
-  const ctx = useChannels();
+export const OrderForm = ({ activeCustomer, shippingMethods }: OrderFormProps) => {
   const { activeOrder, changeShippingMethod } = useCheckout();
   const push = usePush();
   const schema = useValidationSchema();
@@ -92,11 +86,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
   const defaultShippingAddress = activeCustomer?.addresses?.find((address) => address.defaultShippingAddress);
   const defaultBillingAddress = activeCustomer?.addresses?.find((address) => address.defaultBillingAddress);
 
-  const countryCode =
-    defaultBillingAddress?.country.code ??
-    defaultShippingAddress?.country.code ??
-    availableCountries?.find((country) => country.name === 'Poland')?.code ??
-    baseCountryFromLanguage(ctx.locale);
+  const countryCode = 'RU';
 
   const {
     register,
@@ -157,13 +147,13 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       if (deliveryMethod && activeOrder?.shippingLines[0]?.shippingMethod.id !== deliveryMethod) {
         await changeShippingMethod(deliveryMethod);
       }
-      const { nextOrderStates } = await storefrontApiQuery(ctx)({ nextOrderStates: true });
+      const { nextOrderStates } = await storefrontApiQuery()({ nextOrderStates: true });
       if (!nextOrderStates.includes('ArrangingPayment')) {
         setError('root', { message: 'Неизвестная ошибка' });
         return;
       }
       // Set the billing address for the order
-      const { setOrderBillingAddress } = await storefrontApiMutation(ctx)({
+      const { setOrderBillingAddress } = await storefrontApiMutation()({
         setOrderBillingAddress: [
           {
             input: {
@@ -189,7 +179,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       // Set the shipping address for the order
       if (shippingDifferentThanBilling) {
         // Set the shipping address for the order if it is different than billing
-        const { setOrderShippingAddress } = await storefrontApiMutation(ctx)({
+        const { setOrderShippingAddress } = await storefrontApiMutation()({
           setOrderShippingAddress: [
             { input: { ...shipping, defaultBillingAddress: false, defaultShippingAddress: false } },
             {
@@ -206,7 +196,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
         }
       } else {
         // Set the billing address for the order if it is the same as shipping
-        const { setOrderShippingAddress } = await storefrontApiMutation(ctx)({
+        const { setOrderShippingAddress } = await storefrontApiMutation()({
           setOrderShippingAddress: [
             { input: { ...billing, defaultBillingAddress: false, defaultShippingAddress: false } },
             {
@@ -224,7 +214,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       }
 
       if (!activeCustomer) {
-        const { setCustomerForOrder } = await storefrontApiMutation(ctx)({
+        const { setCustomerForOrder } = await storefrontApiMutation()({
           setCustomerForOrder: [
             { input: { emailAddress, firstName, lastName, phoneNumber } },
             {
@@ -253,7 +243,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
       }
 
       // Set the order state to ArrangingPayment
-      const { transitionOrderToState } = await storefrontApiMutation(ctx)({
+      const { transitionOrderToState } = await storefrontApiMutation()({
         transitionOrderToState: [
           { state: 'ArrangingPayment' },
           {
@@ -272,7 +262,7 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
 
       // After all create account if needed and password is provided
       if (!activeCustomer && createAccount && password) {
-        await storefrontApiMutation(ctx)({
+        await storefrontApiMutation()({
           registerCustomerAccount: [
             { input: { emailAddress, firstName, lastName, phoneNumber, password } },
             {
@@ -554,17 +544,6 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                       label={'Компания'}
                       error={errors.billing?.company}
                     />
-                    {availableCountries && (
-                      <CountrySelect
-                        {...register('billing.countryCode')}
-                        placeholder={'Страна'}
-                        label={'Страна'}
-                        defaultValue={countryCode}
-                        options={availableCountries}
-                        error={errors.billing?.countryCode}
-                        required
-                      />
-                    )}
                   </Stack>
                 </Stack>
               </BillingWrapper>
@@ -669,16 +648,6 @@ export const OrderForm = ({ availableCountries, activeCustomer, shippingMethods 
                         error={errors.shipping?.city}
                         required
                       />
-                      {availableCountries && (
-                        <CountrySelect
-                          {...register('shipping.countryCode')}
-                          label={'Страна'}
-                          defaultValue={countryCode}
-                          options={availableCountries}
-                          error={errors.shipping?.countryCode}
-                          required
-                        />
-                      )}
                     </Stack>
                     <Stack gap="1.75rem">
                       <Input
@@ -858,11 +827,6 @@ const ShippingWrapper = styled(motion.div)`
     gap: 1.75rem;
     margin-top: 1.75rem;
 `;
-
-// const FVInputWrapper = styled(motion.div)`
-//     margin-top: 1.75rem;
-//     position: relative;
-// `;
 
 const Form = styled.form`
     margin-top: 1.6rem;

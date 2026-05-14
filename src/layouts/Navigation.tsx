@@ -19,7 +19,6 @@ import { CategoryBar } from './CategoryBar';
 interface NavigationProps {
   navigation: RootNode<NavigationType> | null;
   categories: CollectionTileType[];
-  changeModal?: { modal: boolean; channel: string; locale: string; country_name: string };
 }
 
 export const Navigation = ({ navigation, categories }: NavigationProps) => {

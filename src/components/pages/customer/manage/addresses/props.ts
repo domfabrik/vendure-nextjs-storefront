@@ -1,15 +1,15 @@
 import { GetServerSidePropsContext } from 'next';
 import { SSRQuery } from '@/src/graphql/client';
-import { ActiveCustomerSelector, AvailableCountriesSelector } from '@/src/graphql/selectors';
+import { ActiveCustomerSelector } from '@/src/graphql/selectors';
 import { getCollections } from '@/src/graphql/sharedQueries';
 import { makeServerSideProps } from '@/src/lib/getStatic';
 import { prepareSSRRedirect } from '@/src/lib/redirect';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'customer'])(context);
+  const r = await makeServerSideProps(['common', 'customer'])();
 
-  const collections = await getCollections(r.context);
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
   const homePageRedirect = prepareSSRRedirect('/')(context);
 
@@ -19,16 +19,11 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     });
     if (!activeCustomer) throw new Error('No active customer');
 
-    const { availableCountries } = await SSRQuery(context)({
-      availableCountries: AvailableCountriesSelector,
-    });
-
     const returnedStuff = {
       ...r.props,
       ...r.context,
       collections,
       activeCustomer,
-      availableCountries,
       navigation,
     };
 

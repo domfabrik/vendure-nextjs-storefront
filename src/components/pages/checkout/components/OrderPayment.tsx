@@ -11,7 +11,6 @@ import { Button } from '@/src/components/molecules/Button';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { AvailablePaymentMethodsType } from '@/src/graphql/selectors';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { useCheckout } from '@/src/state/checkout';
 
 const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
@@ -44,7 +43,6 @@ type StandardMethodMetadata = {
 const POSITIVE_DEFAULT_PAYMENT_STATUSES = ['PaymentAuthorized', 'PaymentSettled'];
 
 export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPaymentProps) => {
-  const ctx = useChannels();
   const { activeOrder } = useCheckout();
   const push = usePush();
 
@@ -74,7 +72,7 @@ export const OrderPayment = ({ availablePaymentMethods, stripeData }: OrderPayme
   const standardMethod = async (method: string, metadata: StandardMethodMetadata) => {
     try {
       setError(null);
-      const { addPaymentToOrder } = await storefrontApiMutation(ctx)({
+      const { addPaymentToOrder } = await storefrontApiMutation()({
         addPaymentToOrder: [
           { input: { method, metadata } },
           {

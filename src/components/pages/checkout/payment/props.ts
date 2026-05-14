@@ -5,7 +5,7 @@ import { makeServerSideProps } from '@/src/lib/getStatic';
 import { prepareSSRRedirect } from '@/src/lib/redirect';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'checkout'])(context);
+  const r = await makeServerSideProps(['common', 'checkout'])();
   const homePageRedirect = prepareSSRRedirect('/')(context);
   const api = SSRQuery(context);
 

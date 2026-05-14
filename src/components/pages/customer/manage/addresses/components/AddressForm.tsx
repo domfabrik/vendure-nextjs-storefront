@@ -6,25 +6,21 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Stack } from '@/src/components/atoms/Stack';
 import { TP } from '@/src/components/atoms/TypoGraphy';
-import { CountrySelect, Input } from '@/src/components/forms';
+import { Input } from '@/src/components/forms';
 import { Button, FullWidthButton } from '@/src/components/molecules/Button';
-import { ActiveAddressType, AvailableCountriesType, CreateAddressType } from '@/src/graphql/selectors';
+import { ActiveAddressType, CreateAddressType } from '@/src/graphql/selectors';
 
 export const AddressForm = ({
   addressToEdit,
   onSubmit,
-  availableCountries,
-  country,
   onModalClose,
 }: {
   onSubmit: SubmitHandler<CreateAddressType>;
   addressToEdit?: ActiveAddressType;
-  availableCountries?: AvailableCountriesType[];
-  country?: string;
   onModalClose?: () => void;
 }) => {
   const schema = z.object({
-    countryCode: z.string().length(2, { message: 'Страна обязательна' }),
+    countryCode: z.string().default('RU'),
     streetLine1: z.string().min(1, { message: 'Адрес обязателен' }),
     streetLine2: z.string().optional(),
     city: z.string().min(1, { message: 'Город обязателен' }),
@@ -43,9 +39,12 @@ export const AddressForm = ({
     formState: { errors, isSubmitting },
     watch,
   } = useForm<CreateAddressType>({
+    defaultValues: {
+      countryCode: 'RU',
+    },
     values: addressToEdit
       ? {
-          countryCode: addressToEdit.country.code,
+          countryCode: 'RU',
           streetLine1: addressToEdit.streetLine1,
           streetLine2: addressToEdit.streetLine2,
           city: addressToEdit.city,
@@ -119,15 +118,6 @@ export const AddressForm = ({
               error={errors.streetLine2}
             />
           </Stack>
-          {availableCountries && (
-            <CountrySelect
-              {...register('countryCode')}
-              label={'Страна'}
-              defaultValue={country}
-              options={availableCountries}
-              error={errors.countryCode}
-            />
-          )}
           <Input
             {...register('city')}
             label={'Город'}

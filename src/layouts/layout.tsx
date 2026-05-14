@@ -1,13 +1,11 @@
 import styled from '@emotion/styled';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { CustomHelmet } from '@/src/components';
 import { Stack } from '@/src/components/atoms/Stack';
 import { CollectionTileType, NavigationType } from '@/src/graphql/selectors';
 import { Footer } from '@/src/layouts/Footer';
 import { Navigation } from '@/src/layouts/Navigation';
-import { channels } from '@/src/lib/consts';
 import { useCart } from '@/src/state/cart';
-import { useChannels } from '@/src/state/channels';
 import { useCollection } from '@/src/state/collection';
 import { useProduct } from '@/src/state/product';
 import { RootNode } from '@/src/util/arrayToTree';
@@ -36,33 +34,9 @@ export const Layout = ({ pageTitle, children, categories, navigation }: LayoutPr
   const { fetchActiveOrder } = useCart();
   const { product, variant } = useProduct();
   const { collection } = useCollection();
-  const { channel } = useChannels();
-
-  const [changeModal, setChangeModal] = useState<{ modal: boolean; channel: string; locale: string; country_name: string } | undefined>(undefined);
 
   useEffect(() => {
     fetchActiveOrder();
-    const getCountry = async () => {
-      if (channels.length === 1) return;
-      try {
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        const channelSlug = channels.find((c) => c.slug === data.country_code.toLowerCase());
-        if (!channelSlug) return;
-        if (channelSlug?.channel === channel) return;
-        const locale = channels.find((c) => c.channel === channelSlug?.channel)?.nationalLocale;
-        if (!locale) return;
-        setChangeModal({
-          modal: true,
-          channel: channelSlug?.slug,
-          locale,
-          country_name: data.country_name,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getCountry();
   }, []);
 
   return (
@@ -74,7 +48,6 @@ export const Layout = ({ pageTitle, children, categories, navigation }: LayoutPr
         collection={collection}
       />
       <Navigation
-        changeModal={changeModal}
         navigation={navigation}
         categories={categories}
       />

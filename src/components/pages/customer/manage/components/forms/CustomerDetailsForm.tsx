@@ -7,7 +7,6 @@ import { Stack } from '@/src/components/atoms/Stack';
 import { Banner, Input } from '@/src/components/forms';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { ActiveCustomerSelector, ActiveCustomerType } from '@/src/graphql/selectors';
-import { useChannels } from '@/src/state/channels';
 import { Form, MotionCustomerWrap, StyledButton } from '../atoms/shared';
 
 type CustomerDataForm = {
@@ -18,7 +17,6 @@ type CustomerDataForm = {
 };
 
 export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: ActiveCustomerType }) => {
-  const ctx = useChannels();
   const [activeCustomer, setActiveCustomer] = useState<ActiveCustomerType>(initialCustomer);
   const [successBanner, setSuccessBanner] = useState<string>();
 
@@ -50,7 +48,7 @@ export const CustomerDetailsForm = ({ initialCustomer }: { initialCustomer: Acti
     if (isDirty) return;
 
     try {
-      const { updateCustomer } = await storefrontApiMutation(ctx)({
+      const { updateCustomer } = await storefrontApiMutation()({
         updateCustomer: [{ input: { firstName, lastName, phoneNumber } }, ActiveCustomerSelector],
       });
 

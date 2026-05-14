@@ -1,5 +1,4 @@
 import { GetServerSidePropsContext } from 'next';
-import { getContext } from '@/src/lib/utils';
 import { chainOptions, fetchOptions, GraphQLError, GraphQLResponse, Thunder, ZeusScalars } from '@/src/zeus';
 
 let token: string | null = typeof window !== 'undefined' ? window.localStorage.getItem('token') : null;
@@ -81,32 +80,32 @@ const apiFetchVendure =
 
 export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options));
 
-export const storefrontApiQuery = (ctx: { locale: string; channel: string }) => {
-  const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
+export const storefrontApiQuery = () => {
+  const HOST = `${VENDURE_HOST}?languageCode=RU`;
 
   return VendureChain(HOST, {
     headers: {
       'Content-Type': 'application/json',
-      'vendure-token': ctx.channel,
+      'vendure-token': 'default-channel',
     },
   })('query', { scalars });
 };
 
-export const storefrontApiMutation = (ctx: { locale: string; channel: string }) => {
-  const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
+export const storefrontApiMutation = () => {
+  const HOST = `${VENDURE_HOST}?languageCode=RU`;
 
   return VendureChain(HOST, {
     headers: {
       'Content-Type': 'application/json',
-      'vendure-token': ctx.channel,
+      'vendure-token': 'default-channel',
     },
   })('mutation', { scalars });
 };
 
-export const SSGQuery = (params: { locale: string; channel: string }) => {
+export const SSGQuery = () => {
   const reqParams = {
-    locale: params?.locale as string,
-    channel: params?.channel as string,
+    locale: 'RU',
+    channel: 'default-channel',
   };
 
   const HOST = `${VENDURE_HOST}?languageCode=${reqParams.locale}`;
@@ -124,16 +123,12 @@ export const SSRQuery = (context: GetServerSidePropsContext) => {
     'session.sig': context.req.cookies['session.sig'],
   };
 
-  const ctx = getContext(context);
-  const properChannel = ctx?.params?.channel as string;
-  const locale = ctx?.params?.locale as string;
-
-  const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
+  const HOST = `${VENDURE_HOST}?languageCode=RU`;
   return VendureChain(HOST, {
     headers: {
       Cookie: `session=${authCookies.session}; session.sig=${authCookies['session.sig']}`,
       'Content-Type': 'application/json',
-      'vendure-token': properChannel,
+      'vendure-token': 'default-channel',
     },
   })('query', { scalars });
 };
@@ -143,10 +138,8 @@ export const SSRMutation = (context: GetServerSidePropsContext) => {
     session: context.req.cookies.session,
     'session.sig': context.req.cookies['session.sig'],
   };
-
-  const ctx = getContext(context);
-  const properChannel = ctx?.params?.channel as string;
-  const locale = ctx?.params?.locale as string;
+  const properChannel = 'default-channel';
+  const locale = 'ru';
 
   const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
   return VendureChain(HOST, {

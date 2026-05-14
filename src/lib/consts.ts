@@ -15,7 +15,7 @@
 // ];
 
 export const DEFAULT_CHANNEL = 'default-channel';
-export const DEFAULT_CHANNEL_SLUG = 'en';
+export const DEFAULT_CHANNEL_SLUG = 'ru';
 
 export const DEFAULT_LOCALE = 'ru';
 export const DEFAULT_NATIONAL_LOCALE = 'ru';

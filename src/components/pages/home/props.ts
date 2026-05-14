@@ -9,8 +9,8 @@ import { SortOrder } from '@/src/zeus';
 const slugsOfBestOf = ['beds'];
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'homepage'])(ctx);
-  const api = SSGQuery(r.context);
+  const r = await makeServerSideProps(['common', 'homepage'])();
+  const api = SSGQuery();
 
   const products = await api({
     search: [{ input: { take: 4, groupByProduct: true, sort: { price: SortOrder.ASC } } }, { items: ProductSearchSelector }],
@@ -19,7 +19,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const responses = await Promise.all(slugsOfBestOf.map((slug) => api({ collection: [{ slug }, homePageSlidersSelector] })));
 
   const sliders = responses.map((res) => res.collection).filter((section): section is HomePageSlidersType => !!section);
-  const collections = await getCollections(r.context);
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
 
   return {

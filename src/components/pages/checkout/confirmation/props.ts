@@ -7,11 +7,11 @@ import { prepareSSRRedirect } from '@/src/lib/redirect';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'checkout'])(context);
+  const r = await makeServerSideProps(['common', 'checkout'])();
   const homePageRedirect = prepareSSRRedirect('/')(context);
   const api = SSRQuery(context);
 
-  const collections = await getCollections(r.context);
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
   const code = context.params?.code as string;
   if (!code) return homePageRedirect;

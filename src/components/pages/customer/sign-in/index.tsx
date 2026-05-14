@@ -15,7 +15,6 @@ import { LoginCustomerInputType } from '@/src/graphql/selectors';
 import { Layout } from '@/src/layouts';
 import { usePush } from '@/src/lib/redirect';
 import { useCart } from '@/src/state/cart';
-import { useChannels } from '@/src/state/channels';
 import { Absolute, Form, FormContainer, FormContent, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
@@ -53,7 +52,6 @@ const BACKEND_ERRORS: Record<string, string> = {
 };
 
 export const SignInPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const { fetchActiveOrder } = useCart();
 
   const schema = z.object({
@@ -75,7 +73,7 @@ export const SignInPage = (props: InferGetServerSidePropsType<typeof getServerSi
   const onSubmit: SubmitHandler<LoginCustomerInputType> = async (data) => {
     const { emailAddress, password, rememberMe } = data;
     try {
-      const { login } = await storefrontApiMutation(ctx)({
+      const { login } = await storefrontApiMutation()({
         login: [
           { password, username: emailAddress, rememberMe },
           {

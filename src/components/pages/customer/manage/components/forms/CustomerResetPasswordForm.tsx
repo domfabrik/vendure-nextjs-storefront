@@ -6,7 +6,6 @@ import { Stack } from '@/src/components/atoms/Stack';
 import { Banner, Input } from '@/src/components/forms';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { Form, MotionCustomerWrap, StyledButton } from '../atoms/shared';
 
 const BACKEND_ERRORS: Record<string, string> = {
@@ -49,7 +48,6 @@ type ResetPasswordForm = {
 };
 
 export const CustomerResetPasswordForm = () => {
-  const ctx = useChannels();
   const push = usePush();
   const passwordSchema = z
     .object({
@@ -83,7 +81,7 @@ export const CustomerResetPasswordForm = () => {
 
   const onPasswordChange: SubmitHandler<ResetPasswordForm> = async (data) => {
     try {
-      const { updateCustomerPassword } = await storefrontApiMutation(ctx)({
+      const { updateCustomerPassword } = await storefrontApiMutation()({
         updateCustomerPassword: [
           { currentPassword: data.oldPassword, newPassword: data.newPassword },
           {
@@ -114,7 +112,7 @@ export const CustomerResetPasswordForm = () => {
         return;
       }
 
-      const { logout } = await storefrontApiMutation(ctx)({ logout: { success: true } });
+      const { logout } = await storefrontApiMutation()({ logout: { success: true } });
       if (logout.success) push('/customer/sign-in/');
     } catch (_error) {
       setError('root', { message: 'Неизвестная ошибка' });

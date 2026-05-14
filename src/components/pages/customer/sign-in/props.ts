@@ -4,9 +4,9 @@ import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'customer'])(context);
+  const r = await makeServerSideProps(['common', 'customer'])();
 
-  const collections = await getCollections(r.context);
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
 
   const returnedStuff = {

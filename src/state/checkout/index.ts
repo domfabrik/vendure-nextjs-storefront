@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { ActiveOrderSelector, ActiveOrderType } from '@/src/graphql/selectors';
-import { useChannels } from '../channels';
 import { CheckoutContainerType } from './types';
 import { emptyCheckoutState } from './utils';
 
@@ -13,12 +12,11 @@ import { emptyCheckoutState } from './utils';
 //Additional useCart is on client side, because it is used in many places
 const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: ActiveOrderType }>((initialState) => {
   if (!initialState?.checkout) return emptyCheckoutState;
-  const ctx = useChannels();
   const [activeOrder, setActiveOrder] = useState<ActiveOrderType>(initialState.checkout);
 
   const addToCheckout = async (id: string, q: number) => {
     try {
-      const { addItemToOrder } = await storefrontApiMutation(ctx)({
+      const { addItemToOrder } = await storefrontApiMutation()({
         addItemToOrder: [
           { productVariantId: id, quantity: q },
           {
@@ -54,7 +52,7 @@ const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: 
 
   const removeFromCheckout = async (id: string) => {
     try {
-      const { removeOrderLine } = await storefrontApiMutation(ctx)({
+      const { removeOrderLine } = await storefrontApiMutation()({
         removeOrderLine: [
           { orderLineId: id },
           {
@@ -78,7 +76,7 @@ const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: 
 
   const changeQuantity = async (id: string, q: number) => {
     try {
-      const { adjustOrderLine } = await storefrontApiMutation(ctx)({
+      const { adjustOrderLine } = await storefrontApiMutation()({
         adjustOrderLine: [
           { orderLineId: id, quantity: q },
           {
@@ -114,7 +112,7 @@ const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: 
 
   const changeShippingMethod = async (id: string) => {
     try {
-      const { setOrderShippingMethod } = await storefrontApiMutation(ctx)({
+      const { setOrderShippingMethod } = await storefrontApiMutation()({
         setOrderShippingMethod: [
           { shippingMethodId: [id] },
           {
@@ -137,7 +135,7 @@ const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: 
 
   const applyCouponCode = async (code: string) => {
     try {
-      const { applyCouponCode } = await storefrontApiMutation(ctx)({
+      const { applyCouponCode } = await storefrontApiMutation()({
         applyCouponCode: [
           { couponCode: code },
           {
@@ -162,7 +160,7 @@ const useCheckoutContainer = createContainer<CheckoutContainerType, { checkout: 
 
   const removeCouponCode = async (code: string) => {
     try {
-      const { removeCouponCode } = await storefrontApiMutation(ctx)({
+      const { removeCouponCode } = await storefrontApiMutation()({
         removeCouponCode: [{ couponCode: code }, ActiveOrderSelector],
       });
       if (removeCouponCode?.id) {

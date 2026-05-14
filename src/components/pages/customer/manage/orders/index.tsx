@@ -8,9 +8,8 @@ import { TP } from '@/src/components/atoms/TypoGraphy';
 import { Input } from '@/src/components/forms';
 import { Button } from '@/src/components/molecules/Button';
 import { storefrontApiQuery } from '@/src/graphql/client';
-import { ActiveCustomerSelector, ActiveOrderSelector } from '@/src/graphql/selectors';
+import { ActiveCustomerSelector, ActiveOrderSelector, ActiveOrderType } from '@/src/graphql/selectors';
 import { Layout } from '@/src/layouts';
-import { useChannels } from '@/src/state/channels';
 import { SortOrder } from '@/src/zeus';
 import { CustomerWrap } from '../../components/shared';
 import { CustomerNavigation } from '../components/CustomerNavigation';
@@ -20,7 +19,6 @@ import { getServerSideProps } from './props';
 const GET_MORE = 4;
 
 export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const [query, setQuery] = useState('');
   const [more, setMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +27,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
   const [activeOrders, setActiveOrders] = useState(props.activeCustomer?.orders.items);
 
   const lookForOrder = async (contains: string) => {
-    const { activeCustomer } = await storefrontApiQuery(ctx)({
+    const { activeCustomer } = await storefrontApiQuery()({
       activeCustomer: {
         ...ActiveCustomerSelector,
         orders: [
@@ -72,7 +70,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
 
   const onLoadMore = async () => {
     setMore(true);
-    const { activeCustomer } = await storefrontApiQuery(ctx)({
+    const { activeCustomer } = await storefrontApiQuery()({
       activeCustomer: {
         ...ActiveCustomerSelector,
         orders: [{ options: { take: GET_MORE, skip: activeOrders?.length, sort: { createdAt: SortOrder.DESC } } }, { items: ActiveOrderSelector, totalItems: true }],
@@ -136,7 +134,7 @@ export const HistoryPage = (props: InferGetServerSidePropsType<typeof getServerS
                 ref={scrollableRef}
               >
                 {!loading ? (
-                  activeOrders?.map((order) => (
+                  activeOrders?.map((order: ActiveOrderType) => (
                     <OrderBox
                       key={order.id}
                       order={order}

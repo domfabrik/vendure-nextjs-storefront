@@ -1,20 +1,19 @@
 import { GetServerSidePropsContext } from 'next';
 import { SSRQuery } from '@/src/graphql/client';
-import { ActiveCustomerSelector, ActiveOrderSelector, AvailableCountriesSelector, homePageSlidersSelector, ShippingMethodsSelector } from '@/src/graphql/selectors';
+import { ActiveCustomerSelector, ActiveOrderSelector, homePageSlidersSelector, ShippingMethodsSelector } from '@/src/graphql/selectors';
 import { makeServerSideProps } from '@/src/lib/getStatic';
 import { prepareSSRRedirect } from '@/src/lib/redirect';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'checkout'])(context);
+  const r = await makeServerSideProps(['common', 'checkout'])();
 
   const homePageRedirect = prepareSSRRedirect('/')(context);
   const paymentRedirect = prepareSSRRedirect('/checkout/payment')(context);
   const api = SSRQuery(context);
 
   try {
-    const [{ activeOrder: checkout }, { availableCountries }, { activeCustomer }, { eligibleShippingMethods }, { collection: alsoBoughtProducts }] = await Promise.all([
+    const [{ activeOrder: checkout }, { activeCustomer }, { eligibleShippingMethods }, { collection: alsoBoughtProducts }] = await Promise.all([
       api({ activeOrder: ActiveOrderSelector }),
-      api({ availableCountries: AvailableCountriesSelector }),
       api({ activeCustomer: ActiveCustomerSelector }),
       api({ eligibleShippingMethods: ShippingMethodsSelector }),
       api({ collection: [{ slug: 'all' }, homePageSlidersSelector] }),
@@ -31,7 +30,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     const returnedStuff = {
       ...r.props,
       ...r.context,
-      availableCountries,
       checkout,
       alsoBoughtProducts: alsoBoughtProducts?.productVariants.items ?? null,
       activeCustomer: activeCustomer ?? null,

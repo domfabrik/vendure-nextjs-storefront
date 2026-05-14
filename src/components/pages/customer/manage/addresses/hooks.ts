@@ -3,7 +3,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { storefrontApiMutation, storefrontApiQuery } from '@/src/graphql/client';
 import { ActiveAddressType, ActiveCustomerSelector, ActiveCustomerType, CreateAddressType } from '@/src/graphql/selectors';
 
-export const useAddresses = (customer: ActiveCustomerType, ctx: { locale: string; channel: string }) => {
+export const useAddresses = (customer: ActiveCustomerType) => {
   const [activeCustomer, setActiveCustomer] = useState<ActiveCustomerType>(customer);
   const [addressToEdit, setAddressToEdit] = useState<ActiveAddressType>();
   const [deleting, setDeleting] = useState<string>();
@@ -11,7 +11,7 @@ export const useAddresses = (customer: ActiveCustomerType, ctx: { locale: string
 
   useEffect(() => {
     const fetchCustomer = async () => {
-      const { activeCustomer } = await storefrontApiQuery(ctx)({
+      const { activeCustomer } = await storefrontApiQuery()({
         activeCustomer: ActiveCustomerSelector,
       });
       if (activeCustomer) setActiveCustomer(activeCustomer);
@@ -48,7 +48,7 @@ export const useAddresses = (customer: ActiveCustomerType, ctx: { locale: string
     }
 
     try {
-      const { updateCustomerAddress } = await storefrontApiMutation(ctx)({
+      const { updateCustomerAddress } = await storefrontApiMutation()({
         updateCustomerAddress: [{ input }, { __typename: true, id: true }],
       });
       if (updateCustomerAddress) {
@@ -62,7 +62,7 @@ export const useAddresses = (customer: ActiveCustomerType, ctx: { locale: string
 
   const onSubmitCreate: SubmitHandler<CreateAddressType> = async (data) => {
     try {
-      const { createCustomerAddress } = await storefrontApiMutation(ctx)({
+      const { createCustomerAddress } = await storefrontApiMutation()({
         createCustomerAddress: [{ input: data }, { __typename: true, id: true }],
       });
       if (createCustomerAddress) {
@@ -76,7 +76,7 @@ export const useAddresses = (customer: ActiveCustomerType, ctx: { locale: string
   const onDelete = async (id: string) => {
     setDeleting(id);
     try {
-      const { deleteCustomerAddress } = await storefrontApiMutation(ctx)({
+      const { deleteCustomerAddress } = await storefrontApiMutation()({
         deleteCustomerAddress: [{ id }, { success: true }],
       });
       setDeleting(undefined);

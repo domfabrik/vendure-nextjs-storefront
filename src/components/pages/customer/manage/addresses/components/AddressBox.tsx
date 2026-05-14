@@ -69,7 +69,6 @@ export const AddressBox = ({ address, selected, onEdit, onDelete, deleting }: Pr
               <DefaultShipping active={address.defaultShippingAddress} />
             </DefaultMethodsWrapper>
           )}
-          <TP>{address.country.code}</TP>
         </Stack>
       </Stack>
       {(onEdit || onDelete) && (

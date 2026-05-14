@@ -9,45 +9,42 @@ import { CheckoutProvider } from '@/src/state/checkout';
 import { CollectionProvider } from '@/src/state/collection';
 import { ProductProvider } from '@/src/state/product';
 import { LightTheme } from '@/src/theme';
-import { ChannelsProvider } from '../state/channels';
 
 const nunito = Nunito_Sans({ subsets: ['latin'], variable: '--nunito-font' });
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <ThemeProvider theme={LightTheme}>
-      <ChannelsProvider initialState={{ channel: pageProps.channel, locale: pageProps.locale }}>
-        <Global styles={`body { font-family:${nunito.style.fontFamily}; }`} />
-        {/* `checkout` prop should exist only on routes with checkout functionally */}
-        {'checkout' in pageProps ? (
-          <CheckoutProvider initialState={{ checkout: pageProps.checkout }}>
-            <Component {...pageProps} />
-          </CheckoutProvider>
-        ) : (
-          <CartProvider>
-            <ProductProvider
+      <Global styles={`body { font-family:${nunito.style.fontFamily}; }`} />
+      {/* `checkout` prop should exist only on routes with checkout functionally */}
+      {'checkout' in pageProps ? (
+        <CheckoutProvider initialState={{ checkout: pageProps.checkout }}>
+          <Component {...pageProps} />
+        </CheckoutProvider>
+      ) : (
+        <CartProvider>
+          <ProductProvider
+            initialState={{
+              product: 'product' in pageProps ? pageProps.product : undefined,
+            }}
+          >
+            <CollectionProvider
               initialState={{
-                product: 'product' in pageProps ? pageProps.product : undefined,
+                collection: 'collection' in pageProps ? pageProps.collection : undefined,
+                products: 'products' in pageProps ? pageProps.products : undefined,
+                facets: 'facets' in pageProps ? pageProps.facets : undefined,
+                totalProducts: 'totalProducts' in pageProps ? pageProps.totalProducts : undefined,
+                filters: 'filters' in pageProps ? pageProps.filters : undefined,
+                searchQuery: 'searchQuery' in pageProps ? pageProps.searchQuery : undefined,
+                page: 'page' in pageProps ? pageProps.page : undefined,
+                sort: 'sort' in pageProps ? pageProps.sort : undefined,
               }}
             >
-              <CollectionProvider
-                initialState={{
-                  collection: 'collection' in pageProps ? pageProps.collection : undefined,
-                  products: 'products' in pageProps ? pageProps.products : undefined,
-                  facets: 'facets' in pageProps ? pageProps.facets : undefined,
-                  totalProducts: 'totalProducts' in pageProps ? pageProps.totalProducts : undefined,
-                  filters: 'filters' in pageProps ? pageProps.filters : undefined,
-                  searchQuery: 'searchQuery' in pageProps ? pageProps.searchQuery : undefined,
-                  page: 'page' in pageProps ? pageProps.page : undefined,
-                  sort: 'sort' in pageProps ? pageProps.sort : undefined,
-                }}
-              >
-                <Component {...pageProps} />
-              </CollectionProvider>
-            </ProductProvider>
-          </CartProvider>
-        )}
-      </ChannelsProvider>
+              <Component {...pageProps} />
+            </CollectionProvider>
+          </ProductProvider>
+        </CartProvider>
+      )}
     </ThemeProvider>
   );
 };

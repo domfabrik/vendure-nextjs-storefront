@@ -4,7 +4,6 @@ import { createContainer } from 'unstated-next';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { CollectionType, FiltersFacetType, ProductSearchType, SearchSelector } from '@/src/graphql/selectors';
 import { GraphQLTypes, SortOrder } from '@/src/zeus';
-import { useChannels } from '../channels';
 import { CollectionContainerType, Sort } from './types';
 import { collectionsEmptyState, PER_PAGE, prepareFilters, reduceFacets } from './utils';
 
@@ -22,7 +21,6 @@ const useCollectionContainer = createContainer<
   }
 >((initialState) => {
   if (!initialState?.collection) return collectionsEmptyState;
-  const ctx = useChannels();
   const [collection, setCollection] = useState(initialState.collection);
   const [products, setProducts] = useState(initialState.products);
   const [totalProducts, setTotalProducts] = useState(initialState.totalProducts);
@@ -141,7 +139,7 @@ const useCollectionContainer = createContainer<
       term: q,
     };
 
-    const { search } = await storefrontApiQuery(ctx)({
+    const { search } = await storefrontApiQuery()({
       search: [{ input }, SearchSelector],
     });
 

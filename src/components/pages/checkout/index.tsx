@@ -8,13 +8,12 @@ import { CheckoutCarousel } from './components/OrderSummary/CheckoutCarousel';
 import { getServerSideProps } from './props';
 
 export const CheckoutPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { availableCountries, alsoBoughtProducts, eligibleShippingMethods, activeCustomer } = props;
+  const { alsoBoughtProducts, eligibleShippingMethods, activeCustomer } = props;
 
   return (
     <CheckoutLayout pageTitle={`${'Оформление заказа'}`}>
       <Content>
         <OrderForm
-          availableCountries={availableCountries}
           shippingMethods={eligibleShippingMethods}
           activeCustomer={activeCustomer}
         />

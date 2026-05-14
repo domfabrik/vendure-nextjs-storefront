@@ -15,11 +15,9 @@ import { getServerSideProps } from '@/src/components/pages/products/props';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { ProductVariantTileType, productVariantTileSelector } from '@/src/graphql/selectors';
 import { Layout } from '@/src/layouts';
-import { useChannels } from '@/src/state/channels';
 import { useProduct } from '@/src/state/product';
 
 export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const { product, variant, addingError, productOptionsGroups, handleOptionClick, handleBuyNow, handleAddToCart } = useProduct();
 
   const breadcrumbs = [
@@ -36,7 +34,7 @@ export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerS
         const cookie = window.document.cookie.split('; ').find((row) => row.startsWith('recentlyViewed'));
         if (!cookie) return;
         const recentlyViewed = cookie.split('=')[1].split(',');
-        const { collection } = await storefrontApiQuery(ctx)({
+        const { collection } = await storefrontApiQuery()({
           collection: [
             { slug: 'all' },
             {

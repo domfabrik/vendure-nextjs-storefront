@@ -6,8 +6,6 @@ import { useRef } from 'react';
 import { ContentContainer } from '@/src/components/atoms/ContentContainer';
 import { Stack } from '@/src/components/atoms/Stack';
 import { Layout } from '@/src/layouts';
-import { useChannels } from '@/src/state/channels';
-import { baseCountryFromLanguage } from '@/src/util/baseCountryFromLanguage';
 import { useOutsideClick } from '@/src/util/hooks/useOutsideClick';
 import { CustomerWrap } from '../../components/shared';
 import { CustomerNavigation } from '../components/CustomerNavigation';
@@ -17,10 +15,7 @@ import { useAddresses } from './hooks';
 import { getServerSideProps } from './props';
 
 export const AddressesPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
-  const { activeCustomer, addressToEdit, deleting, onDelete, onEdit, onModalClose, onSubmitCreate, onSubmitEdit } = useAddresses(props.activeCustomer, ctx);
-
-  const country = activeCustomer.addresses?.find((a) => a.defaultBillingAddress || a.defaultShippingAddress)?.country?.code ?? baseCountryFromLanguage(ctx.locale);
+  const { activeCustomer, addressToEdit, deleting, onDelete, onEdit, onModalClose, onSubmitCreate, onSubmitEdit } = useAddresses(props.activeCustomer);
 
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, () => onModalClose());
@@ -45,10 +40,8 @@ export const AddressesPage = (props: InferGetServerSidePropsType<typeof getServe
             >
               <AddressForm
                 onSubmit={onSubmitEdit}
-                availableCountries={props.availableCountries}
                 addressToEdit={addressToEdit}
                 onModalClose={onModalClose}
-                country={country}
               />
             </ModalContent>
           </Modal>
@@ -71,11 +64,7 @@ export const AddressesPage = (props: InferGetServerSidePropsType<typeof getServe
             gap="1.5rem"
           >
             <Stack w100>
-              <AddressForm
-                country={country}
-                onSubmit={onSubmitCreate}
-                availableCountries={props.availableCountries}
-              />
+              <AddressForm onSubmit={onSubmitCreate} />
             </Stack>
             <Wrap
               w100

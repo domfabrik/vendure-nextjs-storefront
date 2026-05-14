@@ -12,10 +12,10 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const slugArr = Array.isArray(slug) ? slug : slug ? [slug] : [];
   const lastIndexSlug = slugArr.length ? slugArr[slugArr.length - 1] : '';
 
-  const r = await makeServerSideProps(['common', 'collections'])(context);
-  const collections = await getCollections(r.context);
+  const r = await makeServerSideProps(['common', 'collections'])();
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
-  const api = SSGQuery(r.context);
+  const api = SSGQuery();
 
   const { collection } = await api({
     collection: [{ slug: lastIndexSlug }, CollectionSelector],

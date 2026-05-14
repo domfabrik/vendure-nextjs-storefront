@@ -7,14 +7,12 @@ import { storefrontApiQuery } from '@/src/graphql/client';
 import { OrderSelector, OrderType } from '@/src/graphql/selectors';
 import { Layout } from '@/src/layouts';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { OrderConfirmation } from '../components/OrderConfirmation';
 import { getServerSideProps } from './props';
 
 const MAX_RETRIES = 3;
 
 export const ConfirmationPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const [order, setOrder] = useState<OrderType | null>(props.orderByCode);
   const push = usePush();
 
@@ -23,7 +21,7 @@ export const ConfirmationPage = (props: InferGetServerSidePropsType<typeof getSe
 
     const fetchOrder = async () => {
       try {
-        const { orderByCode } = await storefrontApiQuery(ctx)({
+        const { orderByCode } = await storefrontApiQuery()({
           orderByCode: [{ code: props.code }, OrderSelector],
         });
         if (orderByCode && !orderByCode.active) setOrder(orderByCode);

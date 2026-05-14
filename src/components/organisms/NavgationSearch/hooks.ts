@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 import { storefrontApiQuery } from '@/src/graphql/client';
 import { ProductSearchSelector, ProductSearchType } from '@/src/graphql/selectors';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { useDebounce } from '@/src/util/hooks/useDebounce';
 import { SortOrder } from '@/src/zeus';
 
 export const useNavigationSearch = () => {
-  const ctx = useChannels();
   const { query, asPath } = useRouter();
   const push = usePush();
 
@@ -46,7 +44,7 @@ export const useNavigationSearch = () => {
     const getResults = async () => {
       try {
         setLoading(true);
-        const results = await storefrontApiQuery(ctx)({
+        const results = await storefrontApiQuery()({
           search: [
             {
               input: {

@@ -8,7 +8,6 @@ import { TP } from '@/src/components/atoms/TypoGraphy';
 import { Button } from '@/src/components/molecules/Button';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 
 const routes = [
   { href: '/customer/manage', sub: [''], label: 'Мой аккаунт' },
@@ -21,11 +20,10 @@ const routes = [
 ];
 
 export const CustomerNavigation = () => {
-  const ctx = useChannels();
   const { pathname } = useRouter();
   const push = usePush();
   const onClick = async () => {
-    await storefrontApiMutation(ctx)({ logout: { success: true } });
+    await storefrontApiMutation()({ logout: { success: true } });
     push('/');
   };
 

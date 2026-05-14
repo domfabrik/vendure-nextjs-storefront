@@ -6,10 +6,10 @@ import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const r = await makeServerSideProps(['common', 'products'])(context);
+  const r = await makeServerSideProps(['common', 'products'])();
   const language = r.context?.locale || 'ru';
   const { slug } = context.params || {};
-  const api = SSGQuery(r.context);
+  const api = SSGQuery();
 
   const response =
     typeof slug === 'string'
@@ -20,7 +20,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
   if (!response?.product) return { notFound: true as const };
 
-  const collections = await getCollections(r.context);
+  const collections = await getCollections();
   const navigation = arrayToTree(collections);
   const fallbackCollectionSlug = response.product.collections[0]?.slug || 'electronics';
 

@@ -2,8 +2,8 @@ import { SSGQuery } from '@/src/graphql/client';
 import { CollectionTileProductVariantSelector, CollectionTileProductVariantType, CollectionTileSelector } from '@/src/graphql/selectors';
 import { SortOrder } from '@/src/zeus';
 
-export const getCollections = async (params: { locale: string; channel: string }) => {
-  const _collections = await SSGQuery(params)({
+export const getCollections = async () => {
+  const _collections = await SSGQuery()({
     collections: [{ options: { filter: { slug: { notEq: 'search' } } } }, { items: CollectionTileSelector }],
   });
 
@@ -15,7 +15,7 @@ export const getCollections = async (params: { locale: string; channel: string }
   try {
     variantForCollections = await Promise.all(
       _collections.collections.items.map(async (c) => {
-        const products = await SSGQuery(params)({
+        const products = await SSGQuery()({
           collection: [
             { slug: c.slug },
             {

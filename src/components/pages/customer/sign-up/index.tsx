@@ -14,7 +14,6 @@ import { storefrontApiMutation } from '@/src/graphql/client';
 import { RegisterCustomerInputType } from '@/src/graphql/selectors';
 import { Layout } from '@/src/layouts';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { Absolute, Form, FormContainer, FormContent, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
@@ -54,7 +53,6 @@ const BACKEND_ERRORS: Record<string, string> = {
 type FormValues = RegisterCustomerInputType & { confirmPassword: string };
 
 export const SignUpPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const [success, setSuccess] = useState<boolean>(false);
   const push = usePush();
   const schema = z
@@ -81,7 +79,7 @@ export const SignUpPage = (props: InferGetServerSidePropsType<typeof getServerSi
     const { emailAddress, password } = data;
 
     try {
-      const { registerCustomerAccount } = await storefrontApiMutation(ctx)({
+      const { registerCustomerAccount } = await storefrontApiMutation()({
         registerCustomerAccount: [
           { input: { emailAddress, password } },
           {

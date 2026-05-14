@@ -10,7 +10,6 @@ import { Button } from '@/src/components/molecules/Button';
 import { storefrontApiMutation } from '@/src/graphql/client';
 import { Layout } from '@/src/layouts';
 import { usePush } from '@/src/lib/redirect';
-import { useChannels } from '@/src/state/channels';
 import { Absolute, Form, FormContainer, FormContent, FormWrapper } from '../components/shared';
 import { getServerSideProps } from './props';
 
@@ -50,7 +49,6 @@ const BACKEND_ERRORS: Record<string, string> = {
 type FormValues = { password: string; confirmPassword: string };
 
 export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const ctx = useChannels();
   const schema = z
     .object({
       password: z.string().min(8, 'Пароль должен содержать минимум 8 символов').max(25, 'Пароль не может быть длиннее 25 символов'),
@@ -73,7 +71,7 @@ export const ResetPasswordPage = (props: InferGetServerSidePropsType<typeof getS
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      const { resetPassword } = await storefrontApiMutation(ctx)({
+      const { resetPassword } = await storefrontApiMutation()({
         resetPassword: [
           { password: data.password, token: props.token as string },
           {
