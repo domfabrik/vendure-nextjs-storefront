@@ -5,11 +5,8 @@ import { useEffect, useRef } from 'react';
 import { Link, Stack, TP, TypoGraphy } from '@/src/components/atoms';
 import { ProductImageWithInfo } from '../../molecules/ProductImageWithInfo';
 import { useNavigationSearch } from './hooks';
-import { PopularSearches } from './PopularSearches';
 
 export const NavigationSearch = ({ loading, searchQuery, searchResults, totalItems, setSearchQuery, closeSearch, onSubmit }: ReturnType<typeof useNavigationSearch>) => {
-  const popularSearches = ['Computer', 'Tablet', 'Plant', 'Gloves', 'Mouse'];
-
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     setTimeout(() => {
