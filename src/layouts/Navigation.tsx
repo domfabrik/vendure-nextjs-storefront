@@ -119,18 +119,19 @@ export const Navigation = ({ navigation, categories }: NavigationProps) => {
 };
 
 const StickyContainer = styled.nav`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-    width: 100%;
-    padding: 2rem;
-    position: sticky;
-    top: 0;
-    background: ${(p) => p.theme.gray(0)};
-    z-index: 2137;
-    border-bottom: 1px solid ${(p) => p.theme.gray(100)};
+  width: 100%;
+  padding: 2rem;
+  position: sticky;
+  top: 0;
+  background: ${(p) => p.theme.gray(0)};
+  z-index: 2137;
+  border-bottom: 1px solid ${(p) => p.theme.gray(100)};
+  margin-bottom: 16px;
 `;
 
 const MobileNavigationContainer = styled.div`

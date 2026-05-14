@@ -6,7 +6,7 @@ import { makeServerSideProps } from '@/src/lib/getStatic';
 import { arrayToTree } from '@/src/util/arrayToTree';
 import { SortOrder } from '@/src/zeus';
 
-const slugsOfBestOf = ['home-garden', 'electronics', 'sports-outdoor'];
+const slugsOfBestOf = ['beds'];
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const r = await makeServerSideProps(['common', 'homepage'])(ctx);
