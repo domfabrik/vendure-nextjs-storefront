@@ -19,6 +19,12 @@ import { useProduct } from '@/src/state/product';
 
 export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { product, variant, addingError, productOptionsGroups, handleOptionClick, handleBuyNow, handleAddToCart } = useProduct();
+  const variantFeaturedAsset = variant?.featuredAsset ?? product?.featuredAsset;
+  const galleryImages = variant?.assets?.length ? variant.assets : product?.assets;
+  const previewImages =
+    variantFeaturedAsset && !galleryImages?.some((asset) => asset?.source === variantFeaturedAsset.source)
+      ? [variantFeaturedAsset, ...(galleryImages ?? [])]
+      : galleryImages;
 
   const breadcrumbs = [
     { name: 'Главная', href: '/' },
@@ -66,9 +72,9 @@ export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerS
               gap="2.5rem"
             >
               <ProductPhotosPreview
-                featuredAsset={product?.featuredAsset}
-                images={product?.assets}
-                name={product?.name}
+                featuredAsset={variantFeaturedAsset}
+                images={previewImages}
+                name={variant?.name ?? product?.name}
               />
             </StickyLeft>
             <StyledStack

@@ -167,6 +167,14 @@ export const ProductDetailSelector = Selector('Product')({
     priceWithTax: true,
     stockLevel: true,
     sku: true,
+    featuredAsset: {
+      source: true,
+      preview: true,
+    },
+    assets: {
+      source: true,
+      preview: true,
+    },
     options: {
       id: true,
       groupId: true,
