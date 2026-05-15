@@ -22,9 +22,7 @@ export const ProductPage = (props: InferGetServerSidePropsType<typeof getServerS
   const variantFeaturedAsset = variant?.featuredAsset ?? product?.featuredAsset;
   const galleryImages = variant?.assets?.length ? variant.assets : product?.assets;
   const previewImages =
-    variantFeaturedAsset && !galleryImages?.some((asset) => asset?.source === variantFeaturedAsset.source)
-      ? [variantFeaturedAsset, ...(galleryImages ?? [])]
-      : galleryImages;
+    variantFeaturedAsset && !galleryImages?.some((asset) => asset?.source === variantFeaturedAsset.source) ? [variantFeaturedAsset, ...(galleryImages ?? [])] : galleryImages;
 
   const breadcrumbs = [
     { name: 'Главная', href: '/' },
