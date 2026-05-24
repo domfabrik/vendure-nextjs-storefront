@@ -1,4 +1,8 @@
-export type HasParent = { id: string; parentId: string | null };
+export type HasParent = {
+  id: string;
+  parentId?: string | null;
+  parent?: { id?: string | null } | null;
+};
 export type TreeNode<T extends HasParent> = T & {
   children: Array<TreeNode<T>>;
 };
@@ -17,7 +21,7 @@ export function arrayToTree<T extends HasParent>(nodes: T[]): RootNode<T> {
 
   for (const node of nodes) {
     const mappedNode = mappedNodes[node.id];
-    const parentId = node.parentId;
+    const parentId = node.parentId ?? node.parent?.id ?? null;
 
     if (parentId === null) {
       topLevelNodes.push(mappedNode);
@@ -31,6 +35,6 @@ export function arrayToTree<T extends HasParent>(nodes: T[]): RootNode<T> {
     }
   }
 
-  const rootId = topLevelNodes.length ? topLevelNodes[0].parentId : null;
+  const rootId = topLevelNodes.length ? (topLevelNodes[0].parentId ?? topLevelNodes[0].parent?.id ?? null) : null;
   return { children: topLevelNodes, id: rootId };
 }

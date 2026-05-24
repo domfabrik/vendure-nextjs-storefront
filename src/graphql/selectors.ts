@@ -131,8 +131,7 @@ export const CollectionTileSelector = Selector('Collection')({
   name: true,
   id: true,
   slug: true,
-  parentId: true,
-  parent: { slug: true },
+  parent: { id: true, slug: true },
   description: true,
   featuredAsset: {
     preview: true,
