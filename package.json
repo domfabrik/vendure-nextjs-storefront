@@ -2,48 +2,49 @@
   "name": "domfabrik-front",
   "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/domfabrik/vendure-nextjs-storefront"
+  },
   "scripts": {
+    "dev": "next dev --turbo -p 3001",
     "format": "biome check --write",
     "lint": "biome check && tsc --noEmit",
-    "dev": "next dev -p 3001",
-    "build": "next build",
-    "start": "next start",
-    "zeus": "zeus http://localhost:3000/shop-api ./src --td"
+    "lint:fsd": "steiger ./src",
+    "prebuild": "yarn lint && yarn lint:fsd",
+    "build": "yarn prebuild && next build",
+    "start": "next start -p 3001",
+    "prepare": "husky"
   },
   "dependencies": {
-    "@emotion/core": "11.0.0",
-    "@emotion/css": "11.13.5",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
-    "@floating-ui/react": "0.27.19",
-    "@graphql-typed-document-node/core": "3.2.0",
-    "@hookform/resolvers": "5.2.2",
-    "@stripe/react-stripe-js": "6.3.0",
-    "@stripe/stripe-js": "9.3.1",
-    "country-flag-icons": "1.6.16",
-    "graphql-tag": "2.12.6",
-    "gray-matter": "4.0.3",
-    "keen-slider": "6.8.6",
-    "lucide-react": "1.11.0",
-    "motion": "12.38.0",
-    "next": "16.2.4",
-    "next-language-detector": "1.1.1",
-    "photoswipe": "5.4.4",
+    "@mui/icons-material": "9.0.1",
+    "@mui/material": "9.0.1",
+    "@mui/material-nextjs": "9.0.1",
+    "graphql": "16.14.0",
+    "graphql-request": "7.4.0",
+    "next": "16.2.6",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "react-hook-form": "7.74.0",
-    "remark": "15.0.1",
-    "remark-html": "16.0.1",
-    "unstated-next": "1.1.0",
-    "zod": "4.3.6"
+    "zod": "4.3.6",
+    "zustand": "5.0.13"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
-    "@types/accept-language-parser": "1.5.8",
+    "@feature-sliced/steiger-plugin": "0.5.8",
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "graphql-zeus": "7.2.1",
+    "husky": "9.1.7",
+    "steiger": "0.5.12",
     "typescript": "6.0.3"
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead"
+  ]
 }

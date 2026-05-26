@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: false,
   trailingSlash: false,
-  pageExtensions: ['page.tsx', 'page.ts'],
+  experimental: {
+    largePageDataBytes: 500 * 1000,
+  },
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

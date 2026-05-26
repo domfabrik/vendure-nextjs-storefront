@@ -1,94 +1,91 @@
 # CLAUDE.md
 
-Этот файл содержит руководство для Claude Code (claude.ai/code) при работе с кодом в этом репозитории.
+Руководство для Claude Code при работе с кодом в этом репозитории.
 
 ## Обзор проекта
 
-Vendure Next.js Storefront — e-commerce витрина, построенная на Next.js 14 (Pages Router) с Vendure в качестве headless-бэкенда. Проект в альфа-фазе.
+E-commerce витрина магазина мебели DomFabrik. Next.js 16 (App Router) + Vendure headless-бэкенд. Локаль всегда `ru`, канал `default-channel`.
 
 ## Команды
 
 ```bash
-npm run dev          # Запуск dev-сервера на порту 3001
-npm run build        # Продакшн-сборка (standalone-вывод для Docker)
-npm run start        # Запуск продакшн-сервера
-npm run lint         # Проверка ESLint
-npm run zeus         # Перегенерация GraphQL-типов из Vendure API (требуется запущенный Vendure на localhost:3000)
-npm run toc          # Генерация i18n type-of-content из английских файлов локализации
-npm run interface    # Генерация i18n TypeScript-интерфейсов из английских файлов локализации
+yarn dev             # Dev-сервер на порту 3001 (Turbopack)
+yarn build           # prebuild + next build (standalone для Docker)
+yarn start           # Продакшн-сервер на порту 3001
+yarn lint            # Biome check + tsc --noEmit
+yarn lint:fsd        # Steiger — проверка FSD-архитектуры
+yarn prebuild        # yarn lint && yarn lint:fsd (также pre-commit hook через husky)
+yarn format          # Biome check --write (автоформатирование)
 ```
 
 ## Переменные окружения
 
-- `NEXT_PUBLIC_HOST` — публичный URL Vendure API (используется на клиенте)
-- `VENDURE_SERVER_URL` — внутренний URL Vendure API (используется на сервере, при отсутствии используется NEXT_PUBLIC_HOST)
+- `NEXT_PUBLIC_HOST` — публичный URL Vendure API (по умолчанию `https://domfabrik.ru`)
 
-## Архитектура
+## Архитектура (Feature-Sliced Design)
 
-### Маршрутизация страниц
-
-- **Pages Router** с кастомными расширениями: файлы страниц должны использовать суффикс `.page.tsx` / `.page.ts` (настроено в `next.config.js`)
-- **Маршрутизация каналов/локалей** через middleware (`src/middleware.page.ts`): контекст определяется cookies `channel` и `i18next`, а не сегментами URL
-- Значения по умолчанию для канала и локали определены в `src/lib/consts.ts`
-- Динамические страницы используют `[slug].page.tsx` для товаров и коллекций
-
-### GraphQL (Zeus)
-
-Типобезопасный GraphQL через **graphql-zeus**. Сгенерированные типы находятся в `src/zeus/`. Селекторы (переиспользуемые фрагменты запросов) определены в `src/graphql/selectors.ts`.
-
-Четыре функции для запросов/мутаций в `src/graphql/client.ts`:
-- `storefrontApiQuery(ctx)` / `storefrontApiMutation(ctx)` — клиентская сторона, используют Bearer-токен из localStorage
-- `SSGQuery(params)` — для `getStaticProps`
-- `SSRQuery(context)` / `SSRMutation(context)` — для `getServerSideProps`, пробрасывают сессионные cookies
-
-Все функции принимают контекст `{ locale, channel }` и передают его через заголовок `vendure-token` и query-параметр `languageCode`. URL ассетов автоматически перезаписываются с внутреннего хоста на публичный.
-
-### Управление состоянием (unstated-next)
-
-Легковесное контейнерное состояние через `createContainer()` из unstated-next. Основные контейнеры:
-- `src/state/cart.ts` — CartProvider (активный заказ, добавление/удаление/количество)
-- `src/state/channels/` — ChannelsProvider (текущий канал + локаль)
-- `src/state/checkout/` — CheckoutProvider
-- `src/state/product/` — ProductProvider
-- `src/state/collection/` — CollectionProvider
-
-Контейнеры используются через хуки: `useCart()`, `useChannels()` и т.д.
-
-### Стилизация (Emotion)
-
-CSS-in-JS через `@emotion/styled`. Система тем в `src/theme/` с аксессором `thv` для значений темы:
-```tsx
-color: ${thv.button.icon.front};
-// или классический способ: ${p => p.theme.button.icon.back}
+```
+src/
+├── app/                        # Страницы (App Router, server components по умолчанию)
+│   ├── layout.tsx              # Корневой layout: Theme, GlobalStyles, Header, Container
+│   ├── page.tsx                # Главная — коллекции с товарами
+│   ├── cart/page.tsx           # Корзина (client component, zustand)
+│   ├── search/page.tsx         # Поиск с фасетными фильтрами (client component)
+│   ├── collections/[slug]/     # Страница коллекции
+│   └── products/[slug]/        # Страница товара (product-details.tsx, product-gallery.tsx)
+│
+├── lib/                        # Утилиты
+│   ├── price-formatter.ts      # Форматирование цен (копейки → ₽, Intl.NumberFormat)
+│   └── array-to-tree.ts        # Построение дерева из плоского массива (для категорий)
+│
+└── shared/                     # Shared-слой FSD
+    ├── api/                    # API-слой (graphql-request + Vendure Shop API)
+    │   ├── api-client.ts       # GraphQLClient с vendure-token и languageCode=RU
+    │   ├── products/           # getProductBySlug, getFeaturedProducts, getProductSliders
+    │   ├── search/             # searchProducts (term, facets, sort, pagination)
+    │   ├── collections/        # getAllCollections, getCollectionBySlug, getProductsByCollection, getNavigationTree
+    │   ├── orders/             # getActiveOrder, getOrderByCode
+    │   ├── customer/           # getActiveCustomer
+    │   └── checkout/           # getEligibleShippingMethods, getEligiblePaymentMethods
+    ├── store/                  # Zustand-сторы
+    │   └── cart.ts             # useCartStore — корзина с persist в localStorage
+    └── ui/                     # UI-компоненты (MUI v9)
+        ├── theme/              # MUI ThemeProvider
+        ├── global-styles/      # GlobalStyles
+        ├── header/             # Header (server) + CatalogDrawer, Search, CartBadge (client)
+        ├── product-card/       # Карточка товара с кнопкой «В корзину»
+        └── add-to-cart-button/ # Кнопка добавления в корзину
 ```
 
-Компоненты разметки вроде `Stack` используют пропсы в стиле Tailwind (`column`, `gap`, `justifyBetween`, `itemsCenter`).
+### Правила FSD
 
-### Интернационализация (next-i18next)
+- Каждый модуль в `shared/` имеет `index.ts` (публичный API). Импорты извне — только через публичный API.
+- Steiger проверяет архитектуру: `yarn lint:fsd`.
+- `src/app/` — слой pages, `src/shared/` — shared-слой, `src/lib/` — утилиты.
 
-- JSON-файлы переводов в `public/locales/{lang}/` (по пространствам имён: common, homepage, products и др.)
-- Поддерживаемые локали: en, pl, fr, de, ja, es
-- Вспомогательные функции в `src/lib/getStatic.ts`: `makeStaticProps()`, `makeServerSideProps()`, `getI18nProps()`
-- После добавления/изменения ключей перевода в английской локали необходимо выполнить `npm run toc` и `npm run interface` для перегенерации типов
+### API-слой
 
-### Структура компонентов
+Каждый домен (`products/`, `search/`, `collections/` и т.д.) содержит:
+- `model.ts` — типы + GraphQL-запросы (gql-шаблоны)
+- `api.ts` — серверные async-функции (`'use server'`)
+- `index.ts` — публичные экспорты
 
-Атомарный дизайн в `src/components/`:
-- `atoms/` — Button, Stack, Price, TP (типографика) и др.
-- `forms/` — Input, CheckBox, CountrySelect (React Hook Form + Zod)
-- `molecules/` — ProductTile, Pagination, FacetFilter
-- `organisms/` — Navigation, боковая панель корзины, Slider
-- `pages/` — группы компонентов, специфичные для страниц
+GraphQL-клиент: `graphql-request` → `src/shared/api/api-client.ts`. Endpoint: `{NEXT_PUBLIC_HOST}/shop-api?languageCode=RU`, заголовок `vendure-token: default-channel`.
 
-Лейауты находятся в `src/layouts/` (Navigation, Footer, Cart drawer, CategoryBar).
+### Состояние
 
-### Паттерн получения данных
+Zustand с `persist` middleware (localStorage). Единственный стор — `useCartStore` (корзина). Бэкенд-интеграции корзины нет — только localStorage.
 
-Хелперы статической генерации выносят `getStaticProps`/`getServerSideProps` в отдельные файлы `props.ts` внутри `src/components/pages/`. Страницы импортируют их и передают через обёртки `makeStaticProps()` или `makeServerSideProps()`.
+### Server / Client компоненты
+
+- Страницы и layout — server components (`'use server'`), данные загружаются через async-функции из `shared/api`
+- Интерактивные части (корзина, поиск, галерея, выбор вариантов) — client components (`'use client'`)
 
 ## Стиль кода
 
-- Prettier: отступ 4 пробела, одинарные кавычки, trailing commas, ширина строки 120, без скобок у одиночных параметров стрелочных функций
-- Алиасы путей: `@/*` указывает на корень проекта (например, `import { X } from '@/src/graphql/client'`)
-- Иконки из `lucide-react`
-- Формы используют `react-hook-form` с валидацией `zod` через `@hookform/resolvers`
+- **Biome**: отступ 2 пробела, одинарные кавычки, двойные кавычки в JSX, trailing commas, ширина строки 180, LF
+- **JSX-атрибуты**: multiline (каждый атрибут на новой строке)
+- **Алиас путей**: `@/*` → `./src/*` (например `import { X } from '@/shared/api'`)
+- **Иконки**: `@mui/icons-material` (не lucide-react)
+- **Формы**: `react-hook-form` + `zod`
+- **Pre-commit**: husky запускает `yarn prebuild`
