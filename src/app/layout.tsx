@@ -1,10 +1,10 @@
-'use server';
-
 import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { Metadata } from 'next';
 import { PropsWithChildren } from 'react';
 import { GlobalStyles, Header, Theme } from '@/shared/ui';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteName = 'DomFabrik';
