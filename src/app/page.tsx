@@ -13,7 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = `${SITE_NAME} — Элитная мебель для дома | Кухни, спальни, гостиные`;
   const description =
     'Широкий выбор дизайнерской мебели премиум-качества в магазине DomFabrik. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
-  const ogImageUrl = `${envServer.SITE_URL}/images/logo.svg`;
 
   return {
     title,
@@ -26,13 +25,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_NAME,
       type: 'website',
       locale: 'ru_RU',
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImageUrl],
     },
   };
 }

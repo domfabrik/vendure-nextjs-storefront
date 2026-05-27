@@ -20,8 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     'Широкий выбор дизайнерской мебели премиум-качества в магазине DomFabrik. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
 
-  const ogImageUrl = `${envServer.SITE_URL}/images/logo.svg`;
-
   return {
     title: {
       default: title,
@@ -50,21 +48,14 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_NAME,
       locale: 'ru_RU',
       type: 'website',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Премиальная мебель ${SITE_NAME}`,
-        },
-      ],
+      images: [{ url: '/icons/og', width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
     },
 
     twitter: {
       card: 'summary_large_image',
       title: title,
       description: description,
-      images: [ogImageUrl],
+      images: ['/icons/og'],
     },
 
     alternates: {
@@ -72,10 +63,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
 
     icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon-32x32.png',
-      apple: '/apple-touch-icon.png',
+      icon: '/icons/favicon',
+      apple: '/icons/apple-touch',
     },
+
+    manifest: '/manifest.webmanifest',
   };
 }
 
