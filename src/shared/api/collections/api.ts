@@ -1,20 +1,10 @@
 'use server';
 
 import { arrayToTree, type RootNode } from '@/shared/lib';
+import type { Collection, CollectionTile, CollectionTileProductVariant, HomepageCollection, HomepageProduct, NavigationCollection } from '@/shared/model';
 
 import { apiClient } from '../api-client';
-import {
-  type Collection,
-  type CollectionTile,
-  type CollectionTileProductVariant,
-  GET_ALL_COLLECTIONS,
-  GET_COLLECTION_BY_SLUG,
-  GET_COLLECTION_PRODUCT_VARIANTS,
-  type HomepageCollection,
-  type HomepageProduct,
-  type NavigationCollection,
-  SEARCH_COLLECTION_PRODUCTS,
-} from './model';
+import { GET_ALL_COLLECTIONS, GET_COLLECTION_BY_SLUG, GET_COLLECTION_PRODUCT_VARIANTS, SEARCH_COLLECTION_PRODUCTS } from './queries';
 
 export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
   const data = await apiClient.request<{ collection: Collection | null }>(GET_COLLECTION_BY_SLUG, { slug });

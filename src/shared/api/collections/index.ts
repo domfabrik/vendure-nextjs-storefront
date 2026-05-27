@@ -1,4 +1,3 @@
-export { getAllCollections, getCollectionBySlug, getCollectionsWithProducts, getNavigationTree, getProductsByCollection } from './api';
 export type {
   Collection,
   CollectionChild,
@@ -8,4 +7,5 @@ export type {
   HomepageProduct,
   HomepageProductPrice,
   NavigationCollection,
-} from './model';
+} from '@/shared/model';
+export { getAllCollections, getCollectionBySlug, getCollectionsWithProducts, getNavigationTree, getProductsByCollection } from './api';

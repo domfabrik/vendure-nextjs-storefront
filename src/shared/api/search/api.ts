@@ -1,7 +1,9 @@
 'use server';
 
+import type { SearchInput, SearchResponse } from '@/shared/model';
+
 import { apiClient } from '../api-client';
-import { SEARCH_PRODUCTS, type SearchInput, type SearchResponse } from './model';
+import { SEARCH_PRODUCTS } from './queries';
 
 export async function searchProducts(params: SearchInput): Promise<SearchResponse> {
   const data = await apiClient.request<{ search: SearchResponse }>(SEARCH_PRODUCTS, {

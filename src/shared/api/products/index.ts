@@ -1,4 +1,3 @@
-export { getFeaturedProducts, getProductBySlug, getProductSliders } from './api';
 export type {
   Asset,
   CollectionSlider,
@@ -11,4 +10,5 @@ export type {
   ProductVariantTile,
   SearchResult,
   SearchResultPrice,
-} from './model';
+} from '@/shared/model';
+export { getFeaturedProducts, getProductBySlug, getProductSliders } from './api';

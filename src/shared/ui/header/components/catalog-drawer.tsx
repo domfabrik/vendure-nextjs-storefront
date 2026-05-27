@@ -7,8 +7,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Box, Collapse, Drawer, IconButton, List, ListItemButton, ListItemText, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { useState } from 'react';
-import type { CollectionTile } from '@/shared/api/collections';
 import { arrayToTree, type TreeNode } from '@/shared/lib';
+import type { CollectionTile } from '@/shared/model';
 
 interface CatalogDrawerProps {
   collections: CollectionTile[];

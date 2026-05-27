@@ -1,7 +1,9 @@
 'use server';
 
+import type { CollectionSlider, Product, SearchResult } from '@/shared/model';
+
 import { apiClient } from '../api-client';
-import { type CollectionSlider, GET_FEATURED_PRODUCTS, GET_PRODUCT_BY_SLUG, GET_PRODUCT_SLIDERS, type Product, type SearchResult } from './model';
+import { GET_FEATURED_PRODUCTS, GET_PRODUCT_BY_SLUG, GET_PRODUCT_SLIDERS } from './queries';
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const data = await apiClient.request<{ product: Product | null }>(GET_PRODUCT_BY_SLUG, { slug });

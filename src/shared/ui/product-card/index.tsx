@@ -4,8 +4,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Card, CardMedia, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
-import type { HomepageProduct, HomepageProductPrice } from '@/shared/api/collections';
 import { priceFormatter } from '@/shared/lib';
+import type { HomepageProduct, HomepageProductPrice } from '@/shared/model';
 import { useCartStore } from '@/shared/store/cart';
 
 function getPrice(price: HomepageProductPrice): number {

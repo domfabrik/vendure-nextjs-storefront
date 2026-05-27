@@ -7,8 +7,8 @@ import { routes } from '@routes';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { SearchResult } from '@/shared/api/products';
 import { searchProducts } from '@/shared/api/search';
+import type { SearchResult } from '@/shared/model';
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
