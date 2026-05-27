@@ -2,6 +2,7 @@
 
 import PhoneIcon from '@mui/icons-material/Phone';
 import { AppBar, Box, Container, Typography } from '@mui/material';
+import { routes } from '@routes';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { getAllCollections } from '@/shared/api';
@@ -32,7 +33,7 @@ export async function Header() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <NextLink href="/">
+          <NextLink href={routes.home()}>
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <NextImage
                 src="/images/logo.svg"

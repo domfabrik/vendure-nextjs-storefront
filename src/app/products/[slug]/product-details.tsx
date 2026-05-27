@@ -2,8 +2,8 @@
 
 import { Box, Chip, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { priceFormatter } from '@/lib';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
+import { priceFormatter } from '@/shared/lib';
 import { AddToCartButton } from '@/shared/ui/add-to-cart-button';
 import { ProductGallery } from './product-gallery';
 

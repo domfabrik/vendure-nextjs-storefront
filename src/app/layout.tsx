@@ -1,27 +1,34 @@
 import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { Metadata } from 'next';
+import { Open_Sans } from 'next/font/google';
 import { PropsWithChildren } from 'react';
+import { envServer, SITE_NAME } from '@/shared/config';
 import { GlobalStyles, Header, Theme } from '@/shared/ui';
+
+const openSans = Open_Sans({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-open-sans',
+});
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = 'DomFabrik';
-  const baseUrl = 'https://test.domfabrik.ru';
-
-  const title = 'DomFabrik — Элитная мебель для дома | Кухни, спальни, гостиные';
+  const title = `${SITE_NAME} — Элитная мебель для дома | Кухни, спальни, гостиные`;
   const description =
     'Широкий выбор дизайнерской мебели премиум-качества в магазине DomFabrik. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
 
-  const ogImageUrl = `${baseUrl}/images/logo.svg`;
+  const ogImageUrl = `${envServer.SITE_URL}/images/logo.svg`;
 
   return {
-    title: title,
+    title: {
+      default: title,
+      template: `%s | ${SITE_NAME}`,
+    },
     description: description,
-    metadataBase: new URL(baseUrl),
+    metadataBase: new URL(envServer.SITE_URL),
 
-    // Стандартные роботы и индексация
     robots: {
       index: true,
       follow: true,
@@ -35,12 +42,11 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
 
-    // Open Graph — отвечает за отображение в Telegram, WhatsApp, FB, VK
     openGraph: {
       title: title,
       description: description,
-      url: baseUrl,
-      siteName: siteName,
+      url: envServer.SITE_URL,
+      siteName: SITE_NAME,
       locale: 'ru_RU',
       type: 'website',
       images: [
@@ -48,12 +54,11 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'Премиальная мебель DomFabrik',
+          alt: `Премиальная мебель ${SITE_NAME}`,
         },
       ],
     },
 
-    // Twitter-карточки (используются многими современными мессенджерами)
     twitter: {
       card: 'summary_large_image',
       title: title,
@@ -61,12 +66,10 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [ogImageUrl],
     },
 
-    // Канонические ссылки для исключения дублей в SEO
     alternates: {
-      canonical: baseUrl,
+      canonical: envServer.SITE_URL,
     },
 
-    // Иконки сайта
     icons: {
       icon: '/favicon.ico',
       shortcut: '/favicon-32x32.png',
@@ -78,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="ru">
-      <body>
+      <body className={openSans.variable}>
         <AppRouterCacheProvider>
           <Theme>
             <GlobalStyles />

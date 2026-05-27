@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
+import { envServer } from '@/shared/config';
 
-const HOST = process.env.NEXT_PUBLIC_HOST ?? 'https://domfabrik.ru';
-const ENDPOINT = `${HOST}/shop-api?languageCode=RU`;
+const ENDPOINT = `${envServer.VENDURE_SERVER_URL}?languageCode=RU`;
 
 export const apiClient = new GraphQLClient(ENDPOINT, {
   headers: {

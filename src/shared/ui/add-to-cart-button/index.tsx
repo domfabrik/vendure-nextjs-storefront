@@ -14,7 +14,8 @@ interface AddToCartButtonProps {
   disabled?: boolean;
 }
 
-export function AddToCartButton({ variantId, productName, variantName, slug, price, image, disabled }: AddToCartButtonProps) {
+export function AddToCartButton(props: AddToCartButtonProps) {
+  const { variantId, productName, variantName, slug, price, image, disabled } = props;
   const addToCart = useCartStore((s) => s.addToCart);
 
   const handleClick = () => {

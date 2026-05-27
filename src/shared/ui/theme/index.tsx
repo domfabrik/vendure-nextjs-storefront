@@ -7,6 +7,10 @@ export function Theme(props: PropsWithChildren) {
   const theme = createTheme({
     cssVariables: true,
 
+    typography: {
+      fontFamily: 'var(--font-open-sans), sans-serif',
+    },
+
     palette: {
       background: {
         default: '#ffffff',

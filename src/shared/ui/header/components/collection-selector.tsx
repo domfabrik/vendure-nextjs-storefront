@@ -1,6 +1,7 @@
 'use client';
 
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { routes } from '@routes';
 import { useRouter } from 'next/navigation';
 import type { CollectionTile } from '@/shared/api/collections';
 
@@ -26,7 +27,7 @@ export function CollectionSelector({ collections, value = '' }: CollectionSelect
         onChange={(e) => {
           const slug = e.target.value as string;
           if (slug) {
-            router.push(`/collections/${slug}`);
+            router.push(routes.collection(slug));
           }
         }}
         sx={{

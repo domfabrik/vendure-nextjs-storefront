@@ -2,9 +2,10 @@
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Card, CardMedia, IconButton, Typography } from '@mui/material';
+import { routes } from '@routes';
 import NextLink from 'next/link';
-import { priceFormatter } from '@/lib';
 import type { HomepageProduct, HomepageProductPrice } from '@/shared/api/collections';
+import { priceFormatter } from '@/shared/lib';
 import { useCartStore } from '@/shared/store/cart';
 
 function getPrice(price: HomepageProductPrice): number {
@@ -30,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const image = product.productAsset?.preview;
   const name = product.productName;
-  const href = `/products/${product.slug}`;
+  const href = routes.product(product.slug);
 
   return (
     <Card

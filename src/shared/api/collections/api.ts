@@ -1,6 +1,6 @@
 'use server';
 
-import { arrayToTree, type RootNode } from '@/lib';
+import { arrayToTree, type RootNode } from '@/shared/lib';
 
 import { apiClient } from '../api-client';
 import {

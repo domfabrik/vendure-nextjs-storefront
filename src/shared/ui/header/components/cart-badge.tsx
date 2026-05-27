@@ -2,6 +2,7 @@
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Badge, IconButton } from '@mui/material';
+import { routes } from '@routes';
 import NextLink from 'next/link';
 import { useCartStore } from '@/shared/store/cart';
 
@@ -11,7 +12,7 @@ export function CartBadge() {
   return (
     <IconButton
       component={NextLink}
-      href="/cart"
+      href={routes.cart()}
       color="inherit"
     >
       <Badge

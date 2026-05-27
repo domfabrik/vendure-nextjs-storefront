@@ -3,6 +3,7 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
 import { Autocomplete, Box, CircularProgress, InputAdornment, Paper, type PaperProps, TextField, Typography } from '@mui/material';
+import { routes } from '@routes';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SearchResult } from '@/shared/api/products';
@@ -64,7 +65,7 @@ export function Search() {
         {stateRef.current.totalItems > 0 && (
           <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
             <Link
-              href={`/search?q=${stateRef.current.query}`}
+              href={routes.search(stateRef.current.query)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -104,7 +105,7 @@ export function Search() {
           key={option.slug}
         >
           <Link
-            href={`/products/${option.slug}`}
+            href={routes.product(option.slug)}
             style={{
               display: 'flex',
               alignItems: 'center',
