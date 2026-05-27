@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 import { envServer } from '@/shared/config';
 
-const ENDPOINT = `${envServer.VENDURE_SERVER_URL}?languageCode=RU`;
+const ENDPOINT = `${envServer.API_URL}?languageCode=RU`;
 
 export const apiClient = new GraphQLClient(ENDPOINT, {
   headers: {

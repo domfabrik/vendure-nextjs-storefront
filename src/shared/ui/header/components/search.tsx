@@ -5,7 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Autocomplete, Box, CircularProgress, InputAdornment, Paper, type PaperProps, TextField, Typography } from '@mui/material';
 import { routes } from '@routes';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SearchResult } from '@/shared/api/products';
 import { searchProducts } from '@/shared/api/search';
@@ -27,6 +27,7 @@ export function Search() {
   const [open, setOpen] = useState(false);
   const debouncedQuery = useDebounce(query, 300);
 
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -67,12 +68,23 @@ export function Search() {
     };
   }, [debouncedQuery]);
 
+  const navigateToSearch = useCallback(() => {
+    const q = stateRef.current.query.trim();
+    if (q.length >= 3) {
+      setOpen(false);
+      router.push(routes.search(q));
+    }
+  }, [router]);
+
   const SearchPaper = useCallback(
     (props: PaperProps) => (
       <Paper {...props}>
         {props.children}
         {stateRef.current.totalItems > 0 && (
-          <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Box
+            sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', cursor: 'pointer' }}
+            onMouseDown={(e) => e.preventDefault()}
+          >
             <Link
               href={routes.search(stateRef.current.query)}
               style={{
@@ -148,6 +160,12 @@ export function Search() {
           {...params}
           placeholder="Поиск товаров..."
           size="small"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              navigateToSearch();
+            }
+          }}
           slotProps={{
             ...params.slotProps,
             input: {
