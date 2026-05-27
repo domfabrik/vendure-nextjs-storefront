@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
 import { priceFormatter } from '@/shared/lib';
 import { AddToCartButton } from '@/shared/ui/add-to-cart-button';
+import { ProductCharacteristics } from './product-characteristics';
 import { ProductGallery } from './product-gallery';
 
 interface ProductDetailsProps {
@@ -223,6 +224,12 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             />
           </Box>
         )}
+
+        {/* Characteristics */}
+        <ProductCharacteristics
+          productCustomFields={product.customFields}
+          variantCustomFields={variant?.customFields ?? null}
+        />
       </Box>
     </Box>
   );

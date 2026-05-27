@@ -23,6 +23,47 @@ export interface ProductVariantOption {
   name: string;
 }
 
+export interface ProductCustomFields {
+  vendorName: string | null;
+  packageCount: number | null;
+  warrantyMonths: number | null;
+  weightKg: number | null;
+  volumeM3: number | null;
+  dimensionsMm: string | null;
+  includedItems: string | null;
+  decor: string | null;
+  additionalInfo: string | null;
+  packagingNotes: string | null;
+  maxLoadKg: number | null;
+  minimumDoorWidthCm: number | null;
+  frameMaterialText: string | null;
+  facadeMaterialText: string | null;
+  edgeMaterialText: string | null;
+  shelfMaterialText: string | null;
+  hardwareText: string | null;
+  frontHardwareText: string | null;
+  drawerMaterialText: string | null;
+  countertopMaterialText: string | null;
+  upholsteryText: string | null;
+  kitchenShape: string | null;
+  kitchenElements: string | null;
+  countertopDimensionsMm: string | null;
+  bedDimensionsMm: string | null;
+  recommendedMattressHeightMm: number | null;
+  mattressInsetMm: number | null;
+  mattressBase: string | null;
+}
+
+export interface ProductVariantCustomFields {
+  oldPrice: number | null;
+  finishLabel: string | null;
+  finishDescription: string | null;
+  upholsteryLabel: string | null;
+  upholsteryDescription: string | null;
+  profileLabel: string | null;
+  profileDescription: string | null;
+}
+
 export interface ProductVariant {
   id: string;
   name: string;
@@ -33,6 +74,7 @@ export interface ProductVariant {
   featuredAsset: Asset | null;
   assets: Asset[];
   options: ProductVariantOption[];
+  customFields: ProductVariantCustomFields;
 }
 
 export interface ProductFacetValue {
@@ -52,6 +94,7 @@ export interface Product {
   collections: { slug: string; name: string; parent: { slug: string } }[];
   featuredAsset: Asset | null;
   facetValues: ProductFacetValue[];
+  customFields: ProductCustomFields;
 }
 
 export interface SearchResultPrice {

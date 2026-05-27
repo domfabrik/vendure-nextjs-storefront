@@ -42,6 +42,15 @@ export const GET_PRODUCT_BY_SLUG = gql`
           code
           name
         }
+        customFields {
+          oldPrice
+          finishLabel
+          finishDescription
+          upholsteryLabel
+          upholsteryDescription
+          profileLabel
+          profileDescription
+        }
       }
       collections {
         slug
@@ -53,6 +62,36 @@ export const GET_PRODUCT_BY_SLUG = gql`
       featuredAsset {
         source
         preview
+      }
+      customFields {
+        vendorName
+        packageCount
+        warrantyMonths
+        weightKg
+        volumeM3
+        dimensionsMm
+        includedItems
+        decor
+        additionalInfo
+        packagingNotes
+        maxLoadKg
+        minimumDoorWidthCm
+        frameMaterialText
+        facadeMaterialText
+        edgeMaterialText
+        shelfMaterialText
+        hardwareText
+        frontHardwareText
+        drawerMaterialText
+        countertopMaterialText
+        upholsteryText
+        kitchenShape
+        kitchenElements
+        countertopDimensionsMm
+        bedDimensionsMm
+        recommendedMattressHeightMm
+        mattressInsetMm
+        mattressBase
       }
       facetValues {
         name
