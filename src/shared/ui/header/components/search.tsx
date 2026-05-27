@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Autocomplete, Box, CircularProgress, InputAdornment, Paper, type PaperProps, TextField, Typography } from '@mui/material';
 import { routes } from '@routes';
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SearchResult } from '@/shared/api/products';
 import { searchProducts } from '@/shared/api/search';
@@ -23,7 +24,15 @@ export function Search() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const debouncedQuery = useDebounce(query, 300);
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname, searchParams]);
 
   const stateRef = useRef({ query: '', totalItems: 0 });
   stateRef.current = { query, totalItems };
@@ -88,11 +97,16 @@ export function Search() {
   return (
     <Autocomplete
       freeSolo
-      open={query.length >= 3}
+      open={open && query.length >= 3}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
       options={results}
       inputValue={query}
       onInputChange={(_, value, reason) => {
-        if (reason !== 'reset') setQuery(value);
+        if (reason !== 'reset') {
+          setQuery(value);
+          if (value.length >= 3) setOpen(true);
+        }
       }}
       filterOptions={(x) => x}
       getOptionLabel={(option) => (typeof option === 'string' ? option : option.productName)}

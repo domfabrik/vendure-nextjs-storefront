@@ -20,24 +20,22 @@ import {
 } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { SearchResult } from '@/shared/api';
-import { type Facet, type SearchFacetValue, searchProducts } from '@/shared/api';
+import { useQueryStates } from 'nuqs';
+import { useState, useTransition } from 'react';
+import type { Facet, SearchFacetValue, SearchResponse, SearchResult } from '@/shared/api';
 import { ProductCard } from '@/shared/ui/product-card';
-
-const PER_PAGE = 24;
-
-type Sort = { key: 'name' | 'price'; direction: 'ASC' | 'DESC' };
+import { PER_PAGE, searchParsers } from './search-params';
 
 interface FacetGroup extends Facet {
   values: (Facet & { count: number; facet: Facet })[];
 }
 
-function reduceFacets(facetValues: SearchFacetValue[]): FacetGroup[] {
-  return facetValues.reduce<FacetGroup[]>((acc, curr) => {
+function reduceFacets(allFacetValues: SearchFacetValue[], filteredFacetValues: SearchFacetValue[]): FacetGroup[] {
+  const countMap = new Map(filteredFacetValues.map((fv) => [fv.facetValue.id, fv.count]));
+
+  return allFacetValues.reduce<FacetGroup[]>((acc, curr) => {
     const facet = curr.facetValue.facet;
-    const facetValue = { ...curr.facetValue, count: curr.count };
+    const facetValue = { ...curr.facetValue, count: countMap.get(curr.facetValue.id) ?? 0 };
     const group = acc.find((f) => f.id === facet.id);
     if (group) {
       group.values.push(facetValue);
@@ -48,101 +46,50 @@ function reduceFacets(facetValues: SearchFacetValue[]): FacetGroup[] {
   }, []);
 }
 
-function buildFacetValueFilters(filters: Record<string, string[]>) {
-  return Object.values(filters)
-    .filter((ids) => ids.length > 0)
-    .map((ids) => (ids.length === 1 ? { and: ids[0] } : { or: ids }));
-}
-
-const sortOptions: { label: string; value: string; sort: Sort }[] = [
-  { label: 'По названию А-Я', value: 'name-ASC', sort: { key: 'name', direction: 'ASC' } },
-  { label: 'По названию Я-А', value: 'name-DESC', sort: { key: 'name', direction: 'DESC' } },
-  { label: 'Сначала дешёвые', value: 'price-ASC', sort: { key: 'price', direction: 'ASC' } },
-  { label: 'Сначала дорогие', value: 'price-DESC', sort: { key: 'price', direction: 'DESC' } },
+const sortOptions = [
+  { label: 'По названию А-Я', value: 'name-ASC' },
+  { label: 'По названию Я-А', value: 'name-DESC' },
+  { label: 'Сначала дешёвые', value: 'price-ASC' },
+  { label: 'Сначала дорогие', value: 'price-DESC' },
 ];
 
-export function SearchPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
+interface SearchPageProps {
+  initialData: SearchResponse | null;
+  allFacetValues: SearchFacetValue[];
+}
 
-  const q = searchParams?.get('q') ?? '';
-  const pageParam = parseInt(searchParams?.get('page') ?? '1', 10) || 1;
-  const sortParam = searchParams?.get('sort') ?? 'name-ASC';
-
-  const currentSort = useMemo(() => {
-    const found = sortOptions.find((o) => o.value === sortParam);
-    return found?.sort ?? sortOptions[0].sort;
-  }, [sortParam]);
-
-  const [products, setProducts] = useState<SearchResult[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [facetGroups, setFacetGroups] = useState<FacetGroup[]>([]);
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
-  const [loading, setLoading] = useState(true);
+export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
+  const [isPending, startTransition] = useTransition();
+  const [searchState, setSearchState] = useQueryStates(searchParsers, { shallow: false, startTransition });
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const { q, page, sort, filters } = searchState;
+
+  const products: SearchResult[] = initialData?.items ?? [];
+  const totalItems = initialData?.totalItems ?? 0;
+  const facetGroups: FacetGroup[] = allFacetValues.length > 0 ? reduceFacets(allFacetValues, initialData?.facetValues ?? []) : [];
   const totalPages = Math.ceil(totalItems / PER_PAGE);
 
-  const fetchProducts = useCallback(
-    async (page: number, sort: Sort, activeFilters: Record<string, string[]>) => {
-      setLoading(true);
-      try {
-        const res = await searchProducts({
-          term: q,
-          take: PER_PAGE,
-          skip: (page - 1) * PER_PAGE,
-          sort: sort.key === 'name' ? { name: sort.direction } : { price: sort.direction },
-          facetValueFilters: buildFacetValueFilters(activeFilters),
-        });
-        setProducts(res.items);
-        setTotalItems(res.totalItems);
-        setFacetGroups(reduceFacets(res.facetValues));
-      } catch (e) {
-        console.error(e);
-        setProducts([]);
-        setTotalItems(0);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [q],
-  );
-
-  useEffect(() => {
-    setFilters({});
-  }, [q]);
-
-  useEffect(() => {
-    fetchProducts(pageParam, currentSort, filters);
-  }, [fetchProducts, pageParam, currentSort, filters]);
-
-  const updateUrl = (overrides: Record<string, string>) => {
-    const params = new URLSearchParams(searchParams?.toString() ?? '');
-    for (const [key, value] of Object.entries(overrides)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.push(routes.search(params.toString()));
-  };
-
-  const handlePageChange = (_: unknown, page: number) => {
-    updateUrl({ page: page > 1 ? String(page) : '' });
+  const handlePageChange = (_: unknown, newPage: number) => {
+    setSearchState({ page: newPage > 1 ? newPage : null });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSortChange = (value: string) => {
-    updateUrl({ sort: value, page: '' });
+    setSearchState({ sort: value, page: null });
   };
 
   const toggleFilter = (groupId: string, valueId: string) => {
-    setFilters((prev) => {
-      const current = prev[groupId] ?? [];
-      const next = current.includes(valueId) ? current.filter((id) => id !== valueId) : [...current, valueId];
-      const updated = { ...prev, [groupId]: next };
-      if (next.length === 0) delete updated[groupId];
-      return updated;
-    });
-    updateUrl({ page: '' });
+    const current = filters[groupId] ?? [];
+    const next = current.includes(valueId) ? current.filter((id) => id !== valueId) : [...current, valueId];
+    const updated = { ...filters, [groupId]: next };
+    if (next.length === 0) delete updated[groupId];
+    const hasFilters = Object.keys(updated).length > 0;
+    setSearchState({ filters: hasFilters ? updated : null, page: null });
+  };
+
+  const clearFilters = () => {
+    setSearchState({ filters: null, page: null });
   };
 
   const activeFilterCount = Object.values(filters).reduce((sum, ids) => sum + ids.length, 0);
@@ -213,7 +160,7 @@ export function SearchPage() {
         Результаты поиска {q && `«${q}»`}
       </Typography>
 
-      {!loading && (
+      {!isPending && (
         <Typography
           variant="body2"
           color="text.secondary"
@@ -234,7 +181,7 @@ export function SearchPage() {
         </Button>
         <Select
           size="small"
-          value={sortParam}
+          value={sort}
           onChange={(e) => handleSortChange(e.target.value)}
           sx={{ minWidth: 200 }}
         >
@@ -270,10 +217,7 @@ export function SearchPage() {
             label="Сбросить все"
             size="small"
             variant="outlined"
-            onClick={() => {
-              setFilters({});
-              updateUrl({ page: '' });
-            }}
+            onClick={clearFilters}
           />
         </Box>
       )}
@@ -288,7 +232,7 @@ export function SearchPage() {
       </Drawer>
 
       {/* Products */}
-      {loading ? (
+      {isPending ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
@@ -333,7 +277,7 @@ export function SearchPage() {
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Pagination
                 count={totalPages}
-                page={pageParam}
+                page={page}
                 onChange={handlePageChange}
                 color="primary"
               />

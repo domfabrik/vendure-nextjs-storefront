@@ -2,6 +2,7 @@ import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren } from 'react';
 import { envServer, SITE_NAME } from '@/shared/config';
 import { GlobalStyles, Header, Theme } from '@/shared/ui';
@@ -82,18 +83,20 @@ export default async function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="ru">
       <body className={openSans.variable}>
-        <AppRouterCacheProvider>
-          <Theme>
-            <GlobalStyles />
-            <Header />
-            <Container
-              maxWidth="xl"
-              sx={{ mb: 4 }}
-            >
-              {props.children}
-            </Container>
-          </Theme>
-        </AppRouterCacheProvider>
+        <NuqsAdapter>
+          <AppRouterCacheProvider>
+            <Theme>
+              <GlobalStyles />
+              <Header />
+              <Container
+                maxWidth="xl"
+                sx={{ mb: 4 }}
+              >
+                {props.children}
+              </Container>
+            </Theme>
+          </AppRouterCacheProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

@@ -18,7 +18,7 @@ export async function Header() {
       position="sticky"
       color="transparent"
       sx={{
-        background: '#fff', //TODO: Унести в тему
+        bgcolor: 'background.paper',
         mb: 2,
       }}
     >

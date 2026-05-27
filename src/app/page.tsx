@@ -1,6 +1,7 @@
 'use server';
 
-import { Box, Typography } from '@mui/material';
+import ArrowRight from '@mui/icons-material/NavigateNext';
+import { Box, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import type { Metadata } from 'next';
 import NextLink from 'next/link';
@@ -46,18 +47,19 @@ export default async function Page() {
           key={collection.slug}
           sx={{ mb: 5 }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 2 }}>
+          <NextLink href={routes.collection(collection.slug)}>
             <Typography
               variant="h5"
               component="h2"
-              sx={{ fontWeight: 600 }}
+              sx={{ fontWeight: 500, mb: 2 }}
             >
               {collection.name}
+
+              <IconButton sx={{ ml: 1 }}>
+                <ArrowRight />
+              </IconButton>
             </Typography>
-            <NextLink href={routes.collection(collection.slug)}>
-              <Typography variant="body2">Смотреть&nbsp;все</Typography>
-            </NextLink>
-          </Box>
+          </NextLink>
           <Box
             sx={{
               display: 'grid',
