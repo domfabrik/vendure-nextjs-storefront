@@ -93,6 +93,14 @@ jobs:
           echo "image_repo=${image_repo}" >> "$GITHUB_OUTPUT"
           echo "public_origin=${public_origin}" >> "$GITHUB_OUTPUT"
 
+      - name: Create environment file
+        shell: bash
+        run: |
+          cat > .env.production <<EOF
+          API_URL=${{ steps.vars.outputs.public_origin }}/shop-api
+          NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.public_origin }}
+          EOF
+
       - name: Login to Yandex Container Registry
         uses: yc-actions/yc-cr-login@v3
         with:
@@ -104,8 +112,6 @@ jobs:
           set -euo pipefail
           docker build \
             --pull \
-            --build-arg "NEXT_PUBLIC_HOST=${{ steps.vars.outputs.public_origin }}" \
-            --build-arg "NEXT_PUBLIC_DOMAIN=${{ steps.vars.outputs.public_origin }}" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.image_tag }}" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.latest_tag }}" \
             .
