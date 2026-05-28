@@ -1,14 +1,18 @@
 import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { Metadata } from 'next';
-import { Open_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
 import { envServer, SITE_NAME } from '@/shared/config';
 import { GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
-const openSans = Open_Sans({
-  subsets: ['latin', 'cyrillic'],
+const openSans = localFont({
+  src: [
+    { path: '../shared/ui/global-styles/fonts/open-sans-cyrillic-ext.woff2', weight: '300 800', style: 'normal' },
+    { path: '../shared/ui/global-styles/fonts/open-sans-cyrillic.woff2', weight: '300 800', style: 'normal' },
+    { path: '../shared/ui/global-styles/fonts/open-sans-latin.woff2', weight: '300 800', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-open-sans',
 });

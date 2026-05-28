@@ -43,9 +43,6 @@
     "typescript": "6.0.3"
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "Firefox ESR",
-    "not dead"
+    "defaults and fully supports es6-module"
   ]
 }
