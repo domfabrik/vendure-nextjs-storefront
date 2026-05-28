@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'test.domfabrik.ru',
+        hostname: (process.env.NEXT_PUBLIC_SITE_URL || 'domfabrik.ru').replace('https://', ''),
         pathname: '/**',
       },
     ],
