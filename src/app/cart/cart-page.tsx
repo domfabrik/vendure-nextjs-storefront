@@ -6,14 +6,17 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, Button, Card, CardMedia, Divider, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
+import { useState } from 'react';
 import { priceFormatter } from '@/shared/lib';
 import { useCartStore } from '@/shared/store';
+import { CheckoutDialog } from './checkout-dialog';
 
 export function CartPage() {
   const items = useCartStore((s) => s.items);
   const totalPrice = useCartStore((s) => s.totalPrice);
   const removeFromCart = useCartStore((s) => s.removeFromCart);
   const setItemQuantity = useCartStore((s) => s.setItemQuantity);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -169,12 +172,17 @@ export function CartPage() {
             variant="contained"
             size="large"
             fullWidth
-            onClick={() => console.log('checkout', items)}
+            onClick={() => setCheckoutOpen(true)}
           >
             Оформить заказ
           </Button>
         </Card>
       </Box>
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+      />
     </Box>
   );
 }
