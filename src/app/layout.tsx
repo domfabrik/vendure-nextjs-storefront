@@ -3,9 +3,9 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, Suspense } from 'react';
 import { envServer, SITE_NAME } from '@/shared/config';
-import { GlobalStyles, Header, Theme } from '@/shared/ui';
+import { GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
 const openSans = Open_Sans({
   subsets: ['latin', 'cyrillic'],
@@ -79,6 +79,11 @@ export default async function RootLayout(props: PropsWithChildren) {
           <AppRouterCacheProvider>
             <Theme>
               <GlobalStyles />
+
+              <Suspense fallback={null}>
+                <ScrollToTop />
+              </Suspense>
+
               <Header />
               <Container
                 maxWidth="xl"

@@ -7,15 +7,13 @@ export function GlobalStyles() {
     <MuiGlobalStyles
       styles={({ palette }) => ({
         html: {
-          height: '100%',
-          overflow: 'auto',
+          minHeight: '100%',
         },
         body: {
           background: palette.background.default,
           fontSmooth: 'antialiased',
-          height: '100%',
+          minHeight: '100%',
           margin: 0,
-          overflow: 'auto',
           padding: 0,
         },
         a: {
