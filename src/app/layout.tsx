@@ -13,6 +13,8 @@ const openSans = Open_Sans({
   variable: '--font-open-sans',
 });
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const title = `${SITE_NAME} — Элитная мебель для дома | Кухни, спальни, гостиные`;
   const description =
