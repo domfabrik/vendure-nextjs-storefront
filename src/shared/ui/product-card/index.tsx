@@ -103,6 +103,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
         <IconButton
           size="small"
           color="primary"
+          aria-label="Добавить в корзину"
           onClick={(e) => {
             e.preventDefault();
             addToCart({

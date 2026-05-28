@@ -101,6 +101,7 @@ export function CartPage() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <IconButton
                   size="small"
+                  aria-label="Уменьшить"
                   onClick={() => {
                     if (item.quantity <= 1) {
                       removeFromCart(item.productVariantId);
@@ -114,6 +115,7 @@ export function CartPage() {
                 <Typography sx={{ minWidth: 24, textAlign: 'center' }}>{item.quantity}</Typography>
                 <IconButton
                   size="small"
+                  aria-label="Увеличить"
                   onClick={() => setItemQuantity(item.productVariantId, item.quantity + 1)}
                 >
                   <AddIcon fontSize="small" />
@@ -123,6 +125,7 @@ export function CartPage() {
               <IconButton
                 size="small"
                 color="error"
+                aria-label="Удалить"
                 onClick={() => removeFromCart(item.productVariantId)}
               >
                 <DeleteIcon fontSize="small" />

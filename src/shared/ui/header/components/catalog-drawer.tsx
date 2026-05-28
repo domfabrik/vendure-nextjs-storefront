@@ -95,6 +95,7 @@ export function CatalogDrawer({ collections }: CatalogDrawerProps) {
             <IconButton
               onClick={() => setOpen(false)}
               size="small"
+              aria-label="Закрыть каталог"
             >
               <CloseIcon fontSize="small" />
             </IconButton>

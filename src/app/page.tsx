@@ -52,7 +52,10 @@ export default async function Page() {
             >
               {collection.name}
 
-              <IconButton sx={{ ml: 1 }}>
+              <IconButton
+                aria-label="Перейти в раздел"
+                sx={{ ml: 1 }}
+              >
                 <ArrowRight />
               </IconButton>
             </Typography>

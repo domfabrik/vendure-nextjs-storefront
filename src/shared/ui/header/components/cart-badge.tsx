@@ -14,6 +14,7 @@ export function CartBadge() {
       component={NextLink}
       href={routes.cart()}
       color="inherit"
+      aria-label="Корзина"
     >
       <Badge
         badgeContent={totalQuantity}

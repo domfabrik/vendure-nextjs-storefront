@@ -6,6 +6,18 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: false,
   trailingSlash: false,
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+      {
+        source: '/images/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=604800' }],
+      },
+    ];
+  },
   images: {
     unoptimized: false,
     // Хранить кэш картинок в памяти/на диске не дольше 3 дней (в секундах)

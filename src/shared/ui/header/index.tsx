@@ -63,6 +63,7 @@ export async function Header() {
           <Box
             component="a"
             href="tel:+79202733971"
+            aria-label="Позвонить"
             sx={{
               display: 'flex',
               alignItems: 'center',

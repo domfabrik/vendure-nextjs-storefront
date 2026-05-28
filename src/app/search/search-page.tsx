@@ -106,6 +106,7 @@ export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
         <IconButton
           onClick={() => setFiltersOpen(false)}
           size="small"
+          aria-label="Закрыть фильтры"
         >
           <CloseIcon fontSize="small" />
         </IconButton>

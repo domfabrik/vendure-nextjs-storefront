@@ -13,13 +13,10 @@ const openSans = Open_Sans({
   variable: '--font-open-sans',
 });
 
-export const dynamic = 'force-dynamic';
-
 export async function generateMetadata(): Promise<Metadata> {
   const title = `${SITE_NAME} — Элитная мебель для дома | Кухни, спальни, гостиные`;
   const description =
     'Широкий выбор дизайнерской мебели премиум-качества в магазине DomFabrik. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
-
   return {
     title: {
       default: title,
@@ -74,6 +71,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="ru">
+      <head>
+        <link
+          rel="preconnect"
+          href={new URL(envServer.SITE_URL).origin}
+        />
+      </head>
       <body className={openSans.variable}>
         <NuqsAdapter>
           <AppRouterCacheProvider>
@@ -86,6 +89,7 @@ export default async function RootLayout(props: PropsWithChildren) {
 
               <Header />
               <Container
+                component="main"
                 maxWidth="xl"
                 sx={{ mb: 4 }}
               >
