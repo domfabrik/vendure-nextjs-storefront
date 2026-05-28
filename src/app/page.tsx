@@ -68,9 +68,10 @@ export default async function Page() {
               gap: 2,
             }}
           >
-            {collection.products.map((product) => (
+            {collection.products.map((product, index) => (
               <ProductCard
                 key={product.slug}
+                index={index}
                 product={product}
               />
             ))}

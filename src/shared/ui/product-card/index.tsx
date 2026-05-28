@@ -1,8 +1,9 @@
 'use client';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { Box, Card, CardMedia, IconButton, Typography } from '@mui/material';
+import { Box, Card, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
+import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { priceFormatter } from '@/shared/lib';
 import type { HomepageProduct, HomepageProductPrice } from '@/shared/model';
@@ -25,13 +26,15 @@ function formatPrice(price: HomepageProductPrice): string {
 
 interface ProductCardProps {
   product: HomepageProduct;
+  index: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, index }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const image = product.productAsset?.preview;
   const name = product.productName;
   const href = routes.product(product.slug);
+  const priorityLoading = index < 6;
 
   return (
     <Card
@@ -43,12 +46,16 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       <NextLink href={href}>
         {image ? (
-          <CardMedia
-            component="img"
-            image={image}
-            alt={name}
-            sx={{ aspectRatio: '3/4', objectFit: 'contain' }}
-          />
+          <Box sx={{ position: 'relative', aspectRatio: '3/4', width: '100%' }}>
+            <NextImage
+              src={image}
+              alt={name}
+              fill
+              sizes="(max-width: 600px) 50vw, (max-width: 960px) 33vw, (max-width: 1280px) 25vw, 300px"
+              priority={priorityLoading}
+              style={{ objectFit: 'contain' }}
+            />
+          </Box>
         ) : (
           <Box
             sx={{
