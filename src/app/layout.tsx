@@ -5,7 +5,7 @@ import localFont from 'next/font/local';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
 import { envServer, SITE_NAME } from '@/shared/config';
-import { GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
+import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
 const openSans = localFont({
   src: [
@@ -101,6 +101,7 @@ export default async function RootLayout(props: PropsWithChildren) {
               >
                 {props.children}
               </Container>
+              <Footer />
             </Theme>
           </AppRouterCacheProvider>
         </NuqsAdapter>

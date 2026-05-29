@@ -3,6 +3,18 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import { PropsWithChildren } from 'react';
 
+declare module '@mui/material/styles' {
+  interface TypeText {
+    contrast: string;
+  }
+}
+
+declare module '@mui/material/Typography' {
+  interface TypographyPropsColorOverrides {
+    textContrast: true;
+  }
+}
+
 export function Theme(props: PropsWithChildren) {
   const theme = createTheme({
     cssVariables: true,
@@ -17,6 +29,7 @@ export function Theme(props: PropsWithChildren) {
       },
       text: {
         primary: '#1B2B45',
+        contrast: '#ffffff',
       },
     },
 

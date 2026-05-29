@@ -7,4 +7,7 @@ export const routes = {
     const query = typeof params === 'string' ? new URLSearchParams({ q: params }) : new URLSearchParams(params);
     return `/search?${query.toString()}`;
   },
+  policy: () => '/juristic/policy',
+  terms: () => '/juristic/terms',
+  delivery: () => '/juristic/delivery',
 };

@@ -12,9 +12,14 @@ export function GlobalStyles() {
         body: {
           background: palette.background.default,
           fontSmooth: 'antialiased',
-          minHeight: '100%',
+          minHeight: '100dvh',
           margin: 0,
           padding: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        },
+        main: {
+          flex: 1,
         },
         a: {
           textDecoration: 'none',
