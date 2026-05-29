@@ -1,3 +1,5 @@
+export { contacts } from './contacts';
+
 export const routes = {
   home: () => '/',
   cart: () => '/cart',
@@ -9,5 +11,10 @@ export const routes = {
   },
   policy: () => '/juristic/policy',
   terms: () => '/juristic/terms',
-  delivery: () => '/juristic/delivery',
+  delivery: () => '/delivery',
+  userAgreement: () => '/juristic/user-agreement',
+  returns: () => '/juristic/returns',
+  contacts: () => '/contacts',
+  about: () => '/about',
+  howToBuy: () => '/how-to-buy',
 };

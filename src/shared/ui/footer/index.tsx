@@ -6,8 +6,9 @@ import { SITE_NAME } from '@/shared/config';
 
 const footerLinks = [
   { label: 'Политика конфиденциальности', href: routes.policy() },
+  { label: 'Пользовательское соглашение', href: routes.userAgreement() },
   { label: 'Условия использования', href: routes.terms() },
-  { label: 'Доставка', href: routes.delivery() },
+  { label: 'Условия возврата', href: routes.returns() },
 ] as const;
 
 export function Footer() {

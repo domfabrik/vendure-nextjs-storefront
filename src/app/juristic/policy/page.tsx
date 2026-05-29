@@ -1,4 +1,5 @@
 import { Box, Link, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { contacts } from '@routes';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -44,19 +45,19 @@ export default function PolicyPage() {
 
       <List disablePadding>
         <ListItem sx={{ py: 0, pl: 4 }}>
-          <ListItemText primary="ИНН 312009220104" />
+          <ListItemText primary={`ИНН ${contacts.inn}`} />
         </ListItem>
         <ListItem sx={{ py: 0, pl: 4 }}>
-          <ListItemText primary="ОГРН 323710000036302" />
+          <ListItemText primary={`ОГРНИП ${contacts.ogrn}`} />
         </ListItem>
         <ListItem sx={{ py: 0, pl: 4 }}>
-          <ListItemText primary="Юридический адрес: г. Тула, п. Молодежный, д. 18" />
+          <ListItemText primary={`Юридический адрес: ${contacts.legalAddress}`} />
         </ListItem>
         <ListItem sx={{ py: 0, pl: 4 }}>
           <ListItemText
             primary={
               <>
-                Адрес электронной почты: <Link href="mailto:eramebel71@gmail.com">eramebel71@gmail.com</Link>
+                Адрес электронной почты: <Link href={contacts.emailHref}>{contacts.email}</Link>
               </>
             }
           />
@@ -401,12 +402,12 @@ export default function PolicyPage() {
       </Typography>
       <Typography sx={{ mb: 2 }}>
         8.3. В случае выявления неточностей в персональных данных, Пользователь может актуализировать их самостоятельно, путем направления Оператору уведомления на адрес
-        электронной почты <Link href="mailto:eramebel71@gmail.com">eramebel71@gmail.com</Link> с пометкой «Актуализация персональных данных».
+        электронной почты <Link href={contacts.emailHref}>{contacts.email}</Link> с пометкой «Актуализация персональных данных».
       </Typography>
       <Typography sx={{ mb: 2 }}>
         8.4. Срок хранения персональных данных, полученных через формы обратной связи, составляет 3 (три) года с даты последнего обращения Пользователя. Пользователь может в любой
         момент отозвать свое согласие на обработку персональных данных, направив Оператору уведомление посредством электронной почты на электронный адрес{' '}
-        <Link href="mailto:eramebel71@gmail.com">eramebel71@gmail.com</Link> с пометкой «Отзыв согласия на обработку персональных данных».
+        <Link href={contacts.emailHref}>{contacts.email}</Link> с пометкой «Отзыв согласия на обработку персональных данных».
       </Typography>
       <Typography sx={{ mb: 2 }}>
         8.5. Установленные субъектом персональных данных запреты на передачу (кроме предоставления доступа), а также на обработку или условия обработки (кроме получения доступа)
@@ -519,8 +520,7 @@ export default function PolicyPage() {
 
       <Typography sx={{ mb: 2 }}>
         12.1. Пользователь может получить любые разъяснения по интересующим вопросам, касающимся обработки его персональных данных, обратившись к Оператору с помощью электронной
-        почты <Link href="mailto:eramebel71@gmail.com">eramebel71@gmail.com</Link>. Срок ответа — 10 рабочих дней, при необходимости уточнения — до 30 рабочих дней с уведомлением
-        пользователя.
+        почты <Link href={contacts.emailHref}>{contacts.email}</Link>. Срок ответа — 10 рабочих дней, при необходимости уточнения — до 30 рабочих дней с уведомлением пользователя.
       </Typography>
       <Typography sx={{ mb: 2 }}>
         12.2. В данном документе будут отражены любые изменения политики обработки персональных данных Оператором. Политика действует до замены ее новой версией.
