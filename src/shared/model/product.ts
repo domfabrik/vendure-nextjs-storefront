@@ -29,7 +29,7 @@ export interface ProductCustomFields {
   warrantyMonths: number | null;
   weightKg: number | null;
   volumeM3: number | null;
-  dimensionsMm: string | null;
+  dimensionsMm: string | { width?: number | null; depth?: number | null; height?: number | null } | null;
   includedItems: string | null;
   decor: string | null;
   additionalInfo: string | null;
@@ -47,8 +47,8 @@ export interface ProductCustomFields {
   upholsteryText: string | null;
   kitchenShape: string | null;
   kitchenElements: string | null;
-  countertopDimensionsMm: string | null;
-  bedDimensionsMm: string | null;
+  countertopDimensionsMm: string | { width?: number | null; depth?: number | null; height?: number | null } | null;
+  bedDimensionsMm: string | { width?: number | null; depth?: number | null; height?: number | null } | null;
   recommendedMattressHeightMm: number | null;
   mattressInsetMm: number | null;
   mattressBase: string | null;
