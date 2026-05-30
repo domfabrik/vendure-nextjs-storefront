@@ -43,7 +43,7 @@ export async function Header() {
                   alt="logo"
                   loading="eager"
                   height={36}
-                  width={158}
+                  width={173}
                 />
               </Box>
               <Box sx={{ display: { xs: 'block', md: 'none' } }}>
