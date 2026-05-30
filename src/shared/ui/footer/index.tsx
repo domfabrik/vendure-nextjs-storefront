@@ -35,7 +35,7 @@ export function Footer() {
               src="/images/logo.svg"
               alt={SITE_NAME}
               height={36}
-              width={158}
+              width={173}
               style={{ filter: 'brightness(0) invert(1)' }}
             />
           </NextLink>
