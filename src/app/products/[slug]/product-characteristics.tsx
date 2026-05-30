@@ -18,16 +18,63 @@ interface CharacteristicGroup {
   rows: CharacteristicRow[];
 }
 
-function formatValue(key: string, value: string | number): string {
+type DimensionValue = {
+  width?: number | null;
+  depth?: number | null;
+  height?: number | null;
+};
+
+function isDimensionValue(value: unknown): value is DimensionValue {
+  return typeof value === 'object' && value !== null && ('width' in value || 'depth' in value || 'height' in value);
+}
+
+function formatDimensionParts(value: DimensionValue): string {
+  const parts = [value.width != null ? `Ш ${value.width}` : null, value.depth != null ? `Г ${value.depth}` : null, value.height != null ? `В ${value.height}` : null].filter(
+    Boolean,
+  );
+
+  return parts.length ? `${parts.join(' × ')} мм` : '';
+}
+
+function safeParseDimensions(value: string): DimensionValue | null {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith('{') || !trimmed.includes('"width"')) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    return isDimensionValue(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatDimensionValue(value: string | DimensionValue): string {
+  if (isDimensionValue(value)) {
+    return formatDimensionParts(value);
+  }
+
+  const parsed = safeParseDimensions(value);
+  if (parsed) {
+    return formatDimensionParts(parsed);
+  }
+
+  return value;
+}
+
+function formatValue(key: string, value: string | number | DimensionValue): string {
+  if (key === 'dimensionsMm' || key === 'countertopDimensionsMm' || key === 'bedDimensionsMm') {
+    return formatDimensionValue(value as string | DimensionValue);
+  }
+
   const suffixes: Record<string, string> = {
     weightKg: ' кг',
     volumeM3: ' м³',
     warrantyMonths: ' мес.',
     maxLoadKg: ' кг',
     minimumDoorWidthCm: ' см',
-    dimensionsMm: ' мм',
-    countertopDimensionsMm: ' мм',
-    bedDimensionsMm: ' мм',
     recommendedMattressHeightMm: ' мм',
     mattressInsetMm: ' мм',
   };
@@ -103,27 +150,28 @@ function buildProductGroups(customFields: ProductCustomFields): CharacteristicGr
         .filter((key) => customFields[key] != null && customFields[key] !== '')
         .map((key) => ({
           label: productLabels[key] ?? key,
-          value: formatValue(key, customFields[key] as string | number),
+          value: formatValue(key, customFields[key] as string | number | DimensionValue),
         }));
       return { title: group.title, rows };
     })
-    .filter((g) => g.rows.length > 0);
+    .filter((group) => group.rows.length > 0);
 }
 
 function buildVariantGroup(customFields: ProductVariantCustomFields): CharacteristicGroup | null {
-  const pairs: { label: string; desc: string; labelKey: keyof ProductVariantCustomFields; descKey: keyof ProductVariantCustomFields }[] = [
-    { label: 'Отделка', desc: '', labelKey: 'finishLabel', descKey: 'finishDescription' },
-    { label: 'Обивка', desc: '', labelKey: 'upholsteryLabel', descKey: 'upholsteryDescription' },
-    { label: 'Профиль', desc: '', labelKey: 'profileLabel', descKey: 'profileDescription' },
+  const pairs: { label: string; labelKey: keyof ProductVariantCustomFields; descKey: keyof ProductVariantCustomFields }[] = [
+    { label: 'Отделка', labelKey: 'finishLabel', descKey: 'finishDescription' },
+    { label: 'Обивка', labelKey: 'upholsteryLabel', descKey: 'upholsteryDescription' },
+    { label: 'Профиль', labelKey: 'profileLabel', descKey: 'profileDescription' },
   ];
 
   const rows: CharacteristicRow[] = pairs
-    .filter((p) => customFields[p.labelKey] != null && customFields[p.labelKey] !== '')
-    .map((p) => {
-      const labelVal = customFields[p.labelKey] as string;
-      const descVal = customFields[p.descKey] as string | null;
+    .filter((pair) => customFields[pair.labelKey] != null && customFields[pair.labelKey] !== '')
+    .map((pair) => {
+      const labelVal = customFields[pair.labelKey] as string;
+      const descVal = customFields[pair.descKey] as string | null;
+
       return {
-        label: p.label,
+        label: pair.label,
         value: descVal ? `${labelVal} — ${descVal}` : labelVal,
       };
     });
@@ -134,7 +182,6 @@ function buildVariantGroup(customFields: ProductVariantCustomFields): Characteri
 export function ProductCharacteristics({ productCustomFields, variantCustomFields }: ProductCharacteristicsProps) {
   const productGroups = buildProductGroups(productCustomFields);
   const variantGroup = variantCustomFields ? buildVariantGroup(variantCustomFields) : null;
-
   const allGroups = variantGroup ? [...productGroups, variantGroup] : productGroups;
 
   if (allGroups.length === 0) return null;
@@ -158,9 +205,9 @@ export function ProductCharacteristics({ productCustomFields, variantCustomField
                 group={group}
                 showTitle={allGroups.length > 1}
                 startIndex={(() => {
-                  const idx = rowIndex;
+                  const index = rowIndex;
                   rowIndex += group.rows.length;
-                  return idx;
+                  return index;
                 })()}
               />
             ))}
@@ -184,10 +231,10 @@ function GroupRows({ group, showTitle, startIndex }: { group: CharacteristicGrou
           </TableCell>
         </TableRow>
       )}
-      {group.rows.map((row, i) => (
+      {group.rows.map((row, index) => (
         <TableRow
           key={row.label}
-          sx={{ bgcolor: (startIndex + i) % 2 === 0 ? 'action.hover' : 'transparent' }}
+          sx={{ bgcolor: (startIndex + index) % 2 === 0 ? 'action.hover' : 'transparent' }}
         >
           <TableCell sx={{ color: 'text.secondary', width: '40%', py: 1, px: 1, borderBottom: 'none' }}>{row.label}</TableCell>
           <TableCell sx={{ py: 1, px: 1, borderBottom: 'none' }}>{row.value}</TableCell>
