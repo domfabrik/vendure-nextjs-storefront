@@ -55,6 +55,8 @@ export interface HomepageProduct {
   slug: string;
   productVariantId: string;
   currencyCode: string;
+  discountPercent: number;
+  basePriceWithTax: HomepageProductPrice;
   priceWithTax: HomepageProductPrice;
   productAsset: { preview: string } | null;
 }

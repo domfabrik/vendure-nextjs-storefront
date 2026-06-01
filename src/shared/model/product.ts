@@ -55,6 +55,7 @@ export interface ProductCustomFields {
 }
 
 export interface ProductVariantCustomFields {
+  discountPercent: number | null;
   oldPrice: number | null;
   finishLabel: string | null;
   finishDescription: string | null;
@@ -68,6 +69,7 @@ export interface ProductVariant {
   id: string;
   name: string;
   currencyCode: string;
+  basePriceWithTax: number;
   priceWithTax: number;
   stockLevel: string;
   sku: string;
@@ -111,6 +113,8 @@ export interface SearchResult {
   currencyCode: string;
   productVariantId: string;
   productVariantName: string;
+  discountPercent: number;
+  basePriceWithTax: SearchResultPrice;
   priceWithTax: SearchResultPrice;
   facetIds: string[];
   facetValueIds: string[];

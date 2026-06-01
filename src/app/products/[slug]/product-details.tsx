@@ -46,6 +46,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const inStock = variant ? Number(variant.stockLevel) > 0 : false;
   const lowStock = inStock && Number(variant?.stockLevel || 0) <= 10;
+  const hasDiscount = (variant?.customFields.discountPercent ?? 0) > 0;
   const featuredImage = variant?.featuredAsset ?? product.featuredAsset;
 
   const handleOptionClick = (groupId: string, optionId: string) => {
@@ -104,12 +105,33 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         </Typography>
 
         {variant && (
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 700, mb: 2 }}
-          >
-            {priceFormatter(variant.priceWithTax)}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, lineHeight: 1.2 }}
+              >
+                {priceFormatter(variant.priceWithTax)}
+              </Typography>
+              {hasDiscount && (
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ textDecoration: 'line-through', lineHeight: 1.2 }}
+                >
+                  {priceFormatter(variant.basePriceWithTax)}
+                </Typography>
+              )}
+            </Box>
+            {hasDiscount && (
+              <Chip
+                label={`-${variant.customFields.discountPercent}%`}
+                color="error"
+                size="small"
+                sx={{ fontWeight: 700 }}
+              />
+            )}
+          </Box>
         )}
 
         {/* Stock */}

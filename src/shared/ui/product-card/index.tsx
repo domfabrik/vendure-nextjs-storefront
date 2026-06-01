@@ -24,6 +24,10 @@ function formatPrice(price: HomepageProductPrice): string {
   return `${priceFormatter(min)} – ${priceFormatter(max)}`;
 }
 
+function hasDiscount(product: HomepageProduct): boolean {
+  return product.discountPercent > 0;
+}
+
 interface ProductCardProps {
   product: HomepageProduct;
   index: number;
@@ -47,6 +51,26 @@ export function ProductCard({ product, index }: ProductCardProps) {
       <NextLink href={href}>
         {image ? (
           <Box sx={{ position: 'relative', aspectRatio: '3/4', width: '100%' }}>
+            {hasDiscount(product) && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 12,
+                  left: 12,
+                  zIndex: 1,
+                  px: 1.25,
+                  py: 0.5,
+                  borderRadius: 999,
+                  bgcolor: '#EF4444',
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                }}
+              >
+                -{product.discountPercent}%
+              </Box>
+            )}
             <NextImage
               src={image}
               alt={name}
@@ -74,13 +98,24 @@ export function ProductCard({ product, index }: ProductCardProps) {
           </Box>
         )}
         <Box sx={{ p: 1 }}>
-          <Typography
-            variant="body1"
-            color="textPrimary"
-            sx={{ fontWeight: 700, lineHeight: 1.3 }}
-          >
-            {formatPrice(product.priceWithTax)}
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+            <Typography
+              variant="body1"
+              color="textPrimary"
+              sx={{ fontWeight: 700, lineHeight: 1.3 }}
+            >
+              {formatPrice(product.priceWithTax)}
+            </Typography>
+            {hasDiscount(product) && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textDecoration: 'line-through', lineHeight: 1.2 }}
+              >
+                {formatPrice(product.basePriceWithTax)}
+              </Typography>
+            )}
+          </Box>
           <Typography
             variant="body2"
             color="textSecondary"

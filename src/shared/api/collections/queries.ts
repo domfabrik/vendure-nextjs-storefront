@@ -54,6 +54,17 @@ export const SEARCH_COLLECTION_PRODUCTS = gql`
         slug
         productVariantId
         currencyCode
+        discountPercent
+        basePriceWithTax {
+          __typename
+          ... on PriceRange {
+            max
+            min
+          }
+          ... on SinglePrice {
+            value
+          }
+        }
         priceWithTax {
           __typename
           ... on PriceRange {

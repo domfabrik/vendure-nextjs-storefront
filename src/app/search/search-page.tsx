@@ -269,6 +269,8 @@ export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
                   slug: p.slug,
                   productVariantId: p.productVariantId,
                   currencyCode: p.currencyCode,
+                  discountPercent: p.discountPercent,
+                  basePriceWithTax: p.basePriceWithTax,
                   priceWithTax: p.priceWithTax,
                   productAsset: p.productAsset,
                 }}
