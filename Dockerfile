@@ -10,8 +10,16 @@ RUN npm ci
 FROM node:${NODE_VER}-bookworm-slim AS builder
 
 WORKDIR /app
+ARG NEXT_PUBLIC_HOST
+ARG NEXT_PUBLIC_DOMAIN
+ARG API_URL
+ARG NEXT_PUBLIC_SITE_URL
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_HOST=${NEXT_PUBLIC_HOST}
+ENV NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN}
+ENV API_URL=${API_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -30,7 +38,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.env.production ./
 
 EXPOSE 3001
 

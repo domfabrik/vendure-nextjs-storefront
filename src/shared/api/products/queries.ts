@@ -25,6 +25,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
         id
         name
         currencyCode
+        basePriceWithTax
         priceWithTax
         stockLevel
         sku
@@ -43,6 +44,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
           name
         }
         customFields {
+          discountPercent
           oldPrice
           finishLabel
           finishDescription
@@ -116,6 +118,17 @@ export const GET_FEATURED_PRODUCTS = gql`
         currencyCode
         productVariantId
         productVariantName
+        discountPercent
+        basePriceWithTax {
+          __typename
+          ... on PriceRange {
+            max
+            min
+          }
+          ... on SinglePrice {
+            value
+          }
+        }
         priceWithTax {
           __typename
           ... on PriceRange {
