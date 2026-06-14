@@ -6,6 +6,15 @@ import type { Collection, CollectionTile, CollectionTileProductVariant, Homepage
 import { apiClient } from '../api-client';
 import { GET_ALL_COLLECTIONS, GET_COLLECTION_BY_SLUG, GET_COLLECTION_PRODUCT_VARIANTS, SEARCH_COLLECTION_PRODUCTS } from './queries';
 
+const COLLECTION_PAGE_SIZE = 100;
+
+interface CollectionSearchResponse {
+  search: {
+    totalItems: number;
+    items: HomepageProduct[];
+  };
+}
+
 export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
   const data = await apiClient.request<{ collection: Collection | null }>(GET_COLLECTION_BY_SLUG, { slug });
   return data.collection;
@@ -45,15 +54,35 @@ export async function getNavigationTree(): Promise<RootNode<NavigationCollection
 }
 
 export async function getProductsByCollection(collectionSlug: string, take?: number): Promise<HomepageProduct[]> {
-  const data = await apiClient.request<{ search: { totalItems: number; items: HomepageProduct[] } }>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug, ...(take != null && { take }) });
-  return data.search.items;
+  if (take != null) {
+    const data = await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug, take });
+    return data.search.items;
+  }
+
+  const firstPage = await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, {
+    collectionSlug,
+    take: COLLECTION_PAGE_SIZE,
+    skip: 0,
+  });
+
+  const products = [...firstPage.search.items];
+  const { totalItems } = firstPage.search;
+
+  for (let skip = products.length; skip < totalItems; skip += COLLECTION_PAGE_SIZE) {
+    const page = await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, {
+      collectionSlug,
+      take: COLLECTION_PAGE_SIZE,
+      skip,
+    });
+    products.push(...page.search.items);
+  }
+
+  return products;
 }
 
 export async function getCollectionsWithProducts(take = 6): Promise<HomepageCollection[]> {
   const collections = await getAllCollections();
-  const results = await Promise.all(
-    collections.map((c) => apiClient.request<{ search: { totalItems: number; items: HomepageProduct[] } }>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug: c.slug, take })),
-  );
+  const results = await Promise.all(collections.map((c) => apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug: c.slug, take })));
   return collections
     .map((c, i) => ({
       name: c.name,

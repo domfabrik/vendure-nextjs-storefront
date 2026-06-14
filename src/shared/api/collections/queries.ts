@@ -46,8 +46,8 @@ export const GET_ALL_COLLECTIONS = gql`
 `;
 
 export const SEARCH_COLLECTION_PRODUCTS = gql`
-  query SearchCollectionProducts($collectionSlug: String!, $take: Int) {
-    search(input: { collectionSlug: $collectionSlug, take: $take, groupByProduct: true }) {
+  query SearchCollectionProducts($collectionSlug: String!, $take: Int, $skip: Int) {
+    search(input: { collectionSlug: $collectionSlug, take: $take, skip: $skip, groupByProduct: true }) {
       totalItems
       items {
         productName
