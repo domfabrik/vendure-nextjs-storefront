@@ -24,16 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     'Широкий выбор дизайнерской мебели премиум-качества в магазине DomFabrik. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
   return {
-    title: {
-      default: title,
-      template: `%s | ${SITE_NAME}`,
-    },
-    description: description,
+    title,
+    description,
     metadataBase: new URL(envServer.SITE_URL),
 
     openGraph: {
-      title: title,
-      description: description,
+      title,
+      description,
       url: envServer.SITE_URL,
       siteName: SITE_NAME,
       locale: 'ru_RU',
@@ -43,8 +40,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
     twitter: {
       card: 'summary_large_image',
-      title: title,
-      description: description,
+      title,
+      description,
       images: ['/icons/og'],
     },
 

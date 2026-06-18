@@ -239,9 +239,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             >
               Описание
             </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
+            <Box
+              sx={{ typography: 'body1', color: 'text.secondary' }}
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           </Box>
