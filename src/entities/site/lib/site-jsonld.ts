@@ -8,8 +8,8 @@ export function buildOrganizationJsonLd(siteUrl: string) {
     '@type': 'FurnitureStore',
     name: SITE_NAME,
     url: siteUrl,
-    logo: `${siteUrl}/icons/og.png`,
-    image: `${siteUrl}/icons/og.png`,
+    logo: `${siteUrl}/images/logo.webp`,
+    image: `${siteUrl}/images/logo.webp`,
     telephone: contacts.phoneHref.replace('tel:', ''),
     email: contacts.email,
     address: {

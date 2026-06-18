@@ -26,13 +26,13 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_NAME,
       type: 'website',
       locale: 'ru_RU',
-      images: [{ url: `${envServer.SITE_URL}/icons/og.png`, width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
+      images: [{ url: `${envServer.SITE_URL}/images/logo.webp`, width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${envServer.SITE_URL}/icons/og.png`],
+      images: [`${envServer.SITE_URL}/images/logo.webp`],
     },
   };
 }

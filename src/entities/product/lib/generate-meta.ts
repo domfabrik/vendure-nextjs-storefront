@@ -48,7 +48,7 @@ export function generateProductMetadata(product: Product): Metadata {
 
   const description = product.description ? buildDescription(product) : `Купить ${product.name} в интернет-магазине ${SITE_NAME}`;
 
-  const ogImage = product.featuredAsset ? `${product.featuredAsset.preview}?w=1200&h=630&format=webp` : `${envServer.SITE_URL}/icons/og.png`;
+  const ogImage = product.featuredAsset ? `${product.featuredAsset.preview}?w=1200&h=630&format=webp` : `${envServer.SITE_URL}/images/logo.webp`;
   const allImages = product.assets.map((a) => `${a.preview}?w=1200&h=630&format=webp`);
 
   return {

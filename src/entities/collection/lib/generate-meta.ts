@@ -11,7 +11,7 @@ export function generateCollectionMetadata(collection: Collection, slug: string)
     ? stripHtml(collection.description).slice(0, 160)
     : `${collection.name} — широкий выбор мебели в каталоге ${SITE_NAME}. Доставка по Туле и России.`;
 
-  const ogImage = collection.featuredAsset ? `${collection.featuredAsset.preview}?w=1200&h=630&format=webp` : `${envServer.SITE_URL}/icons/og.png`;
+  const ogImage = collection.featuredAsset ? `${collection.featuredAsset.preview}?w=1200&h=630&format=webp` : `${envServer.SITE_URL}/images/logo.webp`;
 
   return {
     title,
