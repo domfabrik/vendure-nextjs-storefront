@@ -3,39 +3,11 @@
 import ArrowRight from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
-import type { Metadata } from 'next';
 import NextLink from 'next/link';
 import { buildHomepageItemListJsonLd, buildOrganizationJsonLd, buildWebSiteJsonLd } from '@/entities/site';
 import { getCollectionsWithProducts } from '@/shared/api';
-import { envServer, SITE_NAME } from '@/shared/config';
+import { envServer } from '@/shared/config';
 import { ProductCard } from '@/shared/ui/product-card';
-
-export async function generateMetadata(): Promise<Metadata> {
-  const title = `${SITE_NAME} — Элитная мебель для дома | Кухни, спальни, гостиные`;
-  const description =
-    'Широкий выбор дизайнерской мебели премиум-качества в магазине Дом Фабрик. Кухонные гарнитуры, роскошные спальные комплекты, мягкая мебель и шкафы-купе с доставкой.';
-
-  return {
-    title,
-    description,
-    alternates: { canonical: envServer.SITE_URL },
-    openGraph: {
-      title,
-      description,
-      url: envServer.SITE_URL,
-      siteName: SITE_NAME,
-      type: 'website',
-      locale: 'ru_RU',
-      images: [{ url: `${envServer.SITE_URL}/images/logo.webp`, width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [`${envServer.SITE_URL}/images/logo.webp`],
-    },
-  };
-}
 
 export default async function Page() {
   const collections = await getCollectionsWithProducts(6);
