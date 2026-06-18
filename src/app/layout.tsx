@@ -31,19 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
     description: description,
     metadataBase: new URL(envServer.SITE_URL),
 
-    robots: {
-      index: true,
-      follow: true,
-      nocache: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-
     openGraph: {
       title: title,
       description: description,
