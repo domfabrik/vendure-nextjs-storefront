@@ -5,6 +5,7 @@ import { Box, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import type { Metadata } from 'next';
 import NextLink from 'next/link';
+import { buildHomepageItemListJsonLd, buildOrganizationJsonLd, buildWebSiteJsonLd } from '@/entities/site';
 import { getCollectionsWithProducts } from '@/shared/api';
 import { envServer, SITE_NAME } from '@/shared/config';
 import { ProductCard } from '@/shared/ui/product-card';
@@ -25,11 +26,13 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_NAME,
       type: 'website',
       locale: 'ru_RU',
+      images: [{ url: `${envServer.SITE_URL}/icons/og.png`, width: 1200, height: 630, alt: `Премиальная мебель ${SITE_NAME}` }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [`${envServer.SITE_URL}/icons/og.png`],
     },
   };
 }
@@ -37,8 +40,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   const collections = await getCollectionsWithProducts(6);
 
+  const organizationJsonLd = buildOrganizationJsonLd(envServer.SITE_URL);
+  const webSiteJsonLd = buildWebSiteJsonLd(envServer.SITE_URL);
+  const itemListJsonLd = buildHomepageItemListJsonLd(collections, envServer.SITE_URL);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
       {collections.map((collection) => (
         <Box
           key={collection.slug}
