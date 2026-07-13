@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
+import { MetrikaHit, MetrikaScript } from '@/features/metrika';
 import { envServer, SITE_NAME } from '@/shared/config';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
@@ -66,6 +67,7 @@ export default async function RootLayout(props: PropsWithChildren) {
           rel="preconnect"
           href={new URL(envServer.SITE_URL).origin}
         />
+        <MetrikaScript />
       </head>
       <body className={openSans.variable}>
         <NuqsAdapter>
@@ -75,6 +77,7 @@ export default async function RootLayout(props: PropsWithChildren) {
 
               <Suspense fallback={null}>
                 <ScrollToTop />
+                <MetrikaHit />
               </Suspense>
 
               <Header />
