@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { submitOrder } from '@/shared/api';
+import { pushEcommerceEvent } from '@/shared/lib';
 import { useCartStore } from '@/shared/store';
 
 const checkoutSchema = z.object({
@@ -63,6 +64,12 @@ export function CheckoutDialog({ open, onClose }: CheckoutDialogProps) {
       });
 
       if (result.success) {
+        pushEcommerceEvent({
+          purchase: {
+            actionField: { id: String(Date.now()) },
+            products: items.map((i) => ({ id: i.productVariantId, name: i.productName, price: i.price / 100, variant: i.variantName, quantity: i.quantity })),
+          },
+        });
         setSuccess(true);
         setTimeout(handleClose, 2000);
       } else {

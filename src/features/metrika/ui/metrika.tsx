@@ -13,10 +13,11 @@ const TAG_ID = 110706774;
 
 export function MetrikaHit() {
   const pathname = usePathname();
-  const prevUrl = useRef(document.referrer);
+  const prevUrl = useRef('');
 
   useEffect(() => {
-    window.ym?.(TAG_ID, 'hit', window.location.href, { referer: prevUrl.current });
+    const referer = prevUrl.current || document.referrer;
+    window.ym?.(TAG_ID, 'hit', window.location.href, { referer });
     prevUrl.current = window.location.href;
   }, [pathname]);
 

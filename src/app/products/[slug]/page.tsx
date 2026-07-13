@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import NextLink from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata, ProductDetails } from '@/entities/product';
+import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
 import { envServer } from '@/shared/config';
 import { ProductCard } from '@/shared/ui/product-card';
@@ -56,6 +57,13 @@ export default async function Page(props: PageProps) {
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
 
+      <ProductDetailEvent
+        id={product.id}
+        name={product.name}
+        price={product.variants[0]?.priceWithTax ?? 0}
+        category={collection?.name}
+        variant={product.variants[0]?.name}
+      />
       <ProductDetails product={product} />
 
       {/* Also bought */}
