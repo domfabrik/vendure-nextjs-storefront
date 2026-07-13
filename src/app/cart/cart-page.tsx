@@ -7,7 +7,7 @@ import { Box, Button, Card, CardMedia, Divider, IconButton, Typography } from '@
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { useState } from 'react';
-import { priceFormatter } from '@/shared/lib';
+import { priceFormatter, reachGoal } from '@/shared/lib';
 import { useCartStore } from '@/shared/store';
 import { CheckoutDialog } from './checkout-dialog';
 
@@ -172,7 +172,10 @@ export function CartPage() {
             variant="contained"
             size="large"
             fullWidth
-            onClick={() => setCheckoutOpen(true)}
+            onClick={() => {
+              reachGoal('begin_checkout');
+              setCheckoutOpen(true);
+            }}
           >
             Оформить заказ
           </Button>

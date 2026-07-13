@@ -1,7 +1,14 @@
 declare global {
   interface Window {
     dataLayer?: Record<string, unknown>[];
+    ym?: (...args: unknown[]) => void;
   }
+}
+
+const TAG_ID = 110706774;
+
+export function reachGoal(target: string) {
+  window.ym?.(TAG_ID, 'reachGoal', target);
 }
 
 interface EcommerceProduct {

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { submitOrder } from '@/shared/api';
-import { pushEcommerceEvent } from '@/shared/lib';
+import { pushEcommerceEvent, reachGoal } from '@/shared/lib';
 import { useCartStore } from '@/shared/store';
 
 const checkoutSchema = z.object({
@@ -70,6 +70,7 @@ export function CheckoutDialog({ open, onClose }: CheckoutDialogProps) {
             products: items.map((i) => ({ id: i.productVariantId, name: i.productName, price: i.price / 100, variant: i.variantName, quantity: i.quantity })),
           },
         });
+        reachGoal('purchase');
         setSuccess(true);
         setTimeout(handleClose, 2000);
       } else {

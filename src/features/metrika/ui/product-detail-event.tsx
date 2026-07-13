@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { pushEcommerceEvent } from '@/shared/lib';
+import { pushEcommerceEvent, reachGoal } from '@/shared/lib';
 
 interface ProductDetailEventProps {
   id: string;
@@ -18,6 +18,7 @@ export function ProductDetailEvent({ id, name, price, category, variant }: Produ
         products: [{ id, name, price: price / 100, category, variant }],
       },
     });
+    reachGoal('product_detail');
   }, [id, name, price, category, variant]);
 
   return null;

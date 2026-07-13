@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { pushEcommerceEvent } from '@/shared/lib';
+import { pushEcommerceEvent, reachGoal } from '@/shared/lib';
 
 export interface CartItem {
   productVariantId: string;
@@ -42,6 +42,7 @@ export const useCartStore = create<CartState>()(
           pushEcommerceEvent({
             add: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity }] },
           });
+          reachGoal('add_to_cart');
           const existing = state.items.find((i) => i.productVariantId === item.productVariantId);
           if (existing) {
             const updated = state.items.map((i) => (i.productVariantId === item.productVariantId ? { ...i, quantity: i.quantity + quantity } : i));
