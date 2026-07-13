@@ -37,44 +37,45 @@ export const useCartStore = create<CartState>()(
       totalQuantity: 0,
       totalPrice: 0,
 
-      addToCart: (item, quantity = 1) =>
+      addToCart: (item, quantity = 1) => {
+        pushEcommerceEvent({
+          add: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity }] },
+        });
+        reachGoal('add_to_cart');
         set((state) => {
-          pushEcommerceEvent({
-            add: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity }] },
-          });
-          reachGoal('add_to_cart');
           const existing = state.items.find((i) => i.productVariantId === item.productVariantId);
           if (existing) {
             const updated = state.items.map((i) => (i.productVariantId === item.productVariantId ? { ...i, quantity: i.quantity + quantity } : i));
             return recalc(updated);
           }
           return recalc([...state.items, { ...item, quantity }]);
-        }),
+        });
+      },
 
-      removeFromCart: (productVariantId) =>
-        set((state) => {
-          const item = state.items.find((i) => i.productVariantId === productVariantId);
-          if (item) {
-            pushEcommerceEvent({
-              remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity }] },
-            });
-          }
-          return recalc(state.items.filter((i) => i.productVariantId !== productVariantId));
-        }),
+      removeFromCart: (productVariantId) => {
+        const item = useCartStore.getState().items.find((i) => i.productVariantId === productVariantId);
+        if (item) {
+          pushEcommerceEvent({
+            remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity }] },
+          });
+        }
+        set((state) => recalc(state.items.filter((i) => i.productVariantId !== productVariantId)));
+      },
 
-      setItemQuantity: (productVariantId, quantity) =>
+      setItemQuantity: (productVariantId, quantity) => {
+        const item = useCartStore.getState().items.find((i) => i.productVariantId === productVariantId);
+        if (item && quantity < item.quantity) {
+          pushEcommerceEvent({
+            remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity - quantity }] },
+          });
+        }
         set((state) => {
-          const item = state.items.find((i) => i.productVariantId === productVariantId);
-          if (item && quantity < item.quantity) {
-            pushEcommerceEvent({
-              remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity - quantity }] },
-            });
-          }
           if (quantity <= 0) {
             return recalc(state.items.filter((i) => i.productVariantId !== productVariantId));
           }
           return recalc(state.items.map((i) => (i.productVariantId === productVariantId ? { ...i, quantity } : i)));
-        }),
+        });
+      },
 
       clearCart: () => set({ items: [], totalQuantity: 0, totalPrice: 0 }),
     }),
