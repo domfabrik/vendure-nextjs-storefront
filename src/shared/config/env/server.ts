@@ -5,6 +5,7 @@ const envModel = z.object({
 
   API_URL: z.string({ message: 'empty API_URL' }),
   SITE_URL: z.string().default('https://domfabrik.ru'),
+  INDEXATION_ALLOW: z.string().optional(),
 });
 
 export const envServer = envModel.parse({
@@ -12,4 +13,5 @@ export const envServer = envModel.parse({
 
   API_URL: process.env.API_URL,
   SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  INDEXATION_ALLOW: process.env.INDEXATION_ALLOW,
 });

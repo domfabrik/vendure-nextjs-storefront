@@ -5,7 +5,7 @@ import { envServer } from '@/shared/config';
 const PRODUCTION_HOST = 'https://domfabrik.ru';
 
 export default function robots(): MetadataRoute.Robots {
-  const isProduction = envServer.SITE_URL === PRODUCTION_HOST;
+  const isProduction = Boolean(envServer.INDEXATION_ALLOW);
 
   if (isProduction) {
     return {
