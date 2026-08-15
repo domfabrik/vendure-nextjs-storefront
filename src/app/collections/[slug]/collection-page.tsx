@@ -22,8 +22,8 @@ import { routes } from '@routes';
 import NextLink from 'next/link';
 import { useQueryStates } from 'nuqs';
 import { useState, useTransition } from 'react';
+import { ProductList } from '@/entities/product';
 import type { Facet, SearchFacetValue, SearchResponse, SearchResult } from '@/shared/api';
-import { ProductCard } from '@/shared/ui/product-card';
 import { collectionParsers, PER_PAGE } from './collection-params';
 
 interface FacetGroup extends Facet {
@@ -252,34 +252,7 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
         </Box>
       ) : (
         <>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: 'repeat(2, 1fr)',
-                sm: 'repeat(3, 1fr)',
-                md: 'repeat(4, 1fr)',
-                lg: 'repeat(6, 1fr)',
-              },
-              gap: 2,
-            }}
-          >
-            {products.map((p) => (
-              <ProductCard
-                key={p.slug}
-                product={{
-                  productName: p.productName,
-                  slug: p.slug,
-                  productVariantId: p.productVariantId,
-                  currencyCode: p.currencyCode,
-                  discountPercent: p.discountPercent,
-                  basePriceWithTax: p.basePriceWithTax,
-                  priceWithTax: p.priceWithTax,
-                  productAsset: p.productAsset,
-                }}
-              />
-            ))}
-          </Box>
+          <ProductList products={products} />
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Pagination

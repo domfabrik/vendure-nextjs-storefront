@@ -1,1 +1,1 @@
-export { CollectionCard } from './collection-card';
+export { CollectionList } from './collection-list';

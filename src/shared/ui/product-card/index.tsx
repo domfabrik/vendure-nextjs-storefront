@@ -29,9 +29,10 @@ function hasDiscount(product: HomepageProduct): boolean {
 
 interface ProductCardProps {
   product: HomepageProduct;
+  imgHeight?: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, imgHeight }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const image = product.productAsset?.preview;
   const href = routes.product(product.slug);
@@ -59,14 +60,14 @@ export function ProductCard({ product }: ProductCardProps) {
             position: 'relative',
             objectFit: 'contain',
             width: '100%',
-            height: '210px',
+            height: imgHeight ?? '210px',
             transition: 'transform .5s',
-            mb: 2,
+            mb: 1,
           }}
         />
 
         <CardContent>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 1 }}>
             <Typography
               variant="body1"
               color="textPrimary"

@@ -26,7 +26,7 @@ export async function Header() {
         }}
       >
         <Container
-          maxWidth="xl"
+          maxWidth={false}
           sx={{
             display: 'flex',
             alignItems: 'center',

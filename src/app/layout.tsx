@@ -73,7 +73,7 @@ export default async function RootLayout(props: PropsWithChildren) {
               <Header />
               <Container
                 component="main"
-                maxWidth="xl"
+                maxWidth={false}
                 sx={{ mb: 4 }}
               >
                 {props.children}
