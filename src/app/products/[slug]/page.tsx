@@ -87,10 +87,9 @@ export default async function Page(props: PageProps) {
               gap: 2,
             }}
           >
-            {alsoBought.map((p, index) => (
+            {alsoBought.map((p) => (
               <ProductCard
                 key={p.slug}
-                index={index}
                 product={p}
               />
             ))}

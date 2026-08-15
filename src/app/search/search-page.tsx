@@ -260,10 +260,9 @@ export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
               gap: 2,
             }}
           >
-            {products.map((p, index) => (
+            {products.map((p) => (
               <ProductCard
                 key={p.slug}
-                index={index}
                 product={{
                   productName: p.productName,
                   slug: p.slug,

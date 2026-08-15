@@ -36,6 +36,14 @@ export function Theme(props: PropsWithChildren) {
     typography: {
       fontFamily: 'var(--font-geist-sans), sans-serif',
 
+      body1: {
+        fontWeight: 300,
+      },
+
+      body2: {
+        fontWeight: 300,
+      },
+
       allVariants: {
         color: '#1B2B45',
       },

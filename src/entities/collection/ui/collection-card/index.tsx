@@ -40,9 +40,14 @@ export function CollectionCard(props: Props) {
             height: 'auto',
             transition: 'transform .5s',
           }}
-        ></Box>
+        />
         <CardContent>
-          <Typography variant="h6">{props.collection.name}</Typography>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 300 }}
+          >
+            {props.collection.name}
+          </Typography>
         </CardContent>
       </Card>
     </NextLink>

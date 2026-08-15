@@ -264,10 +264,9 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
               gap: 2,
             }}
           >
-            {products.map((p, index) => (
+            {products.map((p) => (
               <ProductCard
                 key={p.slug}
-                index={index}
                 product={{
                   productName: p.productName,
                   slug: p.slug,

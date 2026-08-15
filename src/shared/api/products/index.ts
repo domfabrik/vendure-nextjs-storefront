@@ -13,4 +13,4 @@ export type {
   SearchResult,
   SearchResultPrice,
 } from '@/shared/model';
-export { getFeaturedProducts, getProductBySlug, getProductSliders } from './api';
+export { getFeaturedProducts, getNewProducts, getProductBySlug, getProductSliders } from './api';
