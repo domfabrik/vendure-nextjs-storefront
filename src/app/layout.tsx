@@ -1,22 +1,12 @@
 import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
+import { GeistSans } from 'geist/font/sans';
 import { Metadata } from 'next';
-import localFont from 'next/font/local';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
 import { MetrikaHit, MetrikaScript } from '@/features/metrika';
 import { envServer, SITE_NAME } from '@/shared/config';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
-
-const openSans = localFont({
-  src: [
-    { path: '../shared/ui/global-styles/fonts/open-sans-cyrillic-ext.woff2', weight: '300 800', style: 'normal' },
-    { path: '../shared/ui/global-styles/fonts/open-sans-cyrillic.woff2', weight: '300 800', style: 'normal' },
-    { path: '../shared/ui/global-styles/fonts/open-sans-latin.woff2', weight: '300 800', style: 'normal' },
-  ],
-  display: 'swap',
-  variable: '--font-open-sans',
-});
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +59,7 @@ export default async function RootLayout(props: PropsWithChildren) {
         />
         <MetrikaScript />
       </head>
-      <body className={openSans.variable}>
+      <body className={GeistSans.variable}>
         <NuqsAdapter>
           <AppRouterCacheProvider>
             <Theme>

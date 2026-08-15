@@ -34,7 +34,7 @@ export function Theme(props: PropsWithChildren) {
     },
 
     typography: {
-      fontFamily: 'var(--font-open-sans), sans-serif',
+      fontFamily: 'var(--font-geist-sans), sans-serif',
 
       allVariants: {
         color: '#1B2B45',
