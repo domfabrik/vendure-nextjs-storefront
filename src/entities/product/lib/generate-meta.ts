@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { Product } from '@/shared/api';
-import { envServer, SITE_NAME } from '@/shared/config';
+import { envServer, SITE_NAME } from '@/shared/config/index.server';
 
 function buildDescription(product: Product): string {
   const parts: string[] = [product.name];

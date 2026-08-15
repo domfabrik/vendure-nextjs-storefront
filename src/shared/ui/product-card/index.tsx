@@ -52,19 +52,20 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
           },
         }}
       >
-        <Box
-          component="img"
-          src={image}
-          alt={product.productName}
-          sx={{
-            position: 'relative',
-            objectFit: 'contain',
-            width: '100%',
-            height: imgHeight ?? '210px',
-            transition: 'transform .5s',
-            mb: 1,
-          }}
-        />
+        <Box sx={{ overflow: 'hidden' }}>
+          <Box
+            component="img"
+            src={image}
+            alt={product.productName}
+            sx={{
+              display: 'block',
+              objectFit: 'contain',
+              width: '100%',
+              height: imgHeight ?? '210px',
+              transition: 'transform .5s',
+            }}
+          />
+        </Box>
 
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 1 }}>

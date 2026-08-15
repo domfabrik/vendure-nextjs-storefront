@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { envServer, SITE_NAME } from '@/shared/config';
+import { envServer, SITE_NAME } from '@/shared/config/index.server';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

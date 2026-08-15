@@ -30,17 +30,19 @@ export function CollectionCard(props: Props) {
           },
         }}
       >
-        <Box
-          component="img"
-          src={image}
-          alt={product.productName}
-          sx={{
-            position: 'relative',
-            width: '100%',
-            height: 'auto',
-            transition: 'transform .5s',
-          }}
-        />
+        <Box sx={{ overflow: 'hidden' }}>
+          <Box
+            component="img"
+            src={image}
+            alt={product.productName}
+            sx={{
+              display: 'block',
+              width: '100%',
+              height: 'auto',
+              transition: 'transform .5s',
+            }}
+          />
+        </Box>
         <CardContent>
           <Typography
             variant="h6"

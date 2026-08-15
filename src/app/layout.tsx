@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
 import { MetrikaHit, MetrikaScript } from '@/features/metrika';
-import { envServer, SITE_NAME } from '@/shared/config';
+import { envServer, SITE_NAME } from '@/shared/config/index.server';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
 export const dynamic = 'force-dynamic';

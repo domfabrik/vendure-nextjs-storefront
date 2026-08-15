@@ -3,7 +3,7 @@
 import { Typography } from '@mui/material';
 import { CollectionList } from '@/entities/collection';
 import { NewProducts } from '@/entities/product';
-import { LdScript } from '@/entities/site';
+import { LdScript } from '@/entities/site/index.server';
 import { getCollectionsWithProducts, getNewProducts } from '@/shared/api';
 
 export default async function Page() {

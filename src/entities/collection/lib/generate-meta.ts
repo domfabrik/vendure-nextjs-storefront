@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { Collection } from '@/shared/api';
-import { envServer, SITE_NAME } from '@/shared/config';
+import { envServer, SITE_NAME } from '@/shared/config/index.server';
 import { stripHtml } from '@/shared/lib';
 
 export function generateCollectionMetadata(collection: Collection, slug: string): Metadata {

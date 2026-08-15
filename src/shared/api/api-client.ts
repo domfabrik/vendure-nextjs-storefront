@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { cookies } from 'next/headers';
-import { envServer } from '@/shared/config';
+import { envServer } from '@/shared/config/index.server';
 
 const ENDPOINT = `${envServer.API_URL}?languageCode=RU`;
 

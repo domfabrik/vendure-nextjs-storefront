@@ -1,9 +1,9 @@
 'use server';
 
 import type { Metadata } from 'next';
-import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generateCollectionMetadata } from '@/entities/collection';
+import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generateCollectionMetadata } from '@/entities/collection/index.server';
 import { getCollectionBySlug, searchProducts } from '@/shared/api';
-import { envServer } from '@/shared/config';
+import { envServer } from '@/shared/config/index.server';
 import { CollectionPage } from './collection-page';
 import { collectionParamsCache, PER_PAGE, sortMap } from './collection-params';
 

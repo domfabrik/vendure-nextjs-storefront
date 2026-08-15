@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { envServer } from '@/shared/config';
+import { envServer } from '@/shared/config/index.server';
 
 const PRODUCTION_HOST = 'https://domfabrik.ru';
 

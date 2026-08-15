@@ -5,10 +5,11 @@ import { routes } from '@routes';
 import type { Metadata } from 'next';
 import NextLink from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata, ProductDetails, ProductList } from '@/entities/product';
+import { ProductDetails, ProductList } from '@/entities/product';
+import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } from '@/entities/product/index.server';
 import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
-import { envServer } from '@/shared/config';
+import { envServer } from '@/shared/config/index.server';
 
 interface PageProps {
   params: Promise<{ slug: string }>;

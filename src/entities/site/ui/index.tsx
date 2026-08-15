@@ -1,5 +1,5 @@
 import { buildHomepageItemListJsonLd, buildOrganizationJsonLd, buildWebSiteJsonLd } from '@/entities/site';
-import { envServer } from '@/shared/config';
+import { envServer } from '@/shared/config/index.server';
 import type { HomepageCollection } from '@/shared/model';
 
 interface Props {
