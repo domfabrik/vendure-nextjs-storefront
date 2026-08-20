@@ -21,7 +21,7 @@ export async function TopBar() {
       }}
     >
       <Container
-        maxWidth="xl"
+        maxWidth={false}
         sx={{
           display: 'flex',
           alignItems: 'center',

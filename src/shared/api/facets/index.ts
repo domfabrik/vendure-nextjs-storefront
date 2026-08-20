@@ -1,0 +1,1 @@
+export { getFacets } from './api';

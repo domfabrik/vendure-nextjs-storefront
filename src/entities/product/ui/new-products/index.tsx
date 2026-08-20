@@ -12,7 +12,7 @@ export function NewProducts({ products }: Props) {
       sx={{
         overflowX: 'auto',
         pb: 2,
-        mb: 4,
+        mb: 8,
         scrollSnapType: 'x mandatory',
         '&::-webkit-scrollbar': { height: 6 },
         '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.300', borderRadius: 3 },

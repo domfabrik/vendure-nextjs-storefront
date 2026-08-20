@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: false,
+    dangerouslyAllowSVG: true,
     // Хранить кэш картинок в памяти/на диске не дольше 3 дней (в секундах)
     minimumCacheTTL: 259200,
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

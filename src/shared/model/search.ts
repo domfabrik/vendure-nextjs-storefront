@@ -8,6 +8,23 @@ export interface Facet {
   code: string;
 }
 
+export interface FacetValue {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface FacetWithValues {
+  id: string;
+  name: string;
+  code: string;
+  values: FacetValue[];
+}
+
+export interface FacetList {
+  items: FacetWithValues[];
+}
+
 export interface SearchFacetValue {
   count: number;
   facetValue: Facet & {

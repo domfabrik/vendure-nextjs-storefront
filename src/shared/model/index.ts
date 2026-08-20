@@ -26,4 +26,4 @@ export type {
   SearchResult,
   SearchResultPrice,
 } from './product';
-export type { Facet, SearchFacetValue, SearchInput, SearchResponse } from './search';
+export type { Facet, FacetList, FacetValue, FacetWithValues, SearchFacetValue, SearchInput, SearchResponse } from './search';

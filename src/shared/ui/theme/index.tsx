@@ -25,10 +25,10 @@ export function Theme(props: PropsWithChildren) {
         paper: '#ffffff',
       },
       primary: {
-        main: '#1B2B45',
+        main: '#212730',
       },
       text: {
-        primary: '#1B2B45',
+        primary: '#212730',
         contrast: '#ffffff',
       },
     },
@@ -45,7 +45,7 @@ export function Theme(props: PropsWithChildren) {
       },
 
       allVariants: {
-        color: '#1B2B45',
+        color: '#212730',
       },
 
       button: {
