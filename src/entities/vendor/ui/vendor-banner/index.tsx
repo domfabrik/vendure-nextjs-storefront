@@ -11,6 +11,14 @@ import NextLink from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import type { Vendor } from '../../model/vendor';
 
+const BRAND_FACET_ID = '2';
+
+function getVendorSearchHref(vendorId: string) {
+  return routes.search({
+    filters: JSON.stringify({ [BRAND_FACET_ID]: [vendorId] }),
+  });
+}
+
 const vendors: Vendor[] = [
   {
     id: '55',
@@ -160,7 +168,7 @@ export function VendorBanner() {
                   <Button
                     variant="contained"
                     LinkComponent={NextLink}
-                    href={routes.search(vendor.name)}
+                    href={getVendorSearchHref(vendor.id)}
                     sx={{
                       mt: 1,
                       bgcolor: '#ffffff',

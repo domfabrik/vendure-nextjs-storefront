@@ -29,7 +29,7 @@ export default async function Page(props: PageProps) {
   const facetValueFilters = buildFacetValueFilters(filters);
   const hasFilters = facetValueFilters.length > 0;
 
-  if (q.length < 1) {
+  if (q.length < 1 && !hasFilters) {
     return (
       <SearchPage
         initialData={null}
@@ -38,7 +38,10 @@ export default async function Page(props: PageProps) {
     );
   }
 
-  const baseQuery = { term: q, sort };
+  const baseQuery = {
+    ...(q.length > 0 ? { term: q } : {}),
+    sort,
+  };
 
   const [initialData, facetData] = await Promise.all([
     searchProducts({
