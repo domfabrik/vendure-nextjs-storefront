@@ -15,6 +15,7 @@ export type {
   Asset,
   CollectionSlider,
   Product,
+  ProductCollection,
   ProductCustomFields,
   ProductFacetValue,
   ProductOption,

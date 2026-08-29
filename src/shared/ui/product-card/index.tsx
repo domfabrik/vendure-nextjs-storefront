@@ -36,7 +36,6 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const image = product.productAsset?.preview;
   const href = routes.product(product.slug);
-
   return (
     <NextLink href={href}>
       <Card

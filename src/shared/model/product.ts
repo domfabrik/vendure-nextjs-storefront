@@ -85,6 +85,19 @@ export interface ProductFacetValue {
   translations: { name: string; languageCode: string; id: string }[];
 }
 
+export interface ProductCollection {
+  slug: string;
+  name: string;
+  parent?: {
+    slug: string;
+    name?: string;
+    parent?: {
+      slug: string;
+      name?: string;
+    } | null;
+  } | null;
+}
+
 export interface Product {
   name: string;
   description: string;
@@ -93,7 +106,7 @@ export interface Product {
   optionGroups: ProductOptionGroup[];
   assets: Asset[];
   variants: ProductVariant[];
-  collections: { slug: string; name: string; parent: { slug: string } }[];
+  collections: ProductCollection[];
   featuredAsset: Asset | null;
   facetValues: ProductFacetValue[];
   customFields: ProductCustomFields;
@@ -129,7 +142,7 @@ export interface ProductVariantTile {
   priceWithTax: number;
   featuredAsset: { preview: string } | null;
   product: {
-    collections: { slug: string; name: string; parent: { slug: string } }[];
+    collections: ProductCollection[];
     slug: string;
     featuredAsset: { preview: string } | null;
   };

@@ -1,2 +1,7 @@
 export { generateProductMetadata } from './generate-meta';
-export { buildBreadcrumbJsonLd, buildProductJsonLd } from './product-jsonld';
+export {
+  buildBreadcrumbJsonLd,
+  buildProductJsonLd,
+  getProductCollectionChain,
+  getProductCollectionPath,
+} from './product-jsonld';

@@ -59,6 +59,11 @@ export const GET_PRODUCT_BY_SLUG = gql`
         name
         parent {
           slug
+          name
+          parent {
+            slug
+            name
+          }
         }
       }
       featuredAsset {
