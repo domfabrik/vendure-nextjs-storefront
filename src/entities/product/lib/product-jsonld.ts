@@ -46,8 +46,7 @@ export function buildBreadcrumbJsonLd(product: Product, siteUrl: string) {
   const items: { name: string; url?: string }[] = [{ name: 'Главная', url: `${siteUrl}/` }];
 
   if (collection) {
-    const collectionPath = collection.parent?.slug && collection.parent.slug !== '__root_collection__' ? `${collection.parent.slug}/${collection.slug}` : collection.slug;
-    items.push({ name: collection.name, url: `${siteUrl}/collections/${collectionPath}` });
+    items.push({ name: collection.name, url: `${siteUrl}/collections/${collection.slug}` });
   }
 
   items.push({ name: product.name });

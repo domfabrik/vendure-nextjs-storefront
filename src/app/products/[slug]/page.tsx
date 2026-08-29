@@ -32,11 +32,7 @@ export default async function Page(props: PageProps) {
   const alsoBought = relatedCollectionSlug ? (await getProductsByCollection(relatedCollectionSlug, 12)).filter((p) => p.slug !== slug) : [];
 
   const collection = product.collections.find((c) => c.slug !== 'all' && c.slug !== 'search');
-  const collectionHref = collection
-    ? collection.parent?.slug && collection.parent.slug !== '__root_collection__'
-      ? routes.collection(`${collection.parent.slug}/${collection.slug}`)
-      : routes.collection(collection.slug)
-    : null;
+  const collectionHref = collection ? routes.collection(collection.slug) : null;
 
   const productJsonLd = buildProductJsonLd(product, envServer.SITE_URL);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product, envServer.SITE_URL);
