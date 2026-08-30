@@ -46,7 +46,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const inStock = variant ? Number(variant.stockLevel) > 0 : false;
   const lowStock = inStock && Number(variant?.stockLevel || 0) <= 10;
-  const hasDiscount = (variant?.customFields.discountPercent ?? 0) > 0;
+  const hasDiscount = (variant?.customFields?.discountPercent ?? 0) > 0;
   const featuredImage = variant?.featuredAsset ?? product.featuredAsset;
 
   const handleOptionClick = (groupId: string, optionId: string) => {
