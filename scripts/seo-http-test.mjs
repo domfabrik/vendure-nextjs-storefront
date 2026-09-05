@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
 import net from 'node:net';
 import { resolve } from 'node:path';
 
@@ -105,6 +105,19 @@ async function waitFor(url) {
   throw new Error(`Server did not start: ${url}`);
 }
 
+function requestWithHost(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest({ hostname: '127.0.0.1', port, path, headers: { host } }, (response) => {
+      let body = '';
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => (body += chunk));
+      response.on('end', () => resolve({ status: response.statusCode, text: () => body }));
+    });
+    request.once('error', reject);
+    request.end();
+  });
+}
+
 function run(command, args, env) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { env, stdio: 'inherit' });
@@ -130,13 +143,38 @@ const distPath = resolve(workspaceRoot, distDir);
 assert.equal(distPath.startsWith(`${workspaceRoot}${process.platform === 'win32' ? '\\' : '/'}.next-seo-http-`), true, `unsafe test dist path: ${distPath}`);
 const tsconfigPath = 'tsconfig.json';
 const tsconfigBeforeBuild = readFileSync(tsconfigPath);
-const env = { ...process.env, API_URL: `http://127.0.0.1:${apiPort}/shop-api`, NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${sitePort}`, INDEXATION_ALLOW: '1', SEO_DIST_DIR: distDir };
+let prodDistPath;
+const env = {
+  ...process.env,
+  API_URL: `http://127.0.0.1:${apiPort}/shop-api`,
+  NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${sitePort}`,
+  NEXT_PUBLIC_METRIKA_ID: '112305722',
+  INDEXATION_ALLOW: '1',
+  SEO_DIST_DIR: distDir,
+};
 let next;
+async function stopNext() {
+  if (next && next.exitCode === null) {
+    const stopped = new Promise((resolve) => next.once('exit', resolve));
+    next.kill('SIGTERM');
+    await stopped;
+  }
+  next = undefined;
+}
 try {
   await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
   const nextMode = 'start';
   next = spawn(process.execPath, ['node_modules/next/dist/bin/next', nextMode, '-p', String(sitePort)], { env, stdio: 'inherit' });
   await waitFor(`http://127.0.0.1:${sitePort}/contacts`);
+
+  const metrikaPage = (host) => requestWithHost(sitePort, '/contacts', host);
+  const testMetrikaHtml = (await metrikaPage('test.domfabrik.ru')).text();
+  assert.match(testMetrikaHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=112305722/, 'test host must render test Metrika script');
+  assert.match(testMetrikaHtml, /mc\.yandex\.ru\/watch\/112305722/, 'test host must render test Metrika noscript');
+  const mismatchedMetrikaHtml = (await metrikaPage('domfabrik.ru')).text();
+  assert.doesNotMatch(mismatchedMetrikaHtml, /mc\.yandex\.ru\/(?:metrika\/tag\.js\?id=|watch\/)/, 'host and configured Metrika ID mismatch must disable analytics');
+  const spoofedLocalHtml = (await requestWithHost(sitePort, '/contacts', '127.0.0.1')).text();
+  assert.doesNotMatch(spoofedLocalHtml, /mc\.yandex\.ru\/(?:metrika\/tag\.js\?id=|watch\/)/, 'localhost must stay disabled');
 
   for (const userAgent of ['Mozilla/5.0', 'YandexBot/3.0']) {
     const get = (path) => fetch(`http://127.0.0.1:${sitePort}${path}`, { headers: { 'user-agent': userAgent } });
@@ -185,14 +223,28 @@ try {
       assert.match(html, /name="robots"[^>]+content="[^"]*noindex/i, `${userAgent} noindex ${path}`);
     }
   }
+  await stopNext();
+  rmSync(distPath, { recursive: true, force: true });
+  const prodDistDir = `.next-seo-http-${process.pid}-prod`;
+  prodDistPath = resolve(workspaceRoot, prodDistDir);
+  assert.equal(existsSync(prodDistDir), false, `${prodDistDir} already exists; refusing to reuse another test run's output`);
+  const pathSeparator = process.platform === 'win32' ? '\\' : '/';
+  const safeDistPrefix = `${workspaceRoot}${pathSeparator}.next-seo-http-`;
+  assert.equal(prodDistPath.startsWith(safeDistPrefix), true, `unsafe test dist path: ${prodDistPath}`);
+  const prodSitePort = await freePort();
+  env.NEXT_PUBLIC_METRIKA_ID = '110706774';
+  env.SEO_DIST_DIR = prodDistDir;
+  await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(prodSitePort)], { env, stdio: 'inherit' });
+  await waitFor(`http://127.0.0.1:${prodSitePort}/contacts`);
+  const prodHtml = (await requestWithHost(prodSitePort, '/contacts', 'domfabrik.ru')).text();
+  assert.match(prodHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=110706774/, 'production build must render production Metrika script');
+  assert.match(prodHtml, /mc\.yandex\.ru\/watch\/110706774/, 'production build must render production Metrika noscript');
   console.log('SEO HTTP integration checks passed');
 } finally {
-  if (next && next.exitCode === null) {
-    const stopped = new Promise((resolve) => next.once('exit', resolve));
-    next.kill('SIGTERM');
-    await stopped;
-  }
+  await stopNext();
   await new Promise((resolve) => api.close(resolve));
   rmSync(distPath, { recursive: true, force: true });
+  if (prodDistPath) rmSync(prodDistPath, { recursive: true, force: true });
   writeFileSync(tsconfigPath, tsconfigBeforeBuild);
 }

@@ -12,6 +12,7 @@
     "lint": "biome check && tsc --noEmit",
     "lint:fsd": "steiger ./src",
     "test:seo": "node scripts/seo-http-test.mjs",
+    "test:metrika": "node --experimental-strip-types scripts/metrika-config-test.mjs",
     "prebuild": "yarn lint && yarn lint:fsd",
     "build": "yarn prebuild && next build",
     "start": "next start -p 3001",

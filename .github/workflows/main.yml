@@ -69,10 +69,12 @@ jobs:
             server_host="${PROD_SERVER_HOST}"
             deploy_env_file="${PROD_DEPLOY_ENV_FILE}"
             latest_tag="prod-latest"
+            metrika_id="110706774"
           else
             server_host="${TEST_SERVER_HOST}"
             deploy_env_file="${TEST_DEPLOY_ENV_FILE}"
             latest_tag="test-latest"
+            metrika_id="112305722"
           fi
 
           version="$(node -p "require('./package.json').version")"
@@ -85,6 +87,7 @@ jobs:
           echo "server_host=${server_host}" >> "$GITHUB_OUTPUT"
           echo "deploy_env_file=${deploy_env_file}" >> "$GITHUB_OUTPUT"
           echo "latest_tag=${latest_tag}" >> "$GITHUB_OUTPUT"
+          echo "metrika_id=${metrika_id}" >> "$GITHUB_OUTPUT"
           echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
           echo "image_repo=${image_repo}" >> "$GITHUB_OUTPUT"
           echo "public_origin=${public_origin}" >> "$GITHUB_OUTPUT"
@@ -95,6 +98,7 @@ jobs:
           cat > .env.production <<EOF
           API_URL=${{ steps.vars.outputs.public_origin }}/shop-api
           NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.public_origin }}
+          NEXT_PUBLIC_METRIKA_ID=${{ steps.vars.outputs.metrika_id }}
           EOF
 
       - name: Login to Yandex Container Registry
