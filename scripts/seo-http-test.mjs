@@ -6,6 +6,7 @@ import net from 'node:net';
 import { resolve } from 'node:path';
 
 let searchRequestCount = 0;
+let primaryApiRequestCount = 0;
 
 async function freePort() {
   const probe = net.createServer();
@@ -15,11 +16,12 @@ async function freePort() {
   return port;
 }
 
-const api = createServer(async (request, response) => {
+async function handleApiRequest(request, response, recordRequest) {
   if (request.method !== 'POST') {
     response.writeHead(405).end();
     return;
   }
+  recordRequest(request.url);
   let body = '';
   for await (const chunk of request) body += chunk;
   const payload = JSON.parse(body);
@@ -58,7 +60,13 @@ const api = createServer(async (request, response) => {
     data = { search: { totalItems: 0, items: [], facetValues: [] } };
   }
   response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ data }));
-});
+}
+
+const api = createServer((request, response) =>
+  handleApiRequest(request, response, () => {
+    primaryApiRequestCount += 1;
+  }),
+);
 
 function collection(slug) {
   return { name: slug === 'empty' ? 'Пустая категория' : 'Стулья', slug, description: '', featuredAsset: null, parent: null, children: [] };
@@ -164,6 +172,33 @@ function findCollectionPageHref(html, slug, page) {
 
 const sitePort = await freePort();
 const apiPort = await new Promise((resolve) => api.listen(0, '127.0.0.1', () => resolve(api.address().port)));
+let primaryApiClosed = false;
+let buildApiFallbackTrapListening = false;
+let buildApiFallbackRequestCount = 0;
+const buildApiFallbackTrap = createServer((request, response) => {
+  buildApiFallbackRequestCount += 1;
+  response.writeHead(502).end('baked build API fallback trap');
+});
+let alternateApiRequestCount = 0;
+const alternateApi = createServer((request, response) =>
+  handleApiRequest(request, response, () => {
+    alternateApiRequestCount += 1;
+  }),
+);
+const alternateApiPort = await new Promise((resolve) => alternateApi.listen(0, '127.0.0.1', () => resolve(alternateApi.address().port)));
+let publicApiRequestCount = 0;
+const publicApiTrap = createServer((request, response) => {
+  publicApiRequestCount += 1;
+  response.writeHead(502).end('public API hairpin trap');
+});
+const publicApiPort = await new Promise((resolve) => publicApiTrap.listen(0, '127.0.0.1', () => resolve(publicApiTrap.address().port)));
+let slowApiRequestCount = 0;
+const slowApi = createServer(async (request, response) => {
+  slowApiRequestCount += 1;
+  await new Promise((resolve) => setTimeout(resolve, 1_500));
+  if (!response.destroyed) response.writeHead(504).end('slow internal API');
+});
+const slowApiPort = await new Promise((resolve) => slowApi.listen(0, '127.0.0.1', () => resolve(slowApi.address().port)));
 const distDir = `.next-seo-http-${process.pid}`;
 assert.equal(existsSync(distDir), false, `${distDir} already exists; refusing to reuse another test run's output`);
 const workspaceRoot = realpathSync(process.cwd());
@@ -177,11 +212,21 @@ const env = {
   API_URL: `http://127.0.0.1:${apiPort}/shop-api`,
   NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${sitePort}`,
   NEXT_PUBLIC_METRIKA_ID: '112305722',
+  NEXT_PUBLIC_HOST: `http://127.0.0.1:${publicApiPort}`,
+  VENDURE_SERVER_URL: `http://127.0.0.1:${publicApiPort}`,
   STOREFRONT_ORIGIN: 'https://test.domfabrik.ru',
   INDEXATION_ALLOW: 'false',
   SEO_DIST_DIR: distDir,
 };
 let next;
+async function stripAndAssertStandaloneEnv(buildDistPath, buildEnv) {
+  const copiedProductionEnv = resolve(buildDistPath, 'standalone', '.env.production');
+  assert.equal(existsSync(copiedProductionEnv), true, 'TC-A1 Next 16 test fixture must demonstrate the copied build dotenv');
+  await run(process.execPath, ['scripts/strip-standalone-env.mjs'], buildEnv);
+  assert.equal(existsSync(copiedProductionEnv), false, 'TC-A1 standalone artifact must not retain .env.production');
+  assert.equal(existsSync(resolve(buildDistPath, 'standalone', '.env')), false, 'TC-A1 standalone artifact must not retain .env');
+}
+
 async function startNext(runtimeEnv, port = sitePort) {
   next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(port)], { env: runtimeEnv, stdio: 'inherit' });
   await waitFor(`http://127.0.0.1:${port}/robots.txt`);
@@ -197,6 +242,7 @@ async function stopNext() {
 }
 try {
   await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+  await stripAndAssertStandaloneEnv(distPath, env);
   const allowedRuntimeEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru', INDEXATION_ALLOW: 'true' };
   await startNext(allowedRuntimeEnv);
 
@@ -400,6 +446,37 @@ try {
   await stopNext();
   console.log('TC-R1 indexation matrix and TC-R2 post-build runtime changes passed');
 
+  await new Promise((resolve) => api.close(resolve));
+  primaryApiClosed = true;
+  await new Promise((resolve) => buildApiFallbackTrap.listen(apiPort, '127.0.0.1', resolve));
+  buildApiFallbackTrapListening = true;
+
+  const primaryRequestsBeforeRuntimeSwitch = primaryApiRequestCount;
+  await startNext({ ...env, API_URL: `http://127.0.0.1:${alternateApiPort}/shop-api` });
+  const alternateProductResponse = await fetch(`http://127.0.0.1:${sitePort}/products/test-chair`);
+  assert.equal(alternateProductResponse.status, 200, 'TC-A2 SSR must use the selected internal runtime API');
+  assert.ok(alternateApiRequestCount > 0, 'TC-A2 alternate environment internal API must receive SSR requests');
+  assert.equal(primaryApiRequestCount, primaryRequestsBeforeRuntimeSwitch, 'TC-A2 runtime environments must not mix internal API endpoints');
+  assert.equal(buildApiFallbackRequestCount, 0, 'TC-A2 SSR must not use the now-failing API endpoint baked into the build');
+  assert.equal(publicApiRequestCount, 0, 'TC-A2 unavailable public browser API must receive no SSR requests');
+  await stopNext();
+
+  await startNext({ ...env, API_URL: `http://127.0.0.1:${slowApiPort}/shop-api` });
+  let timedOut = false;
+  try {
+    await fetch(`http://127.0.0.1:${sitePort}/products/test-chair`, { signal: AbortSignal.timeout(300) });
+  } catch (error) {
+    timedOut = error?.name === 'TimeoutError' || error?.name === 'AbortError';
+  }
+  assert.equal(timedOut, true, 'TC-A3 isolated slow internal API must keep the SSR request pending past the client timeout');
+  const settledFailureResponse = await fetch(`http://127.0.0.1:${sitePort}/products/test-chair`);
+  assert.ok(settledFailureResponse.status >= 500, 'TC-A3 SSR must surface the settled internal API failure');
+  assert.ok(slowApiRequestCount >= 2, 'TC-A3 slow internal API must receive both SSR requests');
+  assert.equal(buildApiFallbackRequestCount, 0, 'TC-A3 settled internal failure must not fall back to the baked build API');
+  assert.equal(publicApiRequestCount, 0, 'TC-A3 internal API timeout must not fall back to the public hairpin');
+  await stopNext();
+  console.log('TC-A2 runtime API isolation and TC-A3 no-public-fallback checks passed');
+
   rmSync(distPath, { recursive: true, force: true });
   const prodDistDir = `.next-seo-http-${process.pid}-prod`;
   prodDistPath = resolve(workspaceRoot, prodDistDir);
@@ -408,11 +485,13 @@ try {
   const safeDistPrefix = `${workspaceRoot}${pathSeparator}.next-seo-http-`;
   assert.equal(prodDistPath.startsWith(safeDistPrefix), true, `unsafe test dist path: ${prodDistPath}`);
   const prodSitePort = await freePort();
+  env.API_URL = `http://127.0.0.1:${alternateApiPort}/shop-api`;
   env.NEXT_PUBLIC_METRIKA_ID = '110706774';
   env.STOREFRONT_ORIGIN = 'https://domfabrik.ru';
   env.INDEXATION_ALLOW = 'true';
   env.SEO_DIST_DIR = prodDistDir;
   await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+  await stripAndAssertStandaloneEnv(prodDistPath, env);
   await startNext(env, prodSitePort);
   const prodHtml = (await requestWithHost(prodSitePort, '/contacts', 'domfabrik.ru')).text();
   assert.match(prodHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=110706774/, 'production build must render production Metrika script');
@@ -420,7 +499,11 @@ try {
   console.log('SEO HTTP integration checks passed');
 } finally {
   await stopNext();
-  await new Promise((resolve) => api.close(resolve));
+  if (!primaryApiClosed) await new Promise((resolve) => api.close(resolve));
+  if (buildApiFallbackTrapListening) await new Promise((resolve) => buildApiFallbackTrap.close(resolve));
+  await new Promise((resolve) => alternateApi.close(resolve));
+  await new Promise((resolve) => publicApiTrap.close(resolve));
+  await new Promise((resolve) => slowApi.close(resolve));
   rmSync(distPath, { recursive: true, force: true });
   if (prodDistPath) rmSync(prodDistPath, { recursive: true, force: true });
   writeFileSync(tsconfigPath, tsconfigBeforeBuild);

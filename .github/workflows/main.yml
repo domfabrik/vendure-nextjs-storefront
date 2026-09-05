@@ -99,7 +99,6 @@ jobs:
         shell: bash
         run: |
           cat > .env.production <<EOF
-          API_URL=${{ steps.vars.outputs.public_origin }}/shop-api
           NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.public_origin }}
           NEXT_PUBLIC_METRIKA_ID=${{ steps.vars.outputs.metrika_id }}
           STOREFRONT_ORIGIN=${{ steps.vars.outputs.public_origin }}
@@ -117,6 +116,7 @@ jobs:
           set -euo pipefail
           docker build \
             --pull \
+            --build-arg "BUILD_API_URL=${{ steps.vars.outputs.public_origin }}/shop-api" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.image_tag }}" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.latest_tag }}" \
             .
