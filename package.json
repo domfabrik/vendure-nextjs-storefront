@@ -11,7 +11,7 @@
     "format": "biome check --write",
     "lint": "biome check && tsc --noEmit",
     "lint:fsd": "steiger ./src",
-    "test": "node --experimental-strip-types scripts/metrika-config-test.mjs && node --experimental-strip-types scripts/indexation-policy-test.mjs && node scripts/api-routing-contract-test.mjs && node scripts/biome-isolation-test.mjs && node scripts/ci-seo-contract-test.mjs",
+    "test": "node --experimental-strip-types scripts/metrika-config-test.mjs && node --experimental-strip-types scripts/indexation-policy-test.mjs && node scripts/api-routing-contract-test.mjs && node scripts/biome-isolation-test.mjs && node scripts/owned-dotenv-fixture-test.mjs && node scripts/ci-seo-contract-test.mjs",
     "test:api-routing": "node scripts/api-routing-contract-test.mjs",
     "test:ci-seo": "node scripts/ci-seo-contract-test.mjs",
     "test:indexation": "node --experimental-strip-types scripts/indexation-policy-test.mjs",
