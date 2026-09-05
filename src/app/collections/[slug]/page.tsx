@@ -1,6 +1,7 @@
 'use server';
 
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generateCollectionMetadata } from '@/entities/collection/index.server';
 import { getCollectionBySlug, searchProducts } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
@@ -21,13 +22,15 @@ function buildFacetValueFilters(filters: Record<string, string[]>) {
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = await props.params;
   const collection = await getCollectionBySlug(slug);
-  if (!collection) return {};
+  if (!collection) notFound();
 
   return generateCollectionMetadata(collection, slug);
 }
 
 export default async function Page(props: PageProps) {
   const { slug } = await props.params;
+  const collection = await getCollectionBySlug(slug);
+  if (!collection) notFound();
   const { page, sort: sortKey, filters } = await collectionParamsCache.parse(props.searchParams);
   const sort = sortMap[sortKey] ?? { name: 'ASC' };
   const facetValueFilters = buildFacetValueFilters(filters);
@@ -35,8 +38,7 @@ export default async function Page(props: PageProps) {
 
   const baseQuery = { collectionSlug: slug, sort };
 
-  const [collection, initialData, facetData] = await Promise.all([
-    getCollectionBySlug(slug),
+  const [initialData, facetData] = await Promise.all([
     searchProducts({
       ...baseQuery,
       take: PER_PAGE,
@@ -46,7 +48,7 @@ export default async function Page(props: PageProps) {
     hasFilters ? searchProducts({ ...baseQuery, take: 0, skip: 0 }) : null,
   ]);
 
-  const breadcrumbJsonLd = collection ? buildCollectionBreadcrumbJsonLd(collection, envServer.SITE_URL, slug) : null;
+  const breadcrumbJsonLd = buildCollectionBreadcrumbJsonLd(collection, envServer.SITE_URL, slug);
   const itemListJsonLd = buildCollectionItemListJsonLd(initialData.items, envServer.SITE_URL);
 
   const jsonLdScripts = (

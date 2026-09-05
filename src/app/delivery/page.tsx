@@ -3,10 +3,12 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import { Box, Link, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { contacts } from '@routes';
 import { Metadata } from 'next';
+import { envServer } from '@/shared/config/index.server';
 
 export const metadata: Metadata = {
   title: 'Доставка',
   description: 'Информация о доставке мебели по Туле, Тульской области и всей России — интернет-магазин DomFabrik',
+  alternates: { canonical: `${envServer.SITE_URL}/delivery` },
 };
 
 const sectionHeadingSx = { fontWeight: 600, mt: 4, mb: 1 } as const;

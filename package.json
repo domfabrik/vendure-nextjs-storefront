@@ -11,6 +11,7 @@
     "format": "biome check --write",
     "lint": "biome check && tsc --noEmit",
     "lint:fsd": "steiger ./src",
+    "test:seo": "node scripts/seo-http-test.mjs",
     "prebuild": "yarn lint && yarn lint:fsd",
     "build": "yarn prebuild && next build",
     "start": "next start -p 3001",

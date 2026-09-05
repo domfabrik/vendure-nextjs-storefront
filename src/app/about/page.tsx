@@ -6,10 +6,12 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import { Box, Link, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { contacts } from '@routes';
 import { Metadata } from 'next';
+import { envServer } from '@/shared/config/index.server';
 
 export const metadata: Metadata = {
   title: 'О компании',
   description: 'О компании DomFabrik — интернет-магазин мебели. Работаем по всей России, находимся в Туле.',
+  alternates: { canonical: `${envServer.SITE_URL}/about` },
 };
 
 const sectionHeadingSx = { fontWeight: 600, mt: 4, mb: 1 } as const;
