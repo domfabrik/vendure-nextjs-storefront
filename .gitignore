@@ -16,6 +16,7 @@ users.json
 
 # next.js
 /.next/
+/.next-*/
 /out/
 
 # production
