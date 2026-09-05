@@ -5,6 +5,7 @@ import { createServer, request as httpRequest } from 'node:http';
 import net from 'node:net';
 import { resolve } from 'node:path';
 import { homepageFixture } from './homepage-ssr-cases.mjs';
+import { ownedProductionDotenvFixture } from './owned-dotenv-fixture.mjs';
 
 const homepage = homepageFixture(tileProduct);
 const mockErrors = [];
@@ -223,6 +224,8 @@ assert.equal(existsSync(distDir), false, `${distDir} already exists; refusing to
 const workspaceRoot = realpathSync(process.cwd());
 const distPath = resolve(workspaceRoot, distDir);
 assert.equal(distPath.startsWith(`${workspaceRoot}${process.platform === 'win32' ? '\\' : '/'}.next-seo-http-`), true, `unsafe test dist path: ${distPath}`);
+const dotenvMarker = `SEO_HTTP_STANDALONE_MARKER=synthetic-${process.pid}\n`;
+const dotenvFixture = ownedProductionDotenvFixture(workspaceRoot, dotenvMarker);
 const tsconfigPath = 'tsconfig.json';
 const tsconfigBeforeBuild = readFileSync(tsconfigPath);
 let prodDistPath;
@@ -247,6 +250,7 @@ function assertStandaloneEnvRemoved(buildDistPath) {
 async function stripAndAssertStandaloneEnv(buildDistPath, buildEnv) {
   const copiedProductionEnv = resolve(buildDistPath, 'standalone', '.env.production');
   assert.equal(existsSync(copiedProductionEnv), true, 'TC-A1 Next 16 test fixture must demonstrate the copied build dotenv');
+  assert.equal(readFileSync(copiedProductionEnv, 'utf8').includes(dotenvMarker), true, 'TC-A1 copied build dotenv must be the owned synthetic fixture');
   await run(process.execPath, ['scripts/strip-standalone-env.mjs'], buildEnv);
   assertStandaloneEnvRemoved(buildDistPath);
 }
@@ -270,6 +274,8 @@ async function stopNext() {
   next = undefined;
 }
 try {
+  dotenvFixture.install();
+  if (process.env.SEO_HTTP_INJECT_FAILURE === 'after-dotenv-install') throw new Error('Injected SEO harness failure after dotenv install');
   // npm and Yarn both run the full package lifecycle, including postbuild.
   // The second, raw Next build separately proves dotenv copying and stripping.
   if (process.env.npm_execpath) {
@@ -545,13 +551,20 @@ try {
   console.log('SEO HTTP integration checks passed');
   assert.deepEqual(mockErrors, [], 'all API mock protocol assertions passed');
 } finally {
-  await stopNext();
-  if (!primaryApiClosed) await closeMock(api);
-  if (buildApiFallbackTrapListening) await closeMock(buildApiFallbackTrap);
-  await closeMock(alternateApi);
-  await closeMock(publicApiTrap);
-  await closeMock(slowApi);
-  rmSync(distPath, { recursive: true, force: true });
-  if (prodDistPath) rmSync(prodDistPath, { recursive: true, force: true });
-  writeFileSync(tsconfigPath, tsconfigBeforeBuild);
+  try {
+    await stopNext();
+    if (!primaryApiClosed) await closeMock(api);
+    if (buildApiFallbackTrapListening) await closeMock(buildApiFallbackTrap);
+    await closeMock(alternateApi);
+    await closeMock(publicApiTrap);
+    await closeMock(slowApi);
+    rmSync(distPath, { recursive: true, force: true });
+    if (prodDistPath) rmSync(prodDistPath, { recursive: true, force: true });
+  } finally {
+    try {
+      dotenvFixture.restore();
+    } finally {
+      writeFileSync(tsconfigPath, tsconfigBeforeBuild);
+    }
+  }
 }
