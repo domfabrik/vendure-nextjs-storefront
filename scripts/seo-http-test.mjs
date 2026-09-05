@@ -177,10 +177,16 @@ const env = {
   API_URL: `http://127.0.0.1:${apiPort}/shop-api`,
   NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${sitePort}`,
   NEXT_PUBLIC_METRIKA_ID: '112305722',
-  INDEXATION_ALLOW: '1',
+  STOREFRONT_ORIGIN: 'https://test.domfabrik.ru',
+  INDEXATION_ALLOW: 'false',
   SEO_DIST_DIR: distDir,
 };
 let next;
+async function startNext(runtimeEnv, port = sitePort) {
+  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(port)], { env: runtimeEnv, stdio: 'inherit' });
+  await waitFor(`http://127.0.0.1:${port}/robots.txt`);
+}
+
 async function stopNext() {
   if (next && next.exitCode === null) {
     const stopped = new Promise((resolve) => next.once('exit', resolve));
@@ -191,9 +197,14 @@ async function stopNext() {
 }
 try {
   await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
-  const nextMode = 'start';
-  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', nextMode, '-p', String(sitePort)], { env, stdio: 'inherit' });
-  await waitFor(`http://127.0.0.1:${sitePort}/contacts`);
+  const allowedRuntimeEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru', INDEXATION_ALLOW: 'true' };
+  await startNext(allowedRuntimeEnv);
+
+  const allowedRobots = await (await fetch(`http://127.0.0.1:${sitePort}/robots.txt`)).text();
+  assert.match(allowedRobots, /^User-Agent: \*$/im, 'TC-R1 exact true and production origin must render a wildcard rule');
+  assert.match(allowedRobots, /^Allow: \/$/im, 'TC-R1 exact true and production origin must allow crawling');
+  assert.doesNotMatch(allowedRobots, /^Disallow:/im, 'TC-R1 allowed robots must not disallow crawling');
+  assert.match(allowedRobots, /^Sitemap: https:\/\/domfabrik\.ru\/sitemap\.xml$/im, 'TC-R1 production robots must expose the production sitemap');
 
   const metrikaPage = (host) => requestWithHost(sitePort, '/contacts', host);
   const testMetrikaHtml = (await metrikaPage('test.domfabrik.ru')).text();
@@ -344,6 +355,7 @@ try {
     assert.match(productHtml, /<h1[^>]*>Тестовый стул<\/h1>/, `${userAgent} valid product H1`);
     assert.match(productHtml, /"@type":"Product"/, `${userAgent} valid product JSON-LD`);
     assert.match(productHtml, /"lowPrice":10/, `${userAgent} valid product price`);
+    assert.doesNotMatch(productHtml, /name="robots"[^>]+content="[^"]*noindex/i, `${userAgent} TC-R4 production product must not receive global noindex`);
     for (const path of ['/products/missing', '/collections/missing', '/products/api-error', '/collections/api-error']) {
       const html = await (await get(path)).text();
       assert.equal([...html.matchAll(/<link[^>]+rel="canonical"[^>]+>/g)].length, 0, `${userAgent} error URL must not have canonical`);
@@ -365,6 +377,29 @@ try {
     console.log(`${testCase}: passed for browser and YandexBot HTML`);
   }
   await stopNext();
+
+  for (const [flag, origin, label] of [
+    ['false', 'https://domfabrik.ru', 'false flag'],
+    ['1', 'https://domfabrik.ru', 'invalid flag'],
+    ['true', 'https://test.domfabrik.ru', 'test origin'],
+    ['true', 'https://unknown.domfabrik.ru', 'unknown origin'],
+  ]) {
+    await startNext({ ...env, INDEXATION_ALLOW: flag, STOREFRONT_ORIGIN: origin });
+    const deniedRobots = await (await fetch(`http://127.0.0.1:${sitePort}/robots.txt`)).text();
+    assert.match(deniedRobots, /^Disallow: \/$/im, `TC-R1 ${label} must disallow crawling`);
+    assert.doesNotMatch(deniedRobots, /^Allow:/im, `TC-R1 ${label} must not allow crawling`);
+    assert.doesNotMatch(deniedRobots, /^Sitemap:/im, `TC-R1 ${label} must not expose a sitemap`);
+    await stopNext();
+  }
+  const missingFlagEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru' };
+  delete missingFlagEnv.INDEXATION_ALLOW;
+  await startNext(missingFlagEnv);
+  const missingFlagRobots = await (await fetch(`http://127.0.0.1:${sitePort}/robots.txt`)).text();
+  assert.match(missingFlagRobots, /^Disallow: \/$/im, 'TC-R1 missing flag must disallow crawling');
+  assert.doesNotMatch(missingFlagRobots, /^Allow:|^Sitemap:/im, 'TC-R1 missing flag must not expose allow or sitemap');
+  await stopNext();
+  console.log('TC-R1 indexation matrix and TC-R2 post-build runtime changes passed');
+
   rmSync(distPath, { recursive: true, force: true });
   const prodDistDir = `.next-seo-http-${process.pid}-prod`;
   prodDistPath = resolve(workspaceRoot, prodDistDir);
@@ -374,10 +409,11 @@ try {
   assert.equal(prodDistPath.startsWith(safeDistPrefix), true, `unsafe test dist path: ${prodDistPath}`);
   const prodSitePort = await freePort();
   env.NEXT_PUBLIC_METRIKA_ID = '110706774';
+  env.STOREFRONT_ORIGIN = 'https://domfabrik.ru';
+  env.INDEXATION_ALLOW = 'true';
   env.SEO_DIST_DIR = prodDistDir;
   await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
-  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(prodSitePort)], { env, stdio: 'inherit' });
-  await waitFor(`http://127.0.0.1:${prodSitePort}/contacts`);
+  await startNext(env, prodSitePort);
   const prodHtml = (await requestWithHost(prodSitePort, '/contacts', 'domfabrik.ru')).text();
   assert.match(prodHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=110706774/, 'production build must render production Metrika script');
   assert.match(prodHtml, /mc\.yandex\.ru\/watch\/110706774/, 'production build must render production Metrika noscript');

@@ -11,6 +11,8 @@
     "format": "biome check --write",
     "lint": "biome check && tsc --noEmit",
     "lint:fsd": "steiger ./src",
+    "test": "node --experimental-strip-types scripts/metrika-config-test.mjs && node --experimental-strip-types scripts/indexation-policy-test.mjs",
+    "test:indexation": "node --experimental-strip-types scripts/indexation-policy-test.mjs",
     "test:seo": "node scripts/seo-http-test.mjs",
     "test:metrika": "node --experimental-strip-types scripts/metrika-config-test.mjs",
     "prebuild": "yarn lint && yarn lint:fsd",
