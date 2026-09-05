@@ -15,6 +15,7 @@ import {
   IconButton,
   MenuItem,
   Pagination,
+  PaginationItem,
   Select,
   Typography,
 } from '@mui/material';
@@ -24,7 +25,7 @@ import { useQueryStates } from 'nuqs';
 import { useState, useTransition } from 'react';
 import { ProductList } from '@/entities/product';
 import type { Facet, SearchFacetValue, SearchResponse, SearchResult } from '@/shared/api';
-import { collectionParsers, PER_PAGE } from './collection-params';
+import { buildCollectionPageHref, type CollectionSearchParams, collectionParsers, PER_PAGE } from './collection-params';
 
 interface FacetGroup extends Facet {
   values: (Facet & { count: number; facet: Facet })[];
@@ -58,9 +59,11 @@ interface CollectionPageProps {
   initialData: SearchResponse;
   allFacetValues: SearchFacetValue[];
   jsonLdScripts: React.ReactNode;
+  paginationSearchParams: CollectionSearchParams;
+  slug: string;
 }
 
-export function CollectionPage({ collectionName, initialData, allFacetValues, jsonLdScripts }: CollectionPageProps) {
+export function CollectionPage({ collectionName, initialData, allFacetValues, jsonLdScripts, paginationSearchParams, slug }: CollectionPageProps) {
   const [isPending, startTransition] = useTransition();
   const [searchState, setSearchState] = useQueryStates(collectionParsers, { shallow: false, startTransition });
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -71,11 +74,6 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
   const totalItems = initialData.totalItems;
   const facetGroups: FacetGroup[] = allFacetValues.length > 0 ? reduceFacets(allFacetValues, initialData.facetValues) : [];
   const totalPages = Math.ceil(totalItems / PER_PAGE);
-
-  const handlePageChange = (_: unknown, newPage: number) => {
-    setSearchState({ page: newPage > 1 ? newPage : null });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleSortChange = (value: string) => {
     setSearchState({ sort: value, page: null });
@@ -258,8 +256,16 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
               <Pagination
                 count={totalPages}
                 page={page}
-                onChange={handlePageChange}
                 color="primary"
+                renderItem={(item) => {
+                  const linkProps = item.disabled || item.page === null ? {} : { component: NextLink, href: buildCollectionPageHref(slug, item.page, paginationSearchParams) };
+                  return (
+                    <PaginationItem
+                      {...item}
+                      {...linkProps}
+                    />
+                  );
+                }}
               />
             </Box>
           )}
