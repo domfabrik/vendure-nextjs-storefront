@@ -31,10 +31,12 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run lint if present
-        run: npm run lint --if-present
-      - name: Run tests if present
-        run: npm test --if-present
+      - name: Run lint
+        run: npm run lint
+      - name: Run tests
+        run: npm test
+      - name: Run production SEO integration tests
+        run: npm run test:seo
 
   deploy:
     runs-on: ubuntu-latest
@@ -69,10 +71,14 @@ jobs:
             server_host="${PROD_SERVER_HOST}"
             deploy_env_file="${PROD_DEPLOY_ENV_FILE}"
             latest_tag="prod-latest"
+            metrika_id="110706774"
+            indexation_allow="true"
           else
             server_host="${TEST_SERVER_HOST}"
             deploy_env_file="${TEST_DEPLOY_ENV_FILE}"
             latest_tag="test-latest"
+            metrika_id="112305722"
+            indexation_allow="false"
           fi
 
           version="$(node -p "require('./package.json').version")"
@@ -85,6 +91,8 @@ jobs:
           echo "server_host=${server_host}" >> "$GITHUB_OUTPUT"
           echo "deploy_env_file=${deploy_env_file}" >> "$GITHUB_OUTPUT"
           echo "latest_tag=${latest_tag}" >> "$GITHUB_OUTPUT"
+          echo "metrika_id=${metrika_id}" >> "$GITHUB_OUTPUT"
+          echo "indexation_allow=${indexation_allow}" >> "$GITHUB_OUTPUT"
           echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
           echo "image_repo=${image_repo}" >> "$GITHUB_OUTPUT"
           echo "public_origin=${public_origin}" >> "$GITHUB_OUTPUT"
@@ -93,8 +101,10 @@ jobs:
         shell: bash
         run: |
           cat > .env.production <<EOF
-          API_URL=${{ steps.vars.outputs.public_origin }}/shop-api
           NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.public_origin }}
+          NEXT_PUBLIC_METRIKA_ID=${{ steps.vars.outputs.metrika_id }}
+          STOREFRONT_ORIGIN=${{ steps.vars.outputs.public_origin }}
+          INDEXATION_ALLOW=${{ steps.vars.outputs.indexation_allow }}
           EOF
 
       - name: Login to Yandex Container Registry
@@ -108,6 +118,7 @@ jobs:
           set -euo pipefail
           docker build \
             --pull \
+            --build-arg "BUILD_API_URL=${{ steps.vars.outputs.public_origin }}/shop-api" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.image_tag }}" \
             -t "${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.latest_tag }}" \
             .

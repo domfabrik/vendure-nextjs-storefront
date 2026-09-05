@@ -3,9 +3,10 @@ import type { Collection } from '@/shared/api';
 import { envServer, SITE_NAME } from '@/shared/config/index.server';
 import { stripHtml } from '@/shared/lib';
 
-export function generateCollectionMetadata(collection: Collection, slug: string): Metadata {
-  const title = `${collection.name} — купить в ${SITE_NAME} с доставкой`;
-  const canonical = `${envServer.SITE_URL}/collections/${slug}`;
+export function generateCollectionMetadata(collection: Collection, slug: string, page = 1, isCleanPagination = false): Metadata {
+  const baseTitle = `${collection.name} — купить в ${SITE_NAME} с доставкой`;
+  const title = isCleanPagination && page > 1 ? `${baseTitle} — страница ${page}` : baseTitle;
+  const canonical = `${envServer.SITE_URL}/collections/${slug}${isCleanPagination && page > 1 ? `?page=${page}` : ''}`;
 
   const description = collection.description
     ? stripHtml(collection.description).slice(0, 160)

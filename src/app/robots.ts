@@ -1,16 +1,17 @@
 import type { MetadataRoute } from 'next';
 
 import { envServer } from '@/shared/config/index.server';
+import { isIndexationAllowed, PRODUCTION_ORIGIN } from '@/shared/lib';
 
-const PRODUCTION_HOST = 'https://domfabrik.ru';
+export const dynamic = 'force-dynamic';
 
 export default function robots(): MetadataRoute.Robots {
-  const isProduction = Boolean(envServer.INDEXATION_ALLOW);
+  const allowIndexation = isIndexationAllowed(envServer.INDEXATION_ALLOW, envServer.STOREFRONT_ORIGIN);
 
-  if (isProduction) {
+  if (allowIndexation) {
     return {
       rules: { userAgent: '*', allow: '/' },
-      sitemap: `${PRODUCTION_HOST}/sitemap.xml`,
+      sitemap: `${PRODUCTION_ORIGIN}/sitemap.xml`,
     };
   }
 

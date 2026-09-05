@@ -1,6 +1,7 @@
 import { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  distDir: process.env.SEO_DIST_DIR || '.next',
   compress: false,
   output: 'standalone',
   poweredByHeader: false,

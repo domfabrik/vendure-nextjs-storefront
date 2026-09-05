@@ -12,11 +12,15 @@ FROM node:${NODE_VER}-bookworm-slim AS builder
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG BUILD_API_URL
+ENV API_URL=${BUILD_API_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN if [ -f .env.production ]; then sed -i '/^[[:space:]]*API_URL=/d' .env.production; fi \
+    && test -n "${BUILD_API_URL}" \
+    && npm run build
 
 FROM node:${NODE_VER}-bookworm-slim AS runner
 
@@ -30,7 +34,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.env.production ./
 
 EXPOSE 3001
 

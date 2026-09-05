@@ -10,6 +10,17 @@ interface Props {
 export function CollectionCard(props: Props) {
   const product = props.collection.products[0];
 
+  if (props.collection.unavailable) {
+    return (
+      <Card data-unavailable-collection={props.collection.slug}>
+        <CardContent>
+          <Typography component="h3">{props.collection.name}</Typography>
+          <Typography>Товары временно недоступны</Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!product) {
     return undefined;
   }

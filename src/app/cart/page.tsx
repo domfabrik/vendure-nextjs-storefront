@@ -4,6 +4,7 @@ import { CartPage } from './cart-page';
 
 export const metadata: Metadata = {
   title: `Корзина | ${SITE_NAME}`,
+  robots: { index: false, follow: true },
 };
 
 export default function Page() {

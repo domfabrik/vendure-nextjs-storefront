@@ -1,9 +1,9 @@
 'use server';
 
-import type { CollectionSlider, HomepageProduct, Product, SearchResult } from '@/shared/model';
+import type { CollectionSlider, HomepageCollection, HomepageProduct, Product, SearchResult } from '@/shared/model';
 
 import { apiClient } from '../api-client';
-import { getAllCollections, getProductsByCollection } from '../collections';
+import { getCollectionsWithProducts } from '../collections';
 import { GET_FEATURED_PRODUCTS, GET_PRODUCT_BY_SLUG, GET_PRODUCT_SLIDERS } from './queries';
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -16,15 +16,16 @@ export async function getFeaturedProducts(take = 4): Promise<SearchResult[]> {
   return data.search.items;
 }
 
-export async function getNewProducts(perCollection = 2): Promise<HomepageProduct[]> {
-  const collections = await getAllCollections();
-  const results = await Promise.all(collections.map((c) => getProductsByCollection(c.slug, perCollection)));
+export async function getNewProducts(perCollection = 2, collections?: HomepageCollection[]): Promise<HomepageProduct[]> {
+  const loaded = collections ?? (await getCollectionsWithProducts(perCollection));
   const seen = new Set<string>();
-  return results.flat().filter((p) => {
-    if (seen.has(p.slug)) return false;
-    seen.add(p.slug);
-    return true;
-  });
+  return loaded
+    .flatMap((collection) => collection.products.slice(0, perCollection))
+    .filter((p) => {
+      if (seen.has(p.slug)) return false;
+      seen.add(p.slug);
+      return true;
+    });
 }
 
 export async function getProductSliders(collectionSlugs: string[]): Promise<CollectionSlider[]> {
