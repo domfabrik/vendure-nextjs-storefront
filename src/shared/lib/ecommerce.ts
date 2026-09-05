@@ -1,3 +1,5 @@
+import { resolveMetrikaConfig } from './metrika-config';
+
 declare global {
   interface Window {
     dataLayer?: Record<string, unknown>[];
@@ -5,10 +7,13 @@ declare global {
   }
 }
 
-const TAG_ID = 110706774;
+function getMetrikaId(): number | null {
+  return resolveMetrikaConfig(window.location.hostname, process.env.NEXT_PUBLIC_METRIKA_ID)?.id ?? null;
+}
 
 export function reachGoal(target: string) {
-  window.ym?.(TAG_ID, 'reachGoal', target);
+  const id = getMetrikaId();
+  if (id && typeof window.ym === 'function') window.ym(id, 'reachGoal', target);
 }
 
 interface EcommerceProduct {
@@ -27,5 +32,5 @@ type EcommerceEvent =
   | { purchase: { actionField: { id: string }; products: EcommerceProduct[] } };
 
 export function pushEcommerceEvent(event: EcommerceEvent) {
-  window.dataLayer?.push({ ecommerce: event });
+  if (getMetrikaId() && Array.isArray(window.dataLayer)) window.dataLayer.push({ ecommerce: event });
 }

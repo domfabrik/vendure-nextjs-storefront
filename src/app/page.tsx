@@ -1,18 +1,23 @@
-'use server';
-
 import { Typography } from '@mui/material';
+import type { Metadata } from 'next';
 import { CollectionList } from '@/entities/collection';
 import { NewProducts } from '@/entities/product';
 import { LdScript } from '@/entities/site/index.server';
 import { VendorBanner } from '@/entities/vendor';
 import { getCollectionsWithProducts, getNewProducts } from '@/shared/api';
+import { envServer } from '@/shared/config/index.server';
+
+export const metadata: Metadata = {
+  alternates: { canonical: envServer.SITE_URL },
+};
 
 export default async function Page() {
-  const [collections, newProducts] = await Promise.all([getCollectionsWithProducts(6), getNewProducts(2)]);
+  const collections = await getCollectionsWithProducts(6);
+  const newProducts = await getNewProducts(2, collections);
 
   return (
     <>
-      <LdScript collections={collections} />
+      <LdScript collections={collections.filter((collection) => !collection.unavailable)} />
 
       <Typography
         component="h2"

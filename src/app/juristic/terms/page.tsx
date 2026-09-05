@@ -1,9 +1,11 @@
 import { Box, Link, Typography } from '@mui/material';
 import { Metadata } from 'next';
+import { envServer } from '@/shared/config/index.server';
 
 export const metadata: Metadata = {
   title: 'Условия использования сайта',
   description: 'Условия использования сайта интернет-магазина DomFabrik',
+  alternates: { canonical: `${envServer.SITE_URL}/juristic/terms` },
 };
 
 const sectionHeadingSx = { fontWeight: 600, mt: 4, mb: 1 } as const;

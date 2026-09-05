@@ -18,7 +18,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = await props.params;
   const product = await getProductBySlug(slug);
-  if (!product) return {};
+  if (!product) notFound();
 
   return generateProductMetadata(product);
 }
@@ -26,7 +26,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page(props: PageProps) {
   const { slug } = await props.params;
   const product = await getProductBySlug(slug);
-  if (!product) return notFound();
+  if (!product) notFound();
 
   const relatedCollectionSlug = product.collections.find((c) => c.slug !== 'all' && c.slug !== 'search')?.slug;
   const alsoBought = relatedCollectionSlug ? (await getProductsByCollection(relatedCollectionSlug, 12)).filter((p) => p.slug !== slug) : [];

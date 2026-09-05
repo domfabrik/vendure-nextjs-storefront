@@ -1,10 +1,12 @@
 'use server';
 
+import { cache } from 'react';
 import { arrayToTree, type RootNode } from '@/shared/lib';
 import type { Collection, CollectionTile, CollectionTileProductVariant, HomepageCollection, HomepageProduct, NavigationCollection } from '@/shared/model';
 
 import { apiClient } from '../api-client';
 import { GET_ALL_COLLECTIONS, GET_COLLECTION_BY_SLUG, GET_COLLECTION_PRODUCT_VARIANTS, SEARCH_COLLECTION_PRODUCTS } from './queries';
+import { CATALOG_REQUEST_TIMEOUT_MS, loadSecondaryCollections, reportCatalogFailure } from './ssr-budget';
 
 const COLLECTION_PAGE_SIZE = 100;
 
@@ -20,14 +22,27 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
   return data.collection;
 }
 
+// React cache is scoped to the server render, sharing the result with Header.
+const loadAllCollections = cache(async (): Promise<CollectionTile[]> => {
+  try {
+    const data = await apiClient.request<{ collections: { items: CollectionTile[] } }>({
+      document: GET_ALL_COLLECTIONS,
+      signal: AbortSignal.timeout(CATALOG_REQUEST_TIMEOUT_MS),
+    });
+    return data.collections.items;
+  } catch (error) {
+    reportCatalogFailure('GetAllCollections', null, error);
+    // Critical failure must keep HTTP 5xx, without leaking the GraphQL payload.
+    throw new Error('Catalogue unavailable');
+  }
+});
+
 export async function getAllCollections(): Promise<CollectionTile[]> {
-  const data = await apiClient.request<{ collections: { items: CollectionTile[] } }>(GET_ALL_COLLECTIONS);
-  return data.collections.items;
+  return loadAllCollections();
 }
 
 export async function getNavigationTree(): Promise<RootNode<NavigationCollection>> {
-  const tiles = await apiClient.request<{ collections: { items: CollectionTile[] } }>(GET_ALL_COLLECTIONS);
-  const collections = tiles.collections.items;
+  const collections = await getAllCollections();
 
   let enriched: NavigationCollection[];
   try {
@@ -82,13 +97,18 @@ export async function getProductsByCollection(collectionSlug: string, take?: num
 
 export async function getCollectionsWithProducts(take = 6): Promise<HomepageCollection[]> {
   const collections = await getAllCollections();
-  const results = await Promise.all(collections.map((c) => apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug: c.slug, take })));
+  const results = await loadSecondaryCollections(
+    collections,
+    (collection, signal) => apiClient.request<CollectionSearchResponse>({ document: SEARCH_COLLECTION_PRODUCTS, variables: { collectionSlug: collection.slug, take }, signal }),
+    (collection) => collection.slug,
+  );
   return collections
     .map((c, i) => ({
       name: c.name,
       slug: c.slug,
-      totalItems: results[i].search.totalItems,
-      products: results[i].search.items,
+      totalItems: results[i]?.search.totalItems ?? 0,
+      products: results[i]?.search.items ?? [],
+      unavailable: results[i] === null,
     }))
-    .filter((c) => c.products.length > 0);
+    .filter((c) => c.unavailable || c.products.length > 0);
 }

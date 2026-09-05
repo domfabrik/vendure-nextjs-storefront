@@ -36,10 +36,6 @@ export async function generateMetadata(): Promise<Metadata> {
       images: ['/images/logo.webp'],
     },
 
-    alternates: {
-      canonical: envServer.SITE_URL,
-    },
-
     icons: {
       icon: '/icons/favicon',
       apple: '/icons/apple-touch',

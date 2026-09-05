@@ -4,10 +4,12 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import { Box, Link, Typography } from '@mui/material';
 import { contacts } from '@routes';
 import { Metadata } from 'next';
+import { envServer } from '@/shared/config/index.server';
 
 export const metadata: Metadata = {
   title: 'Контакты',
   description: 'Контактная информация интернет-магазина DomFabrik — телефон, адрес, карта проезда',
+  alternates: { canonical: `${envServer.SITE_URL}/contacts` },
 };
 const YANDEX_MAP_SRC = 'https://yandex.ru/map-widget/v1/?um=constructor%3A__&source=constructor&ll=37.6173%2C54.1961&z=16&pt=37.6173%2C54.1961%2Cpm2rdm';
 

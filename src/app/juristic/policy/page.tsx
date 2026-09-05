@@ -1,10 +1,12 @@
 import { Box, Link, List, ListItem, ListItemText, Typography } from '@mui/material';
 import { contacts } from '@routes';
 import { Metadata } from 'next';
+import { envServer } from '@/shared/config/index.server';
 
 export const metadata: Metadata = {
   title: 'Политика конфиденциальности',
   description: 'Политика обработки персональных данных интернет-магазина DomFabrik',
+  alternates: { canonical: `${envServer.SITE_URL}/juristic/policy` },
 };
 
 const sectionHeadingSx = { fontWeight: 600, mt: 4, mb: 1 } as const;
