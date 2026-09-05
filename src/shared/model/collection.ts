@@ -62,6 +62,7 @@ export interface HomepageProduct {
 }
 
 export interface HomepageCollection {
+  unavailable?: boolean;
   name: string;
   slug: string;
   totalItems: number;

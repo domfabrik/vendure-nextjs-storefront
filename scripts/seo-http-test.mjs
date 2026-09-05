@@ -4,6 +4,24 @@ import { existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'n
 import { createServer, request as httpRequest } from 'node:http';
 import net from 'node:net';
 import { resolve } from 'node:path';
+import { homepageFixture } from './homepage-ssr-cases.mjs';
+
+const homepage = homepageFixture(tileProduct);
+const mockErrors = [];
+
+function serveApi(recordRequest) {
+  return (request, response) => {
+    handleApiRequest(request, response, recordRequest).catch((error) => {
+      mockErrors.push(error);
+      response.destroy();
+    });
+  };
+}
+
+async function closeMock(server) {
+  server.closeAllConnections();
+  await new Promise((resolve) => server.close(resolve));
+}
 
 let searchRequestCount = 0;
 let primaryApiRequestCount = 0;
@@ -27,6 +45,7 @@ async function handleApiRequest(request, response, recordRequest) {
   const payload = JSON.parse(body);
   const variables = payload.variables ?? {};
   const query = payload.query ?? '';
+  if (await homepage.handle(query, variables, response, request)) return;
 
   if (variables.slug === 'api-error' || variables.collectionSlug === 'api-error') {
     response.writeHead(500).end('mock backend failure');
@@ -62,8 +81,8 @@ async function handleApiRequest(request, response, recordRequest) {
   response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ data }));
 }
 
-const api = createServer((request, response) =>
-  handleApiRequest(request, response, () => {
+const api = createServer(
+  serveApi(() => {
     primaryApiRequestCount += 1;
   }),
 );
@@ -180,8 +199,8 @@ const buildApiFallbackTrap = createServer((request, response) => {
   response.writeHead(502).end('baked build API fallback trap');
 });
 let alternateApiRequestCount = 0;
-const alternateApi = createServer((request, response) =>
-  handleApiRequest(request, response, () => {
+const alternateApi = createServer(
+  serveApi(() => {
     alternateApiRequestCount += 1;
   }),
 );
@@ -219,16 +238,26 @@ const env = {
   SEO_DIST_DIR: distDir,
 };
 let next;
+let nextLogs = '';
+function assertStandaloneEnvRemoved(buildDistPath) {
+  assert.equal(existsSync(resolve(buildDistPath, 'standalone', '.env.production')), false, 'TC-A1 standalone artifact must not retain .env.production');
+  assert.equal(existsSync(resolve(buildDistPath, 'standalone', '.env')), false, 'TC-A1 standalone artifact must not retain .env');
+}
+
 async function stripAndAssertStandaloneEnv(buildDistPath, buildEnv) {
   const copiedProductionEnv = resolve(buildDistPath, 'standalone', '.env.production');
   assert.equal(existsSync(copiedProductionEnv), true, 'TC-A1 Next 16 test fixture must demonstrate the copied build dotenv');
   await run(process.execPath, ['scripts/strip-standalone-env.mjs'], buildEnv);
-  assert.equal(existsSync(copiedProductionEnv), false, 'TC-A1 standalone artifact must not retain .env.production');
-  assert.equal(existsSync(resolve(buildDistPath, 'standalone', '.env')), false, 'TC-A1 standalone artifact must not retain .env');
+  assertStandaloneEnvRemoved(buildDistPath);
 }
 
 async function startNext(runtimeEnv, port = sitePort) {
-  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(port)], { env: runtimeEnv, stdio: 'inherit' });
+  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', String(port)], { env: runtimeEnv, stdio: ['ignore', 'pipe', 'pipe'] });
+  for (const stream of [next.stdout, next.stderr])
+    stream.on('data', (chunk) => {
+      nextLogs += chunk.toString();
+      process.stdout.write(chunk);
+    });
   await waitFor(`http://127.0.0.1:${port}/robots.txt`);
 }
 
@@ -241,10 +270,25 @@ async function stopNext() {
   next = undefined;
 }
 try {
-  await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
-  await stripAndAssertStandaloneEnv(distPath, env);
+  // npm and Yarn both run the full package lifecycle, including postbuild.
+  // The second, raw Next build separately proves dotenv copying and stripping.
+  if (process.env.npm_execpath) {
+    await run(process.execPath, [process.env.npm_execpath, 'run', 'build'], env);
+    assertStandaloneEnvRemoved(distPath);
+  } else {
+    await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+    await stripAndAssertStandaloneEnv(distPath, env);
+  }
   const allowedRuntimeEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru', INDEXATION_ALLOW: 'true' };
   await startNext(allowedRuntimeEnv);
+  await homepage.verify(`http://127.0.0.1:${sitePort}`, () => nextLogs);
+  assert.deepEqual(mockErrors, [], 'SSR mock protocol assertions passed');
+
+  const sitemapResponse = await fetch(`http://127.0.0.1:${sitePort}/sitemap.xml`);
+  assert.equal(sitemapResponse.status, 200, 'TC-005 sitemap HTTP status is preserved');
+  const sitemapXml = await sitemapResponse.text();
+  assert.ok(sitemapXml.includes(`<loc>http://127.0.0.1:${sitePort}/collections/chairs</loc>`), 'TC-005 sitemap keeps canonical collection URL');
+  assert.ok(sitemapXml.includes(`<loc>http://127.0.0.1:${sitePort}/products/test-chair-1</loc>`), 'TC-005 sitemap keeps canonical product URL');
 
   const allowedRobots = await (await fetch(`http://127.0.0.1:${sitePort}/robots.txt`)).text();
   assert.match(allowedRobots, /^User-Agent: \*$/im, 'TC-R1 exact true and production origin must render a wildcard rule');
@@ -479,11 +523,13 @@ try {
 
   rmSync(distPath, { recursive: true, force: true });
   const prodDistDir = `.next-seo-http-${process.pid}-prod`;
-  prodDistPath = resolve(workspaceRoot, prodDistDir);
+  const candidateProdDistPath = resolve(workspaceRoot, prodDistDir);
   assert.equal(existsSync(prodDistDir), false, `${prodDistDir} already exists; refusing to reuse another test run's output`);
   const pathSeparator = process.platform === 'win32' ? '\\' : '/';
   const safeDistPrefix = `${workspaceRoot}${pathSeparator}.next-seo-http-`;
-  assert.equal(prodDistPath.startsWith(safeDistPrefix), true, `unsafe test dist path: ${prodDistPath}`);
+  assert.equal(candidateProdDistPath.startsWith(safeDistPrefix), true, `unsafe test dist path: ${candidateProdDistPath}`);
+  // Claim ownership only after validation; finally must never remove a collision.
+  prodDistPath = candidateProdDistPath;
   const prodSitePort = await freePort();
   env.API_URL = `http://127.0.0.1:${alternateApiPort}/shop-api`;
   env.NEXT_PUBLIC_METRIKA_ID = '110706774';
@@ -497,13 +543,14 @@ try {
   assert.match(prodHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=110706774/, 'production build must render production Metrika script');
   assert.match(prodHtml, /mc\.yandex\.ru\/watch\/110706774/, 'production build must render production Metrika noscript');
   console.log('SEO HTTP integration checks passed');
+  assert.deepEqual(mockErrors, [], 'all API mock protocol assertions passed');
 } finally {
   await stopNext();
-  if (!primaryApiClosed) await new Promise((resolve) => api.close(resolve));
-  if (buildApiFallbackTrapListening) await new Promise((resolve) => buildApiFallbackTrap.close(resolve));
-  await new Promise((resolve) => alternateApi.close(resolve));
-  await new Promise((resolve) => publicApiTrap.close(resolve));
-  await new Promise((resolve) => slowApi.close(resolve));
+  if (!primaryApiClosed) await closeMock(api);
+  if (buildApiFallbackTrapListening) await closeMock(buildApiFallbackTrap);
+  await closeMock(alternateApi);
+  await closeMock(publicApiTrap);
+  await closeMock(slowApi);
   rmSync(distPath, { recursive: true, force: true });
   if (prodDistPath) rmSync(prodDistPath, { recursive: true, force: true });
   writeFileSync(tsconfigPath, tsconfigBeforeBuild);

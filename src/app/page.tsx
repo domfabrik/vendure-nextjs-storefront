@@ -12,11 +12,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [collections, newProducts] = await Promise.all([getCollectionsWithProducts(6), getNewProducts(2)]);
+  const collections = await getCollectionsWithProducts(6);
+  const newProducts = await getNewProducts(2, collections);
 
   return (
     <>
-      <LdScript collections={collections} />
+      <LdScript collections={collections.filter((collection) => !collection.unavailable)} />
 
       <Typography
         component="h2"
