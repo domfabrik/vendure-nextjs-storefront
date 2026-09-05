@@ -69,12 +69,15 @@ async function handleApiRequest(request, response, recordRequest) {
       response.writeHead(400).end('GraphQL Int overflow');
       return;
     }
-    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1 };
+    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1, 'structured-catalog': 4 };
     const totalItems = input.collectionSlug ? (collectionSizes[input.collectionSlug] ?? 1) : 1;
     const skip = input.skip ?? 0;
     const take = input.take ?? totalItems;
     const itemCount = Math.max(0, Math.min(take, totalItems - skip));
-    const items = Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
+    const items =
+      input.collectionSlug === 'structured-catalog'
+        ? structuredCatalogProducts().slice(skip, skip + itemCount)
+        : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
     data = { search: { totalItems, items, facetValues: [] } };
   } else {
     data = { search: { totalItems: 0, items: [], facetValues: [] } };
@@ -106,8 +109,17 @@ function tileProduct(index = 1) {
   };
 }
 
+function structuredCatalogProducts() {
+  return [
+    { ...tileProduct(1), productName: 'Нулевая цена', slug: 'zero-price', priceWithTax: { __typename: 'SinglePrice', value: 0 } },
+    { ...tileProduct(2), productName: 'Невалидная цена', slug: 'invalid-price', priceWithTax: { __typename: 'SinglePrice', value: null } },
+    { ...tileProduct(3), productName: 'Неподдерживаемая валюта', slug: 'unsupported-currency', currencyCode: 'USD' },
+    { ...tileProduct(4), productName: 'Невалидный диапазон', slug: 'invalid-range', priceWithTax: { __typename: 'PriceRange', min: 2000, max: 1000 } },
+  ];
+}
+
 function product(slug) {
-  return {
+  const baseProduct = {
     id: 'product-1',
     slug,
     name: 'Тестовый стул',
@@ -133,6 +145,74 @@ function product(slug) {
       },
     ],
   };
+  if (slug === 'structured-edge') {
+    return {
+      ...baseProduct,
+      name: 'Стул </script><script id="jsonld-injected">alert(1)</script> ☃',
+      description: '<p>Ткань &amp; дерево &#9731;</p>',
+      customFields: { vendorName: '   ' },
+      optionGroups: [
+        {
+          id: 'finish',
+          code: 'finish',
+          name: 'Отделка',
+          options: [
+            { id: 'light', code: 'light', name: 'Светлая' },
+            { id: 'dark', code: 'dark', name: 'Тёмная' },
+          ],
+        },
+      ],
+      variants: [
+        {
+          ...baseProduct.variants[0],
+          id: 'variant-low',
+          name: 'Светлая',
+          sku: 'EDGE-LOW',
+          priceWithTax: 1050,
+          basePriceWithTax: 1200,
+          stockLevel: 'LOW_STOCK',
+          options: [{ id: 'light', groupId: 'finish', code: 'light', name: 'Светлая' }],
+          customFields: { discountPercent: 12.5 },
+        },
+        {
+          ...baseProduct.variants[0],
+          id: 'variant-unknown',
+          name: 'Тёмная',
+          sku: 'EDGE-UNKNOWN',
+          priceWithTax: 2000,
+          basePriceWithTax: 2000,
+          stockLevel: 'NOT_TRACKED',
+          options: [{ id: 'dark', groupId: 'finish', code: 'dark', name: 'Тёмная' }],
+        },
+        { ...baseProduct.variants[0], id: 'variant-invalid', sku: 'EDGE-INVALID', priceWithTax: null, stockLevel: 'IN_STOCK' },
+      ],
+    };
+  }
+  if (slug === 'structured-unknown') {
+    return {
+      ...baseProduct,
+      name: 'Товар с неизвестным остатком',
+      customFields: { vendorName: 'Known & Brand' },
+      variants: [{ ...baseProduct.variants[0], priceWithTax: 0, basePriceWithTax: 0, stockLevel: 'UNKNOWN' }],
+    };
+  }
+  if (slug === 'structured-empty') return { ...baseProduct, name: 'Товар без вариантов', variants: [] };
+  if (slug === 'structured-currency') {
+    return {
+      ...baseProduct,
+      name: 'Товар с неподдерживаемой валютой',
+      variants: [{ ...baseProduct.variants[0], currencyCode: 'USD', priceWithTax: 1050, basePriceWithTax: 1050, stockLevel: 'IN_STOCK' }],
+    };
+  }
+  if (slug === 'structured-out') {
+    return {
+      ...baseProduct,
+      name: 'Товар не в наличии',
+      customFields: { vendorName: 'Actual Brand' },
+      variants: [{ ...baseProduct.variants[0], priceWithTax: 10099, basePriceWithTax: 10099, stockLevel: 'OUT_OF_STOCK' }],
+    };
+  }
+  return baseProduct;
 }
 
 async function waitFor(url) {
@@ -173,6 +253,13 @@ function assertSingleCanonical(html, expected, label) {
   const href = canonicals[0][0].match(/href="([^"]+)"/)?.[1];
   assert.ok(href, `${label}: canonical has no href`);
   assert.equal(new URL(href).href, new URL(expected, `http://127.0.0.1:${sitePort}`).href, `${label}: wrong canonical`);
+}
+
+function jsonLdByType(html, type) {
+  const values = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+  const value = values.find((entry) => entry?.['@type'] === type);
+  assert.ok(value, `missing ${type} JSON-LD`);
+  return value;
 }
 
 function decodeHtmlAttribute(value) {
@@ -452,6 +539,68 @@ try {
     assert.match(productHtml, /"@type":"Product"/, `${userAgent} valid product JSON-LD`);
     assert.match(productHtml, /"lowPrice":10/, `${userAgent} valid product price`);
     assert.doesNotMatch(productHtml, /name="robots"[^>]+content="[^"]*noindex/i, `${userAgent} TC-R4 production product must not receive global noindex`);
+
+    const edgeHtml = await (await get('/products/structured-edge')).text();
+    const edgeProduct = jsonLdByType(edgeHtml, 'Product');
+    assert.equal(edgeProduct.brand, undefined, `${userAgent} TC-1 blank brand is omitted`);
+    assert.equal(edgeProduct.description, 'Ткань & дерево ☃', `${userAgent} TC-4 product description entities match visible text`);
+    assert.equal(edgeProduct.offers['@type'], 'AggregateOffer', `${userAgent} TC-3 valid variants use an aggregate`);
+    assert.equal(edgeProduct.offers.lowPrice, 10.5, `${userAgent} TC-3 default variant price is exact`);
+    assert.equal(edgeProduct.offers.highPrice, 20, `${userAgent} TC-3 aggregate price excludes malformed variants`);
+    assert.equal(edgeProduct.offers.offerCount, 2, `${userAgent} TC-3 offer count includes only valid price/currency variants`);
+    assert.equal(edgeProduct.offers.url, `http://127.0.0.1:${sitePort}/products/structured-edge`, `${userAgent} TC-3 aggregate uses canonical product URL`);
+    assert.equal(edgeProduct.offers.offers[0].price, 10.5, `${userAgent} TC-3 first structured offer matches visible default variant`);
+    assert.equal(edgeProduct.offers.offers[0].url, edgeProduct.offers.url, `${userAgent} TC-3 selected/default offer uses the canonical URL`);
+    assert.equal(edgeProduct.offers.offers[0].availability, 'https://schema.org/InStock', `${userAgent} TC-2 LOW_STOCK remains available`);
+    assert.equal(edgeProduct.offers.offers[1].availability, undefined, `${userAgent} TC-2 unknown variant stock remains unknown`);
+    assert.doesNotMatch(edgeHtml, /<script id="jsonld-injected">|BackOrder|NaN|Infinity/, `${userAgent} TC-2/3/4 JSON-LD has no executable payload or fabricated/invalid values`);
+    assert.match(edgeHtml, /10,5/, `${userAgent} TC-3 visible default price matches JSON-LD`);
+    assert.match(edgeHtml, /Осталось мало товара/, `${userAgent} TC-2 LOW_STOCK enum does not fabricate a numeric quantity`);
+    assert.match(edgeHtml, />В корзину<\//, `${userAgent} TC-2 known available default remains purchasable`);
+    assert.match(edgeHtml, /tabindex="0"[^>]*role="button"|role="button"[^>]*tabindex="0"/, `${userAgent} TC-2 variant choice stays keyboard accessible`);
+
+    const unknownHtml = await (await get('/products/structured-unknown')).text();
+    const unknownProduct = jsonLdByType(unknownHtml, 'Product');
+    assert.equal(unknownProduct.brand.name, 'Known & Brand', `${userAgent} TC-1 known brand is preserved`);
+    assert.equal(unknownProduct.offers.lowPrice, 0, `${userAgent} TC-3 zero price remains a valid offer`);
+    assert.equal(unknownProduct.offers.availability, undefined, `${userAgent} TC-2 aggregate unknown availability is omitted`);
+    assert.equal(unknownProduct.offers.offers[0].availability, undefined, `${userAgent} TC-2 offer unknown availability is omitted`);
+    assert.match(unknownHtml, /Наличие уточняется/, `${userAgent} TC-2 unknown stock has a neutral visible state`);
+    assert.doesNotMatch(unknownHtml, />В корзину<\//, `${userAgent} TC-2 unknown stock cannot be submitted as known available`);
+
+    const emptyProductHtml = await (await get('/products/structured-empty')).text();
+    const emptyProduct = jsonLdByType(emptyProductHtml, 'Product');
+    assert.equal(emptyProduct.offers, undefined, `${userAgent} TC-3 variantless product omits offers`);
+    assert.doesNotMatch(emptyProductHtml, /NaN|Infinity|BackOrder/, `${userAgent} TC-2/3 variantless product contains no invalid or fabricated values`);
+
+    const unsupportedCurrencyHtml = await (await get('/products/structured-currency')).text();
+    const unsupportedCurrencyProduct = jsonLdByType(unsupportedCurrencyHtml, 'Product');
+    assert.equal(unsupportedCurrencyProduct.offers, undefined, `${userAgent} TC-3 unsupported non-RUB PDP currency omits offers`);
+    assert.match(unsupportedCurrencyHtml, /Цена уточняется/, `${userAgent} TC-3 unsupported non-RUB PDP currency has a neutral visible price`);
+    assert.doesNotMatch(unsupportedCurrencyHtml, />В корзину<\//, `${userAgent} TC-3 unsupported non-RUB PDP currency cannot enter the RUB-only cart`);
+
+    const outHtml = await (await get('/products/structured-out')).text();
+    const outProduct = jsonLdByType(outHtml, 'Product');
+    assert.equal(outProduct.brand.name, 'Actual Brand', `${userAgent} TC-1 actual brand remains unchanged`);
+    assert.equal(outProduct.offers.lowPrice, 100.99, `${userAgent} TC-3 fractional ruble price is exact`);
+    assert.equal(outProduct.offers.availability, 'https://schema.org/OutOfStock', `${userAgent} TC-2 known out-of-stock aggregate is explicit`);
+    assert.match(outHtml, /100,99/, `${userAgent} TC-3 visible fractional price matches JSON-LD`);
+    assert.match(outHtml, /Нет в наличии/, `${userAgent} TC-2 known out-of-stock visible state matches JSON-LD`);
+
+    const structuredCollectionHtml = await (await get('/collections/structured-catalog')).text();
+    const structuredItemList = jsonLdByType(structuredCollectionHtml, 'ItemList');
+    assert.equal(structuredItemList.itemListElement[0].item.offers.price, 0, `${userAgent} TC-3 catalog preserves a real zero price`);
+    assert.equal(structuredItemList.itemListElement[0].item.offers.availability, undefined, `${userAgent} TC-2 search result without stock omits availability`);
+    assert.equal(structuredItemList.itemListElement[1].item, undefined, `${userAgent} TC-3 catalog omits an invalid price offer`);
+    assert.equal(structuredItemList.itemListElement[2].item, undefined, `${userAgent} TC-3 catalog omits an unsupported non-RUB currency offer`);
+    assert.equal(structuredItemList.itemListElement[3].item, undefined, `${userAgent} TC-3 catalog omits a reversed price range offer`);
+    assert.match(structuredCollectionHtml, /Невалидный диапазон/, `${userAgent} TC-3 malformed range product remains visible with a neutral price state`);
+    assert.match(structuredCollectionHtml, /href="\/products\/invalid-range"[\s\S]*?<button[^>]*disabled/, `${userAgent} TC-3 malformed range cannot enter the cart`);
+    assert.doesNotMatch(
+      structuredCollectionHtml,
+      /schema\.org\/(?:InStock|OutOfStock|BackOrder)|NaN|Infinity/,
+      `${userAgent} TC-2/3 catalog does not invent unavailable search stock or invalid values`,
+    );
     for (const path of ['/products/missing', '/collections/missing', '/products/api-error', '/collections/api-error']) {
       const html = await (await get(path)).text();
       assert.equal([...html.matchAll(/<link[^>]+rel="canonical"[^>]+>/g)].length, 0, `${userAgent} error URL must not have canonical`);

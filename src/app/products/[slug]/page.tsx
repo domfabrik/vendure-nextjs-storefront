@@ -10,6 +10,7 @@ import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } fr
 import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
+import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/shared/lib';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -36,16 +37,19 @@ export default async function Page(props: PageProps) {
 
   const productJsonLd = buildProductJsonLd(product, envServer.SITE_URL);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product, envServer.SITE_URL);
+  const initialVariant = product.variants[0];
+  const initialPrice = normalizeMinorPrice(initialVariant?.priceWithTax);
+  const initialCurrency = normalizeCurrencyCode(initialVariant?.currencyCode);
 
   return (
     <Box>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <Breadcrumbs sx={{ mb: 2 }}>
         <NextLink href={routes.home()}>Главная</NextLink>
@@ -53,13 +57,15 @@ export default async function Page(props: PageProps) {
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
 
-      <ProductDetailEvent
-        id={product.id}
-        name={product.name}
-        price={product.variants[0]?.priceWithTax ?? 0}
-        category={collection?.name}
-        variant={product.variants[0]?.name}
-      />
+      {initialPrice !== undefined && initialCurrency === 'RUB' && (
+        <ProductDetailEvent
+          id={product.id}
+          name={product.name}
+          price={initialPrice}
+          category={collection?.name}
+          variant={initialVariant?.name}
+        />
+      )}
       <ProductDetails product={product} />
 
       {/* Also bought */}
