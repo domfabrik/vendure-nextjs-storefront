@@ -47,6 +47,7 @@ function reduceFacets(allFacetValues: SearchFacetValue[], filteredFacetValues: S
 }
 
 const sortOptions = [
+  { label: 'По релевантности', value: 'relevance' },
   { label: 'По названию А-Я', value: 'name-ASC' },
   { label: 'По названию Я-А', value: 'name-DESC' },
   { label: 'Сначала дешёвые', value: 'price-ASC' },
@@ -56,14 +57,17 @@ const sortOptions = [
 interface SearchPageProps {
   initialData: SearchResponse | null;
   allFacetValues: SearchFacetValue[];
+  defaultSortIsRelevance: boolean;
 }
 
-export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
+export function SearchPage({ initialData, allFacetValues, defaultSortIsRelevance }: SearchPageProps) {
   const [isPending, startTransition] = useTransition();
   const [searchState, setSearchState] = useQueryStates(searchParsers, { shallow: false, startTransition });
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { q, page, sort, filters } = searchState;
+  const displaySort = defaultSortIsRelevance ? 'relevance' : sort;
+  const visibleSortOptions = q.trim().length > 0 ? sortOptions : sortOptions.filter((option) => option.value !== 'relevance');
 
   const products: SearchResult[] = initialData?.items ?? [];
   const totalItems = initialData?.totalItems ?? 0;
@@ -182,11 +186,11 @@ export function SearchPage({ initialData, allFacetValues }: SearchPageProps) {
         </Button>
         <Select
           size="small"
-          value={sort}
+          value={displaySort}
           onChange={(e) => handleSortChange(e.target.value)}
           sx={{ minWidth: 200 }}
         >
-          {sortOptions.map((opt) => (
+          {visibleSortOptions.map((opt) => (
             <MenuItem
               key={opt.value}
               value={opt.value}
