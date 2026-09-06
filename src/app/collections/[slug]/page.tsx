@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generateCollectionMetadata } from '@/entities/collection/index.server';
 import { getCollectionBySlug, searchProducts } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
+import { serializeJsonLd } from '@/shared/lib';
 import { CollectionPage } from './collection-page';
 import { buildCollectionPageHref, collectionParamsCache, PER_PAGE, parseCollectionPage, sortMap, withoutPage } from './collection-params';
 
@@ -70,12 +71,12 @@ export default async function Page(props: PageProps) {
       {breadcrumbJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
         />
       )}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemListJsonLd) }}
       />
     </>
   );

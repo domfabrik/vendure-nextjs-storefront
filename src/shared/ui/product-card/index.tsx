@@ -4,27 +4,31 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Card, CardContent, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
-import { priceFormatter } from '@/shared/lib';
+import { normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
 import type { HomepageProduct, HomepageProductPrice } from '@/shared/model';
 import { useCartStore } from '@/shared/store/cart';
 
-function getPrice(price: HomepageProductPrice): number {
-  if (price.__typename === 'SinglePrice') return price.value ?? 0;
-  return price.min ?? 0;
+function getPrice(price: HomepageProductPrice): number | undefined {
+  if (price.__typename === 'SinglePrice') return normalizeMinorPrice(price.value);
+  const min = normalizeMinorPrice(price.min);
+  const max = normalizeMinorPrice(price.max);
+  return min === undefined || max === undefined || min > max ? undefined : min;
 }
 
-function formatPrice(price: HomepageProductPrice): string {
+function formatPrice(price: HomepageProductPrice, currency: 'RUB'): string | undefined {
   if (price.__typename === 'SinglePrice') {
-    return priceFormatter(price.value ?? 0);
+    const value = normalizeMinorPrice(price.value);
+    return value === undefined ? undefined : priceFormatter(value, currency);
   }
-  const min = price.min ?? 0;
-  const max = price.max ?? 0;
-  if (min === max) return priceFormatter(min);
-  return `${priceFormatter(min)} – ${priceFormatter(max)}`;
+  const min = normalizeMinorPrice(price.min);
+  const max = normalizeMinorPrice(price.max);
+  if (min === undefined || max === undefined || min > max) return undefined;
+  if (min === max) return priceFormatter(min, currency);
+  return `${priceFormatter(min, currency)} – ${priceFormatter(max, currency)}`;
 }
 
 function hasDiscount(product: HomepageProduct): boolean {
-  return product.discountPercent > 0;
+  return Number.isFinite(product.discountPercent) && product.discountPercent > 0;
 }
 
 interface ProductCardProps {
@@ -36,6 +40,11 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const image = product.productAsset?.preview;
   const href = routes.product(product.slug);
+  const currency = normalizeCurrencyCode(product.currencyCode);
+  const price = getPrice(product.priceWithTax);
+  const formattedPrice = currency ? formatPrice(product.priceWithTax, currency) : undefined;
+  const formattedBasePrice = currency ? formatPrice(product.basePriceWithTax, currency) : undefined;
+  const showDiscount = hasDiscount(product) && Boolean(formattedBasePrice);
 
   return (
     <NextLink href={href}>
@@ -74,18 +83,18 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
               color="textPrimary"
               sx={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.3 }}
             >
-              {formatPrice(product.priceWithTax)}
+              {formattedPrice ?? 'Цена уточняется'}
             </Typography>
-            {hasDiscount(product) && (
+            {showDiscount && formattedBasePrice && (
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ fontSize: '12px', textDecoration: 'line-through', lineHeight: 1.2 }}
               >
-                {formatPrice(product.basePriceWithTax)}
+                {formattedBasePrice}
               </Typography>
             )}
-            {hasDiscount(product) && (
+            {showDiscount && (
               <Typography
                 variant="body2"
                 sx={{
@@ -118,14 +127,16 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
             <IconButton
               color="primary"
               aria-label="Добавить в корзину"
+              disabled={price === undefined || !currency || !formattedPrice}
               onClick={(e) => {
                 e.preventDefault();
+                if (price === undefined || !currency || !formattedPrice) return;
                 addToCart({
                   productVariantId: product.productVariantId,
                   productName: product.productName,
                   variantName: product.productName,
                   slug: product.slug,
-                  price: getPrice(product.priceWithTax),
+                  price,
                   image: product.productAsset?.preview ?? null,
                 });
               }}

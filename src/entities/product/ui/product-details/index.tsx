@@ -3,7 +3,7 @@
 import { Box, Chip, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
-import { priceFormatter } from '@/shared/lib';
+import { normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
 import { AddToCartButton } from '@/shared/ui/add-to-cart-button';
 import { ProductCharacteristics } from './product-characteristics';
 import { ProductGallery } from './product-gallery';
@@ -44,9 +44,12 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const images = useMemo(() => getImagesForVariant(product, variant), [product, variant]);
 
-  const inStock = variant ? Number(variant.stockLevel) > 0 : false;
-  const lowStock = inStock && Number(variant?.stockLevel || 0) <= 10;
-  const hasDiscount = (variant?.customFields.discountPercent ?? 0) > 0;
+  const stock = normalizeCatalogStock(variant?.stockLevel);
+  const price = normalizeMinorPrice(variant?.priceWithTax);
+  const basePrice = normalizeMinorPrice(variant?.basePriceWithTax);
+  const currency = normalizeCurrencyCode(variant?.currencyCode);
+  const discountPercent = variant?.customFields.discountPercent;
+  const hasDiscount = typeof discountPercent === 'number' && Number.isFinite(discountPercent) && discountPercent > 0 && basePrice !== undefined;
   const featuredImage = variant?.featuredAsset ?? product.featuredAsset;
 
   const handleOptionClick = (groupId: string, optionId: string) => {
@@ -64,7 +67,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           if (!relatedVariant) return null;
           return {
             ...option,
-            stockLevel: Number(relatedVariant.stockLevel),
+            stock: normalizeCatalogStock(relatedVariant.stockLevel),
             isSelected: selectedOptions[group.id] === option.id,
           };
         })
@@ -72,7 +75,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         name: string;
         id: string;
         code: string;
-        stockLevel: number;
+        stock: ReturnType<typeof normalizeCatalogStock>;
         isSelected: boolean;
       }>,
     }));
@@ -104,79 +107,93 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           {product.name}
         </Typography>
 
-        {variant && (
+        {variant && price !== undefined && currency ? (
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <Typography
                 variant="h5"
                 sx={{ fontWeight: 700, lineHeight: 1.2 }}
               >
-                {priceFormatter(variant.priceWithTax)}
+                {priceFormatter(price, currency)}
               </Typography>
-              {hasDiscount && (
+              {hasDiscount && basePrice !== undefined && (
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ textDecoration: 'line-through', lineHeight: 1.2 }}
                 >
-                  {priceFormatter(variant.basePriceWithTax)}
+                  {priceFormatter(basePrice, currency)}
                 </Typography>
               )}
             </Box>
             {hasDiscount && (
               <Chip
-                label={`-${variant.customFields.discountPercent}%`}
+                label={`-${discountPercent}%`}
                 color="error"
                 size="small"
                 sx={{ fontWeight: 700 }}
               />
             )}
           </Box>
-        )}
+        ) : variant ? (
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 2 }}
+          >
+            Цена уточняется
+          </Typography>
+        ) : null}
 
         {/* Stock */}
         <Box sx={{ mb: 3 }}>
           {!variant ? (
             <Chip
-              label="Скоро в продаже"
+              label="Нет доступных вариантов"
               color="default"
               size="small"
             />
-          ) : inStock ? (
+          ) : stock.purchasable ? (
             <>
               <Chip
                 label="В наличии"
                 color="success"
                 size="small"
               />
-              {lowStock && (
+              {stock.kind === 'low-stock' && (
                 <Typography
                   variant="body2"
                   color="error"
                   sx={{ mt: 1 }}
                 >
-                  Торопитесь, осталось всего {variant.stockLevel} шт.!
+                  {stock.quantity === undefined ? 'Осталось мало товара' : `Торопитесь, осталось всего ${stock.quantity} шт.!`}
                 </Typography>
               )}
             </>
-          ) : (
+          ) : stock.kind === 'out-of-stock' ? (
             <Chip
               label="Нет в наличии"
               color="error"
+              size="small"
+            />
+          ) : (
+            <Chip
+              label="Наличие уточняется"
+              color="default"
               size="small"
             />
           )}
         </Box>
 
         {/* Add to cart */}
-        {variant && inStock && (
+        {variant && stock.purchasable && price !== undefined && currency && (
           <Box sx={{ mb: 3 }}>
             <AddToCartButton
               variantId={variant.id}
               productName={product.name}
               variantName={variant.name}
               slug={product.slug}
-              price={variant.priceWithTax}
+              price={price}
               image={featuredImage?.preview ?? null}
             />
           </Box>
@@ -208,8 +225,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                       onClick={() => handleOptionClick(group.id, option.id)}
                       sx={{
                         cursor: 'pointer',
-                        opacity: option.stockLevel > 0 ? 1 : 0.5,
-                        textDecoration: option.stockLevel > 0 ? 'none' : 'line-through',
+                        opacity: option.stock.kind === 'out-of-stock' ? 0.5 : 1,
+                        textDecoration: option.stock.kind === 'out-of-stock' ? 'line-through' : 'none',
                       }}
                     />
                   ))}

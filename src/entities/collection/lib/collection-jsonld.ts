@@ -1,4 +1,5 @@
 import type { Collection, HomepageProduct } from '@/shared/api';
+import { normalizeCurrencyCode, normalizeMinorPrice } from '@/shared/lib';
 
 export function buildCollectionBreadcrumbJsonLd(collection: Collection, siteUrl: string, slug: string) {
   const items: { name: string; url?: string }[] = [{ name: 'Главная', url: `${siteUrl}/` }];
@@ -21,35 +22,45 @@ export function buildCollectionBreadcrumbJsonLd(collection: Collection, siteUrl:
   };
 }
 
-function getMinPrice(product: HomepageProduct): number {
+function getMinPrice(product: HomepageProduct): number | undefined {
   const p = product.priceWithTax;
-  if (p.__typename === 'SinglePrice') return (p.value ?? 0) / 100;
-  return (p.min ?? 0) / 100;
+  if (p.__typename === 'SinglePrice') {
+    const minorPrice = normalizeMinorPrice(p.value);
+    return minorPrice === undefined ? undefined : minorPrice / 100;
+  }
+  const min = normalizeMinorPrice(p.min);
+  const max = normalizeMinorPrice(p.max);
+  return min === undefined || max === undefined || min > max ? undefined : min / 100;
 }
 
 export function buildCollectionItemListJsonLd(products: HomepageProduct[], siteUrl: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    itemListElement: products.slice(0, 30).map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      url: `${siteUrl}/products/${product.slug}`,
-      name: product.productName,
-      image: product.productAsset?.preview,
-      ...(getMinPrice(product) > 0 && {
-        item: {
-          '@type': 'Product',
-          name: product.productName,
-          image: product.productAsset?.preview,
-          offers: {
-            '@type': 'Offer',
-            price: getMinPrice(product),
-            priceCurrency: 'RUB',
-            availability: 'https://schema.org/InStock',
-          },
-        },
-      }),
-    })),
+    itemListElement: products.slice(0, 30).map((product, index) => {
+      const price = getMinPrice(product);
+      const priceCurrency = normalizeCurrencyCode(product.currencyCode);
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${siteUrl}/products/${product.slug}`,
+        name: product.productName,
+        image: product.productAsset?.preview,
+        ...(price !== undefined && priceCurrency
+          ? {
+              item: {
+                '@type': 'Product',
+                name: product.productName,
+                image: product.productAsset?.preview,
+                offers: {
+                  '@type': 'Offer',
+                  price,
+                  priceCurrency,
+                },
+              },
+            }
+          : {}),
+      };
+    }),
   };
 }

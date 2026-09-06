@@ -23,30 +23,26 @@ export const GET_ELIGIBLE_PAYMENT_METHODS = gql`
   }
 `;
 
-export const ADD_ITEM_TO_ORDER = gql`
-  mutation AddItemToOrder($productVariantId: ID!, $quantity: Int!) {
-    addItemToOrder(productVariantId: $productVariantId, quantity: $quantity) {
-      ... on Order {
-        id
-        totalQuantity
-      }
-      ... on ErrorResult {
-        errorCode
-        message
-      }
+export const PREPARE_LEAD_ORDER = gql`
+  mutation PrepareLeadOrder {
+    prepareLeadOrder {
+      sessionCapability
     }
   }
 `;
 
-export const SET_ORDER_CUSTOM_FIELDS = gql`
-  mutation SetOrderCustomFields($input: UpdateOrderInput!) {
-    setOrderCustomFields(input: $input) {
-      ... on Order {
-        id
-        customFields {
-          recipientFullName
-          recipientPhoneNumber
-        }
+export const SUBMIT_LEAD_ORDER = gql`
+  mutation SubmitLeadOrder($input: SubmitLeadOrderInput!) {
+    submitLeadOrder(input: $input) {
+      orderId
+      code
+      currencyCode
+      totalWithTax
+      lines {
+        productVariantId
+        quantity
+        unitPriceWithTax
+        linePriceWithTax
       }
     }
   }

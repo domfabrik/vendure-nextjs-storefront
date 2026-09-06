@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { searchProducts } from '@/shared/api';
 import { SITE_NAME } from '@/shared/config';
 import { SearchPage } from './search-page';
-import { PER_PAGE, searchParamsCache, sortMap } from './search-params';
+import { PER_PAGE, resolveSearchSort, searchParamsCache } from './search-params';
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -25,23 +25,26 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function Page(props: PageProps) {
-  const { q, page, sort: sortKey, filters } = await searchParamsCache.parse(props.searchParams);
-  const sort = sortMap[sortKey] ?? { name: 'ASC' };
+  const searchParams = await props.searchParams;
+  const { q, page, sort: sortKey, filters } = await searchParamsCache.parse(searchParams);
+  const term = q.trim();
+  const sort = resolveSearchSort(term, sortKey, searchParams.sort !== undefined);
   const facetValueFilters = buildFacetValueFilters(filters);
   const hasFilters = facetValueFilters.length > 0;
 
-  if (q.length < 1 && !hasFilters) {
+  if (term.length < 1 && !hasFilters) {
     return (
       <SearchPage
         initialData={null}
         allFacetValues={[]}
+        defaultSortIsRelevance={false}
       />
     );
   }
 
   const baseQuery = {
-    ...(q.length > 0 ? { term: q } : {}),
-    sort,
+    ...(term.length > 0 ? { term } : {}),
+    ...(sort ? { sort } : {}),
   };
 
   const [initialData, facetData] = await Promise.all([
@@ -58,6 +61,7 @@ export default async function Page(props: PageProps) {
     <SearchPage
       initialData={initialData}
       allFacetValues={(facetData ?? initialData).facetValues}
+      defaultSortIsRelevance={term.length > 0 && searchParams.sort === undefined}
     />
   );
 }

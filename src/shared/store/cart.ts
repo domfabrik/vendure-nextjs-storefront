@@ -77,7 +77,13 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      clearCart: () => set({ items: [], totalQuantity: 0, totalPrice: 0 }),
+      clearCart: () => {
+        try {
+          set({ items: [], totalQuantity: 0, totalPrice: 0 });
+        } catch {
+          // Zustand commits state before persistence; storage failure must not turn an accepted lead into a UI failure.
+        }
+      },
     }),
     {
       name: 'cart-storage',
