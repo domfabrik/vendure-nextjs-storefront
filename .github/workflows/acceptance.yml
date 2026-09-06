@@ -72,6 +72,11 @@ jobs:
       - name: Install backend fixture dependencies
         working-directory: vendure
         run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Rebuild and verify backend native bcrypt binding
+        working-directory: vendure
+        run: |
+          npm rebuild bcrypt
+          node -e "require('bcrypt'); console.log('bcrypt native binding ready')"
       - name: Build backend fixture packages
         working-directory: vendure
         run: npm run build:core-common
