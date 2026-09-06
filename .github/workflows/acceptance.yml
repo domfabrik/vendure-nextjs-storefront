@@ -1,0 +1,142 @@
+name: Storefront acceptance (no deploy)
+
+on:
+  push:
+    branches:
+      - test
+      - codex/seo-indexing-delivery
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-safe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout storefront
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25.2.1
+          cache: npm
+      - name: Install storefront dependencies
+        run: npm ci
+      - name: Run production-safe test smoke
+        env:
+          BASE_URL: https://test.domfabrik.ru
+          ACCEPTANCE_ENV: test
+          EXPECTED_METRIKA_ID: '112305722'
+          ACCEPTANCE_ALLOW_DEFERRED_CASES: 'true'
+          ACCEPTANCE_OUT_DIR: artifacts/acceptance-live
+        run: npm run test:acceptance
+      - name: Upload live acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront-acceptance-live
+          path: artifacts/acceptance-live
+          if-no-files-found: error
+
+  isolated-write:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: lead_e2e
+          POSTGRES_USER: lead_fixture
+          POSTGRES_PASSWORD: lead_fixture_password
+        ports:
+          - 55476:5432
+        options: >-
+          --health-cmd="pg_isready -U lead_fixture -d lead_e2e"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - name: Checkout storefront
+        uses: actions/checkout@v4
+      - name: Checkout accepted Vendure lead fixture source
+        uses: actions/checkout@v4
+        with:
+          repository: domfabrik/vendure
+          ref: 0387240ad3ee088270ffd4582c3c66c73a30f5e6
+          path: vendure
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25.2.1
+          cache: npm
+      - name: Install backend fixture dependencies
+        working-directory: vendure
+        run: npm ci --ignore-scripts
+      - name: Build backend fixture packages
+        working-directory: vendure
+        run: npm run build:core-common
+      - name: Install storefront dependencies
+        run: npm ci
+      - name: Start owned loopback fixture
+        env:
+          LEAD_BACKEND_DIR: vendure
+          PGHOST: 127.0.0.1
+          PGPORT: '55476'
+          PGDATABASE: lead_e2e
+          PGUSER: lead_fixture
+          PGPASSWORD: lead_fixture_password
+          LEAD_TEST_PORT: '31910'
+        run: |
+          node scripts/ci-lead-fixture.mjs > fixture-startup.log 2>&1 &
+          echo $! > fixture.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent --show-error -H 'content-type: application/json' --data '{"query":"{ activeChannel { code } }"}' http://127.0.0.1:31910/shop-api > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat fixture-startup.log
+          exit 1
+      - name: Run isolated checkout report
+        env:
+          LEAD_TEST_API_URL: http://127.0.0.1:31910/shop-api
+          LEAD_ACCEPTANCE_OUT_DIR: artifacts/acceptance-isolated
+        run: npm run test:lead-backend:report
+      - name: Upload isolated acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront-acceptance-isolated
+          path: artifacts/acceptance-isolated
+          if-no-files-found: error
+
+  acceptance-gate:
+    if: always()
+    needs:
+      - production-safe
+      - isolated-write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout storefront
+        uses: actions/checkout@v4
+      - name: Download live evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: storefront-acceptance-live
+          path: artifacts/acceptance-live
+      - name: Download isolated evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: storefront-acceptance-isolated
+          path: artifacts/acceptance-isolated
+      - name: Aggregate mandatory A01-A18 evidence
+        env:
+          ACCEPTANCE_OUT_DIR: artifacts/acceptance-combined
+          ACCEPTANCE_LIVE_REPORT: artifacts/acceptance-live/report.json
+          ACCEPTANCE_ISOLATED_REPORT: artifacts/acceptance-isolated/isolated-report.json
+        run: node scripts/acceptance-aggregate.mjs
+      - name: Upload combined acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront-acceptance-combined
+          path: artifacts/acceptance-combined
+          if-no-files-found: error

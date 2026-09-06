@@ -34,6 +34,26 @@ function resolveBrowserPath() {
   return browserPath;
 }
 
+function validateRealLeadApiUrl(value) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error('LEAD_TEST_API_URL must be a valid loopback http URL');
+  }
+  assert.equal(url.protocol, 'http:', 'LEAD_TEST_API_URL must use plain HTTP on loopback');
+  assert.ok(['127.0.0.1', 'localhost', '::1'].includes(url.hostname.toLowerCase()), 'LEAD_TEST_API_URL must target loopback only');
+  assert.equal(url.username, '', 'LEAD_TEST_API_URL must not contain credentials');
+  assert.equal(url.password, '', 'LEAD_TEST_API_URL must not contain credentials');
+  assert.equal(url.search, '', 'LEAD_TEST_API_URL must not contain query parameters');
+  assert.equal(url.hash, '', 'LEAD_TEST_API_URL must not contain a fragment');
+  assert.match(url.pathname, /\/shop-api\/?$/, 'LEAD_TEST_API_URL must target the isolated Vendure shop API');
+  return url;
+}
+
+// Reject an unsafe destination before building or starting any local server.
+const configuredRealLeadApiUrl = process.env.LEAD_TEST_API_URL ? validateRealLeadApiUrl(process.env.LEAD_TEST_API_URL) : null;
+
 async function freePort() {
   const probe = net.createServer();
   await new Promise((resolve, reject) => probe.once('error', reject).listen(0, '127.0.0.1', resolve));
@@ -501,7 +521,7 @@ async function main() {
     assert.equal(await textIncludes('Fixture chair'), false, 'accepted receipt must clear in-memory cart even when persistence throws');
     assert.deepEqual(await evaluate(`window.__leadYmCalls ?? []`), [], 'wrong host must not leak an event to a configured counter');
 
-    if (process.env.LEAD_TEST_API_URL) {
+    if (configuredRealLeadApiUrl) {
       behavior = 'real-lost-once';
       await navigate('real.test.domfabrik.ru');
       await seed();
@@ -519,8 +539,29 @@ async function main() {
       assert.deepEqual(realSubmissions[1].input, realSubmissions[0].input, 'actual backend replay must keep the exact attempt');
       assert.ok(realSubmissions[0].authorization?.startsWith('Bearer '), 'actual submit must use the prepare response cookie');
       assert.ok(realReceipt?.orderId && realReceipt?.code && realReceipt?.currencyCode, 'actual backend must return its durable receipt');
+      assert.ok(Number(realReceipt.totalWithTax) > 0, 'actual backend receipt must have a positive total');
+      assert.equal(realReceipt.lines?.length, realSubmissions[0].input.items.length, 'actual receipt must preserve line count');
+      for (const [index, line] of realReceipt.lines.entries()) {
+        assert.equal(line.productVariantId, realSubmissions[0].input.items[index].productVariantId, 'actual receipt variant must match input');
+        assert.equal(line.quantity, realSubmissions[0].input.items[index].quantity, 'actual receipt quantity must match input');
+        assert.ok(Number(line.linePriceWithTax) > 0, 'actual receipt line total must be positive');
+      }
       assert.equal(await evaluate(`JSON.parse(localStorage.getItem('cart-storage')).state.items.length`), 0);
-      console.log(`Actual backend prepare/cookie/lost-response/replay passed for order ${realReceipt.orderId} (${realReceipt.currencyCode})`);
+
+      // A later intentional checkout must receive a distinct token and backend order.
+      const firstRealOrderId = realReceipt.orderId;
+      behavior = 'real-replay';
+      await refillCartOnly();
+      await openAndFill('Frontend Backend Next Request');
+      assert.equal(await clickText('Отправить заявку'), true);
+      await waitText('принята на сумму');
+      assert.equal(realSubmissions.length, 3, 'next checkout must be one independent submit');
+      assert.notEqual(realSubmissions.at(-1).input.submissionToken, realSubmissions[0].input.submissionToken, 'next checkout must use a new token');
+      assert.notEqual(realReceipt.orderId, firstRealOrderId, 'next checkout must receive a new backend order');
+      assert.equal(await evaluate(`JSON.parse(localStorage.getItem('cart-storage')).state.items.length`), 0);
+      console.log(
+        `Actual loopback isolated A14 happy path and A15 lost-response/replay passed for orders ${firstRealOrderId}, ${realReceipt.orderId} (${realReceipt.currencyCode}) at ${configuredRealLeadApiUrl.host}`,
+      );
     }
 
     assert.equal(
