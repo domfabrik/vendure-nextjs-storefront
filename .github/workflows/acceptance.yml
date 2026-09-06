@@ -71,7 +71,7 @@ jobs:
           cache: npm
       - name: Install backend fixture dependencies
         working-directory: vendure
-        run: npm ci --ignore-scripts
+        run: npm install --ignore-scripts --no-audit --no-fund
       - name: Build backend fixture packages
         working-directory: vendure
         run: npm run build:core-common
