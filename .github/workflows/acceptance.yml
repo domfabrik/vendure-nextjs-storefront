@@ -16,12 +16,16 @@ jobs:
     steps:
       - name: Checkout storefront
         uses: actions/checkout@v4
+        with:
+          path: storefront
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 25.2.1
           cache: npm
+          cache-dependency-path: storefront/package-lock.json
       - name: Install storefront dependencies
+        working-directory: storefront
         run: npm ci
       - name: Run production-safe test smoke
         env:
@@ -30,13 +34,14 @@ jobs:
           EXPECTED_METRIKA_ID: '112305722'
           ACCEPTANCE_ALLOW_DEFERRED_CASES: 'true'
           ACCEPTANCE_OUT_DIR: artifacts/acceptance-live
+        working-directory: storefront
         run: npm run test:acceptance
       - name: Upload live acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: storefront-acceptance-live
-          path: artifacts/acceptance-live
+          path: storefront/artifacts/acceptance-live
           if-no-files-found: error
 
   isolated-write:
@@ -58,6 +63,8 @@ jobs:
     steps:
       - name: Checkout storefront
         uses: actions/checkout@v4
+        with:
+          path: storefront
       - name: Checkout accepted Vendure lead fixture source
         uses: actions/checkout@v4
         with:
@@ -69,6 +76,7 @@ jobs:
         with:
           node-version: 25.2.1
           cache: npm
+          cache-dependency-path: storefront/package-lock.json
       - name: Install backend fixture dependencies
         working-directory: vendure
         run: npm install --ignore-scripts --no-audit --no-fund
@@ -81,16 +89,18 @@ jobs:
         working-directory: vendure
         run: npm run build:core-common
       - name: Install storefront dependencies
+        working-directory: storefront
         run: npm ci
       - name: Start owned loopback fixture
         env:
-          LEAD_BACKEND_DIR: vendure
+          LEAD_BACKEND_DIR: ../vendure
           PGHOST: 127.0.0.1
           PGPORT: '55476'
           PGDATABASE: lead_e2e
           PGUSER: lead_fixture
           PGPASSWORD: lead_fixture_password
           LEAD_TEST_PORT: '31910'
+        working-directory: storefront
         run: |
           node scripts/ci-lead-fixture.mjs > fixture-startup.log 2>&1 &
           echo $! > fixture.pid
@@ -104,13 +114,14 @@ jobs:
         env:
           LEAD_TEST_API_URL: http://127.0.0.1:31910/shop-api
           LEAD_ACCEPTANCE_OUT_DIR: artifacts/acceptance-isolated
+        working-directory: storefront
         run: npm run test:lead-backend:report
       - name: Upload isolated acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: storefront-acceptance-isolated
-          path: artifacts/acceptance-isolated
+          path: storefront/artifacts/acceptance-isolated
           if-no-files-found: error
 
   acceptance-gate:
@@ -122,26 +133,29 @@ jobs:
     steps:
       - name: Checkout storefront
         uses: actions/checkout@v4
+        with:
+          path: storefront
       - name: Download live evidence
         uses: actions/download-artifact@v4
         with:
           name: storefront-acceptance-live
-          path: artifacts/acceptance-live
+          path: storefront/artifacts/acceptance-live
       - name: Download isolated evidence
         uses: actions/download-artifact@v4
         with:
           name: storefront-acceptance-isolated
-          path: artifacts/acceptance-isolated
+          path: storefront/artifacts/acceptance-isolated
       - name: Aggregate mandatory A01-A18 evidence
         env:
           ACCEPTANCE_OUT_DIR: artifacts/acceptance-combined
           ACCEPTANCE_LIVE_REPORT: artifacts/acceptance-live/report.json
           ACCEPTANCE_ISOLATED_REPORT: artifacts/acceptance-isolated/isolated-report.json
+        working-directory: storefront
         run: node scripts/acceptance-aggregate.mjs
       - name: Upload combined acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: storefront-acceptance-combined
-          path: artifacts/acceptance-combined
+          path: storefront/artifacts/acceptance-combined
           if-no-files-found: error
