@@ -28,12 +28,21 @@ const ecommerceTestSource = ts.transpileModule(
   ecommerceSource.replace("from './metrika-config';", `from ${JSON.stringify(pathToFileURL(resolve('src/shared/lib/metrika-config.ts')).href)};`),
   { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } },
 ).outputText;
-const { pushEcommerceEvent, reachGoal } = await import(`data:text/javascript,${encodeURIComponent(ecommerceTestSource)}`);
+const { pushEcommerceEvent, reachGoal, trackOrderRequestSubmitted } = await import(`data:text/javascript,${encodeURIComponent(ecommerceTestSource)}`);
 const ymCalls = [];
 globalThis.window = {
   location: { hostname: 'test.domfabrik.ru' },
   ym: (...args) => ymCalls.push(args),
   dataLayer: [],
+  localStorage: {
+    values: new Map(),
+    getItem(key) {
+      return this.values.get(key) ?? null;
+    },
+    setItem(key, value) {
+      this.values.set(key, value);
+    },
+  },
 };
 process.env.NEXT_PUBLIC_METRIKA_ID = String(METRIKA_IDS.test);
 reachGoal('product_detail');
@@ -41,8 +50,32 @@ pushEcommerceEvent({ detail: { products: [{ id: 'p1', name: 'Test', price: 10 }]
 assert.deepEqual(ymCalls, [[METRIKA_IDS.test, 'reachGoal', 'product_detail']]);
 const originalEvent = { detail: { products: [{ id: 'p1', name: 'Test', price: 10 }] } };
 assert.deepEqual(window.dataLayer, [{ ecommerce: originalEvent }]);
+trackOrderRequestSubmitted({ orderId: 'backend-order-42', totalWithTax: 12345, currencyCode: 'RUB' });
+trackOrderRequestSubmitted({ orderId: 'backend-order-42', totalWithTax: 12345, currencyCode: 'RUB' });
+assert.deepEqual(ymCalls.at(-1), [METRIKA_IDS.test, 'reachGoal', 'order_request_submitted', { orderId: 'backend-order-42', value: 123.45, currency: 'RUB' }]);
+assert.equal(ymCalls.filter((call) => call[2] === 'order_request_submitted').length, 1, 'backend order ID must be emitted once');
+assert.equal(
+  window.dataLayer.some((entry) => entry.ecommerce?.purchase),
+  false,
+  'an unpaid lead must not emit ecommerce purchase',
+);
+const workingStorage = window.localStorage;
+window.localStorage = {
+  getItem: () => {
+    throw new Error('storage disabled');
+  },
+  setItem: () => {
+    throw new Error('storage disabled');
+  },
+};
+window.ym = () => {
+  throw new Error('analytics unavailable');
+};
+assert.doesNotThrow(() => trackOrderRequestSubmitted({ orderId: 'backend-order-storage-error', totalWithTax: 100, currencyCode: 'RUB' }));
+window.localStorage = workingStorage;
 window.ym = undefined;
 assert.doesNotThrow(() => reachGoal('ym_not_ready'));
+assert.doesNotThrow(() => trackOrderRequestSubmitted({ orderId: 'backend-order-no-ym', totalWithTax: 100, currencyCode: 'RUB' }));
 window.ym = (...args) => ymCalls.push(args);
 process.env.NEXT_PUBLIC_METRIKA_ID = String(METRIKA_IDS.production);
 globalThis.window.location.hostname = 'domfabrik.ru';
@@ -51,14 +84,14 @@ assert.deepEqual(ymCalls.at(-1), [METRIKA_IDS.production, 'reachGoal', 'producti
 globalThis.window.location.hostname = 'test.domfabrik.ru';
 reachGoal('must_be_disabled');
 pushEcommerceEvent({ add: { products: [{ id: 'p1', name: 'Test', price: 10 }] } });
-assert.equal(ymCalls.length, 2, 'mismatched host must not call ym');
+assert.equal(ymCalls.length, 3, 'mismatched host must not call ym');
 assert.deepEqual(window.dataLayer, [{ ecommerce: originalEvent }], 'mismatched host must not push ecommerce');
 for (const invalidId of ['', 'invalid']) {
   process.env.NEXT_PUBLIC_METRIKA_ID = invalidId;
   reachGoal('invalid_id');
   pushEcommerceEvent({ remove: { products: [{ id: 'p1', name: 'Test', price: 10 }] } });
 }
-assert.equal(ymCalls.length, 2, 'invalid IDs must not call ym');
+assert.equal(ymCalls.length, 3, 'invalid IDs must not call ym');
 assert.deepEqual(window.dataLayer, [{ ecommerce: originalEvent }], 'invalid IDs must not push ecommerce');
 assert.match(scriptSource, /resolveMetrikaConfig/);
 assert.match(hitSource, /resolveMetrikaConfig/);
@@ -97,6 +130,7 @@ const goalSources = [
   readFileSync('src/app/cart/cart-page.tsx', 'utf8'),
   readFileSync('src/app/cart/checkout-dialog.tsx', 'utf8'),
 ].join('\n');
-for (const goal of ['product_detail', 'add_to_cart', 'begin_checkout', 'purchase']) assert.match(goalSources, new RegExp(goal));
-for (const event of ['detail', 'add', 'remove', 'purchase']) assert.match(ecommerceSource, new RegExp(`\\b${event}\\b`));
+for (const goal of ['product_detail', 'add_to_cart', 'begin_checkout', 'order_request_submitted']) assert.match(goalSources, new RegExp(goal));
+for (const event of ['detail', 'add', 'remove']) assert.match(ecommerceSource, new RegExp(`\\b${event}\\b`));
+assert.doesNotMatch(readFileSync('src/app/cart/checkout-dialog.tsx', 'utf8'), /Date\.now|reachGoal\(['"]purchase|\bpurchase\s*:/);
 console.log('Metrika configuration and browser wiring checks passed');
