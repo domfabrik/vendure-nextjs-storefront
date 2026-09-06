@@ -20,172 +20,179 @@ export function CartPage() {
 
   if (items.length === 0) {
     return (
-      <Box sx={{ py: 8, textAlign: 'center' }}>
-        <Typography
-          variant="h5"
-          sx={{ mb: 3 }}
-        >
-          Корзина пуста
-        </Typography>
-        <Button
-          variant="contained"
-          component={NextLink}
-          href={routes.home()}
-        >
-          Перейти к покупкам
-        </Button>
-      </Box>
+      <>
+        <Box sx={{ py: 8, textAlign: 'center' }}>
+          <Typography
+            variant="h5"
+            sx={{ mb: 3 }}
+          >
+            Корзина пуста
+          </Typography>
+          <Button
+            variant="contained"
+            component={NextLink}
+            href={routes.home()}
+          >
+            Перейти к покупкам
+          </Button>
+        </Box>
+        <CheckoutDialog
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+        />
+      </>
     );
   }
 
   return (
-    <Box>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{ fontWeight: 700, mb: 3 }}
-      >
-        Корзина
-      </Typography>
+    <>
+      <Box>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ fontWeight: 700, mb: 3 }}
+        >
+          Корзина
+        </Typography>
 
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: 3,
-          alignItems: 'flex-start',
-        }}
-      >
-        {/* Cart items */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {items.map((item) => (
-            <Card
-              key={item.productVariantId}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                p: 2,
-              }}
-            >
-              {item.image && (
-                <CardMedia
-                  component="img"
-                  image={`${item.image}?w=128&h=128&format=webp`}
-                  alt={item.productName}
-                  sx={{ width: 64, height: 64, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }}
-                />
-              )}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  component={NextLink}
-                  href={routes.product(item.slug)}
-                  sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 500, display: 'block' }}
-                  noWrap
-                >
-                  {item.productName}
-                </Typography>
-                {item.variantName !== item.productName && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 3,
+            alignItems: 'flex-start',
+          }}
+        >
+          {/* Cart items */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {items.map((item) => (
+              <Card
+                key={item.productVariantId}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 2,
+                }}
+              >
+                {item.image && (
+                  <CardMedia
+                    component="img"
+                    image={`${item.image}?w=128&h=128&format=webp`}
+                    alt={item.productName}
+                    sx={{ width: 64, height: 64, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }}
+                  />
+                )}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    component={NextLink}
+                    href={routes.product(item.slug)}
+                    sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 500, display: 'block' }}
+                    noWrap
+                  >
+                    {item.productName}
+                  </Typography>
+                  {item.variantName !== item.productName && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      noWrap
+                    >
+                      {item.variantName}
+                    </Typography>
+                  )}
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    noWrap
                   >
-                    {item.variantName}
+                    {priceFormatter(item.price)} за шт.
                   </Typography>
-                )}
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  {priceFormatter(item.price)} за шт.
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <IconButton
+                    size="small"
+                    aria-label="Уменьшить"
+                    onClick={() => {
+                      if (item.quantity <= 1) {
+                        removeFromCart(item.productVariantId);
+                      } else {
+                        setItemQuantity(item.productVariantId, item.quantity - 1);
+                      }
+                    }}
+                  >
+                    <RemoveIcon fontSize="small" />
+                  </IconButton>
+                  <Typography sx={{ minWidth: 24, textAlign: 'center' }}>{item.quantity}</Typography>
+                  <IconButton
+                    size="small"
+                    aria-label="Увеличить"
+                    onClick={() => setItemQuantity(item.productVariantId, item.quantity + 1)}
+                  >
+                    <AddIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Typography sx={{ fontWeight: 600, minWidth: 80, textAlign: 'right' }}>{priceFormatter(item.price * item.quantity)}</Typography>
                 <IconButton
                   size="small"
-                  aria-label="Уменьшить"
-                  onClick={() => {
-                    if (item.quantity <= 1) {
-                      removeFromCart(item.productVariantId);
-                    } else {
-                      setItemQuantity(item.productVariantId, item.quantity - 1);
-                    }
-                  }}
+                  color="error"
+                  aria-label="Удалить"
+                  onClick={() => removeFromCart(item.productVariantId)}
                 >
-                  <RemoveIcon fontSize="small" />
+                  <DeleteIcon fontSize="small" />
                 </IconButton>
-                <Typography sx={{ minWidth: 24, textAlign: 'center' }}>{item.quantity}</Typography>
-                <IconButton
-                  size="small"
-                  aria-label="Увеличить"
-                  onClick={() => setItemQuantity(item.productVariantId, item.quantity + 1)}
-                >
-                  <AddIcon fontSize="small" />
-                </IconButton>
-              </Box>
-              <Typography sx={{ fontWeight: 600, minWidth: 80, textAlign: 'right' }}>{priceFormatter(item.price * item.quantity)}</Typography>
-              <IconButton
-                size="small"
-                color="error"
-                aria-label="Удалить"
-                onClick={() => removeFromCart(item.productVariantId)}
+              </Card>
+            ))}
+          </Box>
+
+          {/* Order summary */}
+          <Card sx={{ p: 3, width: { xs: '100%', md: 320 }, flexShrink: 0 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, mb: 2 }}
+            >
+              Итого
+            </Typography>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography color="text.secondary">Подытог</Typography>
+              <Typography>{priceFormatter(totalPrice)}</Typography>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600 }}
               >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Card>
-          ))}
+                К оплате
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600 }}
+              >
+                {priceFormatter(totalPrice)}
+              </Typography>
+            </Box>
+
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              onClick={() => {
+                reachGoal('begin_checkout');
+                setCheckoutOpen(true);
+              }}
+            >
+              Оформить заказ
+            </Button>
+          </Card>
         </Box>
-
-        {/* Order summary */}
-        <Card sx={{ p: 3, width: { xs: '100%', md: 320 }, flexShrink: 0 }}>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, mb: 2 }}
-          >
-            Итого
-          </Typography>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography color="text.secondary">Подытог</Typography>
-            <Typography>{priceFormatter(totalPrice)}</Typography>
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600 }}
-            >
-              К оплате
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600 }}
-            >
-              {priceFormatter(totalPrice)}
-            </Typography>
-          </Box>
-
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={() => {
-              reachGoal('begin_checkout');
-              setCheckoutOpen(true);
-            }}
-          >
-            Оформить заказ
-          </Button>
-        </Card>
       </Box>
-
       <CheckoutDialog
         open={checkoutOpen}
         onClose={() => setCheckoutOpen(false)}
       />
-    </Box>
+    </>
   );
 }
