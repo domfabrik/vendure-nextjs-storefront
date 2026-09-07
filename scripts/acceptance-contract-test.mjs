@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const runnerPath = fileURLToPath(new URL('./storefront-acceptance-test.mjs', import.meta.url));
 function runChild(command, args, options) {
@@ -178,4 +179,32 @@ await runFixtureNegative('empty-search', { emptySearch: true }, 'A05', /Ниче
 await runFixtureNegative('wrong-canonical', { wrongCanonical: true }, 'A11', /canonical/);
 await runFixtureNegative('production-commercial-noindex', { productionPolicy: true, commercialNoindex: true }, 'A11', /commercial page/, { ACCEPTANCE_ENV: 'production-fixture' });
 await runFixtureNegative('wrong-counter', {}, 'A12', /expected environment analytics ID/, { EXPECTED_METRIKA_ID: '999999999' });
+assert.deepEqual(
+  validatePaginationShape({ totalItems: 12, pageSize: 24 }),
+  { multiPage: false, totalItems: 12, pageSize: 24 },
+  'single-page category is valid without a next link',
+);
+assert.deepEqual(
+  validatePaginationShape({ totalItems: 25, pageSize: 24, page2Href: '/collections/fixture?page=2' }),
+  { multiPage: true, totalItems: 25, pageSize: 24 },
+  'multi-page category accepts a next link',
+);
+assert.throws(
+  () => validatePaginationShape({ totalItems: 25, pageSize: 24 }),
+  /multi-page category must expose a page 2 link/,
+  'missing next link on a multi-page fixture must fail',
+);
+assert.equal(matchesCollectionPage('/collections/fixture?page=2', '/collections/fixture', 2), true, 'selected category page 2 link must be accepted');
+assert.equal(matchesCollectionPage('/collections/other?page=2', '/collections/fixture', 2), false, 'other category page 2 link must be rejected');
+assert.deepEqual(parseMoneyMinorValues('32 561,55 ₽ за шт. 65 123,10 ₽', 'RUB'), [3256155, 6512310], 'fractional RUB display must retain exact minor units');
+assert.deepEqual(
+  validateCartMoneyText('100 ₽ 200 ₽', { currencyCode: 'RUB', unitMinor: 10000, quantity: 2 }).values,
+  [10000, 20000],
+  'integer price and quantity two must be exact',
+);
+assert.throws(
+  () => validateCartMoneyText('32 561,54 ₽', { currencyCode: 'RUB', unitMinor: 3256155, quantity: 1 }),
+  /minor mismatch/,
+  'genuine one-cent display mismatch must fail',
+);
 console.log('Acceptance runner safety, behavioral 500 failure, complete matrix and evidence contracts passed');

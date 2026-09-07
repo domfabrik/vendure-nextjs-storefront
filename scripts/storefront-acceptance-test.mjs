@@ -8,6 +8,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
+import { matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const rawBase = process.env.BASE_URL;
 if (!rawBase) throw new Error('BASE_URL is required (for example https://test.domfabrik.ru)');
@@ -137,6 +138,8 @@ async function shopApiQuery(query, variables = {}) {
 }
 const productQuery = `query($slug:String!){product(slug:$slug){id name slug variants{id priceWithTax currencyCode stockLevel options{id groupId code name}} optionGroups{id name options{id code name}} featuredAsset{preview} assets{preview} collections{slug name} facetValues{id name facet{id name code}}}}`;
 const searchQuery = `query($input:SearchInput!){search(input:$input){totalItems items{productName slug productVariantId currencyCode priceWithTax{__typename ... on SinglePrice{value} ... on PriceRange{min max}} facetValueIds} facetValues{count facetValue{id name code facet{id name code}}}}}`;
+const collectionPageSize = 24;
+const collectionSearchQuery = `query($input:SearchInput!){search(input:$input){totalItems items{slug}}}`;
 async function get(path, options = {}) {
   let url = absolute(path);
   for (let redirect = 0; redirect <= 3; redirect += 1) {
@@ -294,22 +297,63 @@ async function main() {
     record('A02', 'FAIL', e.message);
   }
   try {
-    const first = await get(category);
-    const page2 = links(first.text, '/collections/').find((x) => new URL(x, base).searchParams.get('page') === '2');
-    assert.ok(page2, 'selected category must expose page 2');
-    const second = await get(page2);
-    assert.equal(second.response.status, 200);
-    assert.notDeepEqual(new Set(links(first.text, '/products/')), new Set(links(second.text, '/products/')));
-    assert.equal(new URL(canonical(second.text), base).searchParams.get('page'), '2');
-    const previous = links(second.text, '/collections/').find((href) => {
-      const page = new URL(href, base).searchParams.get('page');
-      return page === null || page === '1';
-    });
-    assert.ok(previous, 'page 2 must expose a previous-page link');
-    const beyond = await get(`${category}${category.includes('?') ? '&' : '?'}page=9999`);
-    assert.ok([200, 404].includes(beyond.response.status), 'out-of-range pagination must be bounded');
-    if (beyond.response.status === 200) assert.equal(links(beyond.text, '/products/').length, 0, 'out-of-range page must not render products');
-    record('A03', 'PASS', 'page 2 changes products, exposes previous navigation, and bounds an out-of-range page', { page2, previous, outOfRangeStatus: beyond.response.status });
+    const candidates = [...new Set(links(homepage, '/collections/'))].filter((href) => !new URL(href, base).searchParams.has('page'));
+    const inspections = [];
+    const apiErrors = [];
+    let selected = null;
+    for (const href of candidates) {
+      try {
+        const slug = new URL(href, base).pathname.split('/').filter(Boolean).at(-1);
+        const result = (await shopApiQuery(collectionSearchQuery, { input: { collectionSlug: slug, take: collectionPageSize, skip: 0, groupByProduct: true } })).search;
+        const totalItems = Number(result.totalItems);
+        assert.ok(Number.isSafeInteger(totalItems) && totalItems >= 0, `Shop API returned invalid totalItems for ${slug}`);
+        const inspection = { category: href, slug, totalItems, pageSize: collectionPageSize, firstPageItemCount: result.items.length };
+        inspections.push(inspection);
+        if (totalItems > collectionPageSize) {
+          selected = inspection;
+          break;
+        }
+      } catch (error) {
+        apiErrors.push(`${href}: ${error.message}`);
+      }
+    }
+    assert.ok(inspections.length, `Shop API pagination discovery failed${apiErrors.length ? `: ${apiErrors.join('; ')}` : ''}`);
+    selected ??= inspections[0];
+    const first = await get(selected.category);
+    const page2 = links(first.text, '/collections/').find((x) => matchesCollectionPage(x, selected.category, 2));
+    const shape = validatePaginationShape({ totalItems: selected.totalItems, pageSize: selected.pageSize, page2Href: page2 });
+    if (!shape.multiPage) {
+      record('A03', 'PASS', 'single-page category was validated without a false page 2 failure; no multi-page category was available', {
+        category: selected.category,
+        totalItems: selected.totalItems,
+        pageSize: selected.pageSize,
+        firstPageItemCount: selected.firstPageItemCount,
+        multiPageCoverage: false,
+      });
+    } else {
+      const second = await get(page2);
+      assert.equal(second.response.status, 200);
+      assert.notDeepEqual(new Set(links(first.text, '/products/')), new Set(links(second.text, '/products/')));
+      assert.equal(new URL(canonical(second.text), base).searchParams.get('page'), '2');
+      const previous = links(second.text, '/collections/').find((href) => {
+        const page = new URL(href, base).searchParams.get('page');
+        return page === null || page === '1';
+      });
+      assert.ok(previous, 'page 2 must expose a previous-page link');
+      const beyond = await get(`${selected.category}${selected.category.includes('?') ? '&' : '?'}page=9999`);
+      assert.ok([200, 404].includes(beyond.response.status), 'out-of-range pagination must be bounded');
+      if (beyond.response.status === 200) assert.equal(links(beyond.text, '/products/').length, 0, 'out-of-range page must not render products');
+      record('A03', 'PASS', 'API-confirmed multi-page category changes products, exposes previous navigation, and bounds an out-of-range page', {
+        category: selected.category,
+        totalItems: selected.totalItems,
+        pageSize: selected.pageSize,
+        firstPageItemCount: selected.firstPageItemCount,
+        page2,
+        previous,
+        outOfRangeStatus: beyond.response.status,
+        multiPageCoverage: true,
+      });
+    }
   } catch (e) {
     record('A03', 'FAIL', e.message);
   }
@@ -412,7 +456,7 @@ async function main() {
   } catch (e) {
     record('A07', 'FAIL', e.message);
   }
-  const browserCase = async (id, title, fn) => {
+  const browserCase = async (id, title, fn, failureEvidence = {}) => {
     try {
       const evidence = await fn();
       record(id, 'PASS', title, evidence ?? {});
@@ -421,7 +465,7 @@ async function main() {
       try {
         await browser.screenshot(screenshot);
       } catch {}
-      record(id, 'FAIL', error.message, { screenshot });
+      record(id, 'FAIL', error.message, { ...failureEvidence, screenshot });
     }
   };
   let browser;
@@ -488,52 +532,74 @@ async function main() {
         selectedPriceDisplay: Number(alternate.priceWithTax) / 100,
       };
     });
-    await browserCase('A08', 'cart add, quantity, removal, empty state, and reload persistence are client-only', async () => {
-      await browser.navigate(product);
-      assert.equal(await clickButton('В корзину'), true, 'PDP add-to-cart must be clickable');
-      await browser.navigate('/cart');
-      const rowText = () =>
-        browser.evaluate(
-          `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.innerText ?? '')(${JSON.stringify(selectedProduct.name)})`,
-        );
-      assert.match(await rowText(), new RegExp(selectedProduct.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      const selectedPriceMinor = Number(selectedProduct.variants[0].priceWithTax);
-      const selectedPriceDisplay = selectedPriceMinor / 100;
-      assert.ok(
-        (await rowText()).replace(/[^0-9]/g, '').includes(String(Math.round(selectedPriceDisplay)).replace(/[^0-9]/g, '')),
-        'cart must display the selected API variant price',
-      );
-      const quantityControl = () =>
-        browser.evaluate(
-          `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); return {row:!!row, increment:row?.querySelector('button[aria-label="Увеличить"]') !== null}; })(${JSON.stringify(selectedProduct.name)})`,
-        );
-      assert.deepEqual(await quantityControl(), { row: true, increment: true }, 'selected cart row must expose one quantity control');
-      assert.equal(
-        await browser.evaluate(
-          `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Увеличить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
-        ),
-        true,
-        'cart quantity increment must be clickable in the selected row',
-      );
-      await waitFor(
-        () =>
+    const a08Evidence = {
+      product: selectedProduct?.slug ?? product,
+      apiVariantId: selectedProduct?.variants?.[0]?.id ?? null,
+      apiExpectedPriceMinor: Number(selectedProduct?.variants?.[0]?.priceWithTax),
+      apiCurrencyCode: selectedProduct?.variants?.[0]?.currencyCode ?? null,
+      cartVariantId: null,
+      cartPriceMinor: null,
+      displayedUnitPriceMinor: null,
+      displayedTotalMinor: null,
+      quantity2DisplayedTotalMinor: null,
+    };
+    await browserCase(
+      'A08',
+      'cart add, quantity, removal, empty state, and reload persistence are client-only',
+      async () => {
+        await browser.navigate(product);
+        assert.equal(await clickButton('В корзину'), true, 'PDP add-to-cart must be clickable');
+        const expectedVariant = selectedProduct.variants[0];
+        const cartItem = await browser.evaluate('JSON.parse(localStorage.getItem("cart-storage")).state.items[0]');
+        a08Evidence.cartVariantId = String(cartItem?.productVariantId ?? '');
+        a08Evidence.cartPriceMinor = Number(cartItem?.price);
+        assert.equal(a08Evidence.cartVariantId, String(expectedVariant.id), 'cart must retain the selected API variant ID');
+        assert.equal(a08Evidence.cartPriceMinor, Number(expectedVariant.priceWithTax), 'cart must retain the selected API variant minor price');
+        await browser.navigate('/cart');
+        const rowText = () =>
           browser.evaluate(
-            `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.querySelector('button[aria-label="Увеличить"]')?.parentElement?.innerText.includes('2'))(${JSON.stringify(selectedProduct.name)})`,
+            `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.innerText ?? '')(${JSON.stringify(selectedProduct.name)})`,
+          );
+        assert.match(await rowText(), new RegExp(selectedProduct.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+        const selectedPriceMinor = Number(expectedVariant.priceWithTax);
+        const selectedPriceDisplay = selectedPriceMinor / 100;
+        const initialMoney = validateCartMoneyText(await rowText(), { currencyCode: expectedVariant.currencyCode, unitMinor: selectedPriceMinor, quantity: 1 });
+        a08Evidence.displayedUnitPriceMinor = initialMoney.unitMinor;
+        a08Evidence.displayedTotalMinor = initialMoney.totalMinor;
+        const quantityControl = () =>
+          browser.evaluate(
+            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); return {row:!!row, increment:row?.querySelector('button[aria-label="Увеличить"]') !== null}; })(${JSON.stringify(selectedProduct.name)})`,
+          );
+        assert.deepEqual(await quantityControl(), { row: true, increment: true }, 'selected cart row must expose one quantity control');
+        assert.equal(
+          await browser.evaluate(
+            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Увеличить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
           ),
-        'cart quantity 2',
-      );
-      await browser.navigate('/cart');
-      assert.match(await rowText(), /2/);
-      assert.equal(
-        await browser.evaluate(
-          `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Удалить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
-        ),
-        true,
-        'selected cart row remove must be clickable',
-      );
-      await waitFor(() => browser.evaluate('document.body.innerText.includes("Корзина пуста")'), 'empty cart');
-      return { product: selectedProduct.slug, selectedPriceMinor, selectedPriceDisplay, quantityAfterReload: 2, emptyAfterRemove: true };
-    });
+          true,
+          'cart quantity increment must be clickable in the selected row',
+        );
+        await waitFor(
+          () =>
+            browser.evaluate(
+              `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.querySelector('button[aria-label="Увеличить"]')?.parentElement?.innerText.includes('2'))(${JSON.stringify(selectedProduct.name)})`,
+            ),
+          'cart quantity 2',
+        );
+        await browser.navigate('/cart');
+        const quantityTwoMoney = validateCartMoneyText(await rowText(), { currencyCode: expectedVariant.currencyCode, unitMinor: selectedPriceMinor, quantity: 2 });
+        a08Evidence.quantity2DisplayedTotalMinor = quantityTwoMoney.totalMinor;
+        assert.equal(
+          await browser.evaluate(
+            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Удалить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
+          ),
+          true,
+          'selected cart row remove must be clickable',
+        );
+        await waitFor(() => browser.evaluate('document.body.innerText.includes("Корзина пуста")'), 'empty cart');
+        return { ...a08Evidence, selectedPriceMinor, selectedPriceDisplay, quantityAfterReload: 2, emptyAfterRemove: true };
+      },
+      a08Evidence,
+    );
     await browserCase('A09', 'checkout server-action preparation is blocked and dialog remains safe to close/reopen', async () => {
       await browser.navigate(product);
       assert.equal(await clickButton('В корзину'), true);
