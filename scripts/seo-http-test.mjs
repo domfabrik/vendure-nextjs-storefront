@@ -69,7 +69,7 @@ async function handleApiRequest(request, response, recordRequest) {
       response.writeHead(400).end('GraphQL Int overflow');
       return;
     }
-    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1, 'structured-catalog': 4 };
+    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1, 'structured-catalog': 4, 'chosen-offer': 1 };
     const totalItems = input.collectionSlug ? (collectionSizes[input.collectionSlug] ?? 1) : 1;
     const skip = input.skip ?? 0;
     const take = input.take ?? totalItems;
@@ -77,7 +77,9 @@ async function handleApiRequest(request, response, recordRequest) {
     const items =
       input.collectionSlug === 'structured-catalog'
         ? structuredCatalogProducts().slice(skip, skip + itemCount)
-        : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
+        : input.collectionSlug === 'chosen-offer'
+          ? chosenOfferCatalogProducts().slice(skip, skip + itemCount)
+          : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
     data = { search: { totalItems, items, facetValues: [] } };
   } else {
     data = { search: { totalItems: 0, items: [], facetValues: [] } };
@@ -106,15 +108,50 @@ function tileProduct(index = 1) {
     priceWithTax: { __typename: 'SinglePrice', value: 1000 },
     productAsset: null,
     productVariantName: 'Тестовый стул',
+    chosenOffer: {
+      productVariantId: `variant-${index}`,
+      currencyCode: 'RUB',
+      priceWithTax: 1000,
+      basePriceWithTax: 1000,
+      discountPercent: 0,
+      productAsset: null,
+    },
   };
 }
 
 function structuredCatalogProducts() {
   return [
-    { ...tileProduct(1), productName: 'Нулевая цена', slug: 'zero-price', priceWithTax: { __typename: 'SinglePrice', value: 0 } },
-    { ...tileProduct(2), productName: 'Невалидная цена', slug: 'invalid-price', priceWithTax: { __typename: 'SinglePrice', value: null } },
-    { ...tileProduct(3), productName: 'Неподдерживаемая валюта', slug: 'unsupported-currency', currencyCode: 'USD' },
-    { ...tileProduct(4), productName: 'Невалидный диапазон', slug: 'invalid-range', priceWithTax: { __typename: 'PriceRange', min: 2000, max: 1000 } },
+    { ...tileProduct(1), productName: 'Нулевая цена', slug: 'zero-price', priceWithTax: { __typename: 'SinglePrice', value: 0 }, chosenOffer: null },
+    { ...tileProduct(2), productName: 'Невалидная цена', slug: 'invalid-price', priceWithTax: { __typename: 'SinglePrice', value: null }, chosenOffer: null },
+    {
+      ...tileProduct(3),
+      productName: 'Неподдерживаемая валюта',
+      slug: 'unsupported-currency',
+      currencyCode: 'USD',
+      chosenOffer: { ...tileProduct(3).chosenOffer, currencyCode: 'USD' },
+    },
+    { ...tileProduct(4), productName: 'Невалидный диапазон', slug: 'invalid-range', priceWithTax: { __typename: 'PriceRange', min: 2000, max: 1000 }, chosenOffer: null },
+  ];
+}
+
+function chosenOfferCatalogProducts() {
+  return [
+    {
+      ...tileProduct(1),
+      productName: 'Карточка согласованного предложения',
+      slug: 'chosen-offer-product',
+      discountPercent: 40,
+      basePriceWithTax: { __typename: 'PriceRange', min: 50_000, max: 60_000 },
+      priceWithTax: { __typename: 'PriceRange', min: 30_000, max: 36_000 },
+      chosenOffer: {
+        productVariantId: 'cheapest-offer',
+        currencyCode: 'RUB',
+        priceWithTax: 30_000,
+        basePriceWithTax: 37_500,
+        discountPercent: 20,
+        productAsset: { preview: 'chosen-offer.jpg' },
+      },
+    },
   ];
 }
 
@@ -185,6 +222,31 @@ function product(slug) {
           options: [{ id: 'dark', groupId: 'finish', code: 'dark', name: 'Тёмная' }],
         },
         { ...baseProduct.variants[0], id: 'variant-invalid', sku: 'EDGE-INVALID', priceWithTax: null, stockLevel: 'IN_STOCK' },
+      ],
+    };
+  }
+  if (slug === 'chosen-offer-product') {
+    return {
+      ...baseProduct,
+      variants: [
+        {
+          ...baseProduct.variants[0],
+          id: 'more-expensive-discount',
+          name: 'Дорогой со скидкой',
+          priceWithTax: 36_000,
+          basePriceWithTax: 60_000,
+          stockLevel: 'IN_STOCK',
+          customFields: { discountPercent: 40 },
+        },
+        {
+          ...baseProduct.variants[0],
+          id: 'cheapest-offer',
+          name: 'Доступный дешевый',
+          priceWithTax: 30_000,
+          basePriceWithTax: 37_500,
+          stockLevel: 'IN_STOCK',
+          customFields: { discountPercent: 20 },
+        },
       ],
     };
   }
@@ -327,6 +389,8 @@ const env = {
   INDEXATION_ALLOW: 'false',
   SEO_DIST_DIR: distDir,
 };
+const useWebpack = process.env.SEO_HTTP_USE_WEBPACK === 'true';
+const nextBuildArgs = useWebpack ? ['build', '--webpack'] : ['build'];
 let next;
 let nextLogs = '';
 function assertStandaloneEnvRemoved(buildDistPath) {
@@ -366,10 +430,10 @@ try {
   // npm and Yarn both run the full package lifecycle, including postbuild.
   // The second, raw Next build separately proves dotenv copying and stripping.
   if (process.env.npm_execpath) {
-    await run(process.execPath, [process.env.npm_execpath, 'run', 'build'], env);
+    await run(process.execPath, [process.env.npm_execpath, 'run', 'build', ...(useWebpack ? ['--', '--webpack'] : [])], env);
     assertStandaloneEnvRemoved(distPath);
   } else {
-    await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+    await run(process.execPath, ['node_modules/next/dist/bin/next', ...nextBuildArgs], env);
     await stripAndAssertStandaloneEnv(distPath, env);
   }
   const allowedRuntimeEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru', INDEXATION_ALLOW: 'true' };
@@ -601,6 +665,21 @@ try {
       /schema\.org\/(?:InStock|OutOfStock|BackOrder)|NaN|Infinity/,
       `${userAgent} TC-2/3 catalog does not invent unavailable search stock or invalid values`,
     );
+
+    const chosenOfferHtml = await (await get('/collections/chosen-offer')).text();
+    assert.match(chosenOfferHtml, /href="\/products\/chosen-offer-product\?variant=cheapest-offer"/, `${userAgent} chosen offer card links to its selected PDP variant`);
+    assert.match(chosenOfferHtml, /chosen-offer\.jpg/, `${userAgent} chosen offer card uses the selected variant image`);
+    assert.match(chosenOfferHtml, />300(?:\s|&nbsp;|<)/, `${userAgent} chosen offer card renders the lowest selected price`);
+    assert.match(chosenOfferHtml, />375(?:\s|&nbsp;|<)/, `${userAgent} chosen offer card renders its matching struck price`);
+    const chosenOfferText = chosenOfferHtml.replace(/<!--.*?-->/g, '');
+    assert.match(chosenOfferText, /-20%/, `${userAgent} chosen offer card renders its matching discount`);
+    assert.doesNotMatch(chosenOfferText, /-40%/, `${userAgent} chosen offer card never borrows the expensive variant discount`);
+
+    const chosenPdpHtml = await (await get('/products/chosen-offer-product?variant=cheapest-offer')).text();
+    const chosenPdpText = chosenPdpHtml.replace(/<!--.*?-->/g, '');
+    assert.match(chosenPdpHtml, />300(?:\s|&nbsp;|<)/, `${userAgent} chosen offer PDP selects the linked variant price`);
+    assert.match(chosenPdpText, /-20%/, `${userAgent} chosen offer PDP selects the linked variant discount`);
+    assert.doesNotMatch(chosenPdpText, /-40%/, `${userAgent} chosen offer PDP does not fall back to another variant`);
     for (const path of ['/products/missing', '/collections/missing', '/products/api-error', '/collections/api-error']) {
       const html = await (await get(path)).text();
       assert.equal([...html.matchAll(/<link[^>]+rel="canonical"[^>]+>/g)].length, 0, `${userAgent} error URL must not have canonical`);
@@ -691,7 +770,7 @@ try {
   env.STOREFRONT_ORIGIN = 'https://domfabrik.ru';
   env.INDEXATION_ALLOW = 'true';
   env.SEO_DIST_DIR = prodDistDir;
-  await run(process.execPath, ['node_modules/next/dist/bin/next', 'build'], env);
+  await run(process.execPath, ['node_modules/next/dist/bin/next', ...nextBuildArgs], env);
   await stripAndAssertStandaloneEnv(prodDistPath, env);
   await startNext(env, prodSitePort);
   const prodHtml = (await requestWithHost(prodSitePort, '/contacts', 'domfabrik.ru')).text();

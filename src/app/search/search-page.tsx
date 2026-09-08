@@ -275,6 +275,7 @@ export function SearchPage({ initialData, allFacetValues, defaultSortIsRelevance
                   discountPercent: p.discountPercent,
                   basePriceWithTax: p.basePriceWithTax,
                   priceWithTax: p.priceWithTax,
+                  chosenOffer: p.chosenOffer,
                   productAsset: p.productAsset,
                 }}
               />

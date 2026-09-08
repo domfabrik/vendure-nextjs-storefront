@@ -14,6 +14,7 @@ import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/s
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -26,6 +27,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default async function Page(props: PageProps) {
   const { slug } = await props.params;
+  const searchParams = await props.searchParams;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
@@ -37,7 +39,8 @@ export default async function Page(props: PageProps) {
 
   const productJsonLd = buildProductJsonLd(product, envServer.SITE_URL);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product, envServer.SITE_URL);
-  const initialVariant = product.variants[0];
+  const requestedVariantId = typeof searchParams.variant === 'string' ? searchParams.variant : undefined;
+  const initialVariant = product.variants.find((variant) => variant.id === requestedVariantId) ?? product.variants[0];
   const initialPrice = normalizeMinorPrice(initialVariant?.priceWithTax);
   const initialCurrency = normalizeCurrencyCode(initialVariant?.currencyCode);
 
@@ -66,7 +69,11 @@ export default async function Page(props: PageProps) {
           variant={initialVariant?.name}
         />
       )}
-      <ProductDetails product={product} />
+      <ProductDetails
+        key={`${product.id}:${initialVariant?.id ?? ''}`}
+        product={product}
+        initialVariantId={initialVariant?.id}
+      />
 
       {/* Also bought */}
       {alsoBought.length > 0 && (

@@ -5,31 +5,8 @@ import { Box, Card, CardContent, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
-import type { HomepageProduct, HomepageProductPrice } from '@/shared/model';
+import type { HomepageProduct } from '@/shared/model';
 import { useCartStore } from '@/shared/store/cart';
-
-function getPrice(price: HomepageProductPrice): number | undefined {
-  if (price.__typename === 'SinglePrice') return normalizeMinorPrice(price.value);
-  const min = normalizeMinorPrice(price.min);
-  const max = normalizeMinorPrice(price.max);
-  return min === undefined || max === undefined || min > max ? undefined : min;
-}
-
-function formatPrice(price: HomepageProductPrice, currency: 'RUB'): string | undefined {
-  if (price.__typename === 'SinglePrice') {
-    const value = normalizeMinorPrice(price.value);
-    return value === undefined ? undefined : priceFormatter(value, currency);
-  }
-  const min = normalizeMinorPrice(price.min);
-  const max = normalizeMinorPrice(price.max);
-  if (min === undefined || max === undefined || min > max) return undefined;
-  if (min === max) return priceFormatter(min, currency);
-  return `${priceFormatter(min, currency)} – ${priceFormatter(max, currency)}`;
-}
-
-function hasDiscount(product: HomepageProduct): boolean {
-  return Number.isFinite(product.discountPercent) && product.discountPercent > 0;
-}
 
 interface ProductCardProps {
   product: HomepageProduct;
@@ -38,13 +15,15 @@ interface ProductCardProps {
 
 export function ProductCard({ product, imgHeight }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
-  const image = product.productAsset?.preview;
-  const href = routes.product(product.slug);
-  const currency = normalizeCurrencyCode(product.currencyCode);
-  const price = getPrice(product.priceWithTax);
-  const formattedPrice = currency ? formatPrice(product.priceWithTax, currency) : undefined;
-  const formattedBasePrice = currency ? formatPrice(product.basePriceWithTax, currency) : undefined;
-  const showDiscount = hasDiscount(product) && Boolean(formattedBasePrice);
+  const offer = product.chosenOffer;
+  const image = offer?.productAsset?.preview ?? product.productAsset?.preview;
+  const href = routes.product(product.slug, offer?.productVariantId);
+  const currency = normalizeCurrencyCode(offer?.currencyCode);
+  const price = normalizeMinorPrice(offer?.priceWithTax);
+  const formattedPrice = price !== undefined && currency ? priceFormatter(price, currency) : undefined;
+  const basePrice = normalizeMinorPrice(offer?.basePriceWithTax);
+  const formattedBasePrice = basePrice !== undefined && currency ? priceFormatter(basePrice, currency) : undefined;
+  const showDiscount = Boolean(offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
 
   return (
     <NextLink href={href}>
@@ -106,7 +85,7 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
                   lineHeight: 1,
                 }}
               >
-                -{product.discountPercent}%
+                -{offer?.discountPercent}%
               </Typography>
             )}
           </Box>
@@ -131,13 +110,14 @@ export function ProductCard({ product, imgHeight }: ProductCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 if (price === undefined || !currency || !formattedPrice) return;
+                if (!offer) return;
                 addToCart({
-                  productVariantId: product.productVariantId,
+                  productVariantId: offer.productVariantId,
                   productName: product.productName,
                   variantName: product.productName,
                   slug: product.slug,
                   price,
-                  image: product.productAsset?.preview ?? null,
+                  image: image ?? null,
                 });
               }}
             >
