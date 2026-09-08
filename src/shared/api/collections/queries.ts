@@ -78,6 +78,16 @@ export const SEARCH_COLLECTION_PRODUCTS = gql`
         productAsset {
           preview
         }
+        chosenOffer {
+          productVariantId
+          currencyCode
+          priceWithTax
+          basePriceWithTax
+          discountPercent
+          productAsset {
+            preview
+          }
+        }
       }
     }
   }

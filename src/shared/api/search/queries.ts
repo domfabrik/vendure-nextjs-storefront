@@ -37,6 +37,16 @@ export const SEARCH_PRODUCTS = gql`
           preview
         }
         description
+        chosenOffer {
+          productVariantId
+          currencyCode
+          priceWithTax
+          basePriceWithTax
+          discountPercent
+          productAsset {
+            preview
+          }
+        }
       }
       totalItems
       facetValues {

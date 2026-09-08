@@ -10,6 +10,7 @@ import { ProductGallery } from './product-gallery';
 
 interface ProductDetailsProps {
   product: Product;
+  initialVariantId?: string;
 }
 
 function findVariant(product: Product, selectedOptions: Record<string, string>): ProductVariant | undefined {
@@ -25,8 +26,8 @@ function getImagesForVariant(product: Product, variant: ProductVariant | undefin
   return assets;
 }
 
-export function ProductDetails({ product }: ProductDetailsProps) {
-  const defaultVariant = product.variants[0];
+export function ProductDetails({ product, initialVariantId }: ProductDetailsProps) {
+  const defaultVariant = product.variants.find((variant) => variant.id === initialVariantId) ?? product.variants[0];
 
   const initialSelected = useMemo(() => {
     const sel: Record<string, string> = {};
@@ -39,8 +40,12 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   }, [defaultVariant]);
 
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(initialSelected);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(defaultVariant?.id);
 
-  const variant = useMemo(() => findVariant(product, selectedOptions), [product, selectedOptions]);
+  const variant = useMemo(
+    () => product.variants.find((candidate) => candidate.id === selectedVariantId) ?? findVariant(product, selectedOptions),
+    [product, selectedOptions, selectedVariantId],
+  );
 
   const images = useMemo(() => getImagesForVariant(product, variant), [product, variant]);
 
@@ -54,6 +59,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   const handleOptionClick = (groupId: string, optionId: string) => {
     if (selectedOptions[groupId] === optionId) return;
+    setSelectedVariantId(undefined);
     setSelectedOptions((prev) => ({ ...prev, [groupId]: optionId }));
   };
 

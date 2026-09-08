@@ -120,6 +120,14 @@ export interface SearchResult {
   facetValueIds: string[];
   productAsset: { preview: string } | null;
   description: string;
+  chosenOffer: {
+    productVariantId: string;
+    currencyCode: string;
+    priceWithTax: number;
+    basePriceWithTax: number;
+    discountPercent: number;
+    productAsset: { preview: string } | null;
+  } | null;
 }
 
 export interface ProductVariantTile {

@@ -50,6 +50,15 @@ export interface HomepageProductPrice {
   value?: number;
 }
 
+export interface CatalogChosenOffer {
+  productVariantId: string;
+  currencyCode: string;
+  priceWithTax: number;
+  basePriceWithTax: number;
+  discountPercent: number;
+  productAsset: { preview: string } | null;
+}
+
 export interface HomepageProduct {
   productName: string;
   slug: string;
@@ -59,6 +68,7 @@ export interface HomepageProduct {
   basePriceWithTax: HomepageProductPrice;
   priceWithTax: HomepageProductPrice;
   productAsset: { preview: string } | null;
+  chosenOffer: CatalogChosenOffer | null;
 }
 
 export interface HomepageCollection {

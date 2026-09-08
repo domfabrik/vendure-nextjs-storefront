@@ -145,6 +145,16 @@ export const GET_FEATURED_PRODUCTS = gql`
           preview
         }
         description
+        chosenOffer {
+          productVariantId
+          currencyCode
+          priceWithTax
+          basePriceWithTax
+          discountPercent
+          productAsset {
+            preview
+          }
+        }
       }
     }
   }
