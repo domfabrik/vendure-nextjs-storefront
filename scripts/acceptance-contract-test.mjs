@@ -201,7 +201,11 @@ assert.equal(expectedPdpCanonical, 'https://test.example/products/fixture', 'PDP
 assert.notEqual(expectedPdpCanonical, 'https://test.example/products/fixture?variant=920', 'variant-bearing canonical must fail');
 assert.notEqual(expectedPdpCanonical, 'https://test.example/products/other', 'wrong PDP slug must fail');
 assert.notEqual(expectedPdpCanonical, 'https://wrong.example/products/fixture', 'wrong PDP origin must fail');
-assert.equal(canonicalRouteHref('/collections/fixture?page=2&sort=name-ASC', 'https://test.example/'), 'https://test.example/collections/fixture?page=2&sort=name-ASC', 'pagination canonical query must remain unchanged');
+assert.equal(
+  canonicalRouteHref('/collections/fixture?page=2&sort=name-ASC', 'https://test.example/'),
+  'https://test.example/collections/fixture?page=2&sort=name-ASC',
+  'pagination canonical query must remain unchanged',
+);
 assert.deepEqual(parseMoneyMinorValues('32 561,55 ₽ за шт. 65 123,10 ₽', 'RUB'), [3256155, 6512310], 'fractional RUB display must retain exact minor units');
 assert.deepEqual(
   validateCartMoneyText('100 ₽ 200 ₽', { currencyCode: 'RUB', unitMinor: 10000, quantity: 2 }).values,
