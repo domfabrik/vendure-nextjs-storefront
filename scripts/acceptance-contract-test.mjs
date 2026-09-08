@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
+import { canonicalRouteHref, matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const runnerPath = fileURLToPath(new URL('./storefront-acceptance-test.mjs', import.meta.url));
 function runChild(command, args, options) {
@@ -196,6 +196,12 @@ assert.throws(
 );
 assert.equal(matchesCollectionPage('/collections/fixture?page=2', '/collections/fixture', 2), true, 'selected category page 2 link must be accepted');
 assert.equal(matchesCollectionPage('/collections/other?page=2', '/collections/fixture', 2), false, 'other category page 2 link must be rejected');
+const expectedPdpCanonical = canonicalRouteHref('/products/fixture?variant=920', 'https://test.example/', { stripVariant: true });
+assert.equal(expectedPdpCanonical, 'https://test.example/products/fixture', 'PDP variant selector must be removed from canonical');
+assert.notEqual(expectedPdpCanonical, 'https://test.example/products/fixture?variant=920', 'variant-bearing canonical must fail');
+assert.notEqual(expectedPdpCanonical, 'https://test.example/products/other', 'wrong PDP slug must fail');
+assert.notEqual(expectedPdpCanonical, 'https://wrong.example/products/fixture', 'wrong PDP origin must fail');
+assert.equal(canonicalRouteHref('/collections/fixture?page=2&sort=name-ASC', 'https://test.example/'), 'https://test.example/collections/fixture?page=2&sort=name-ASC', 'pagination canonical query must remain unchanged');
 assert.deepEqual(parseMoneyMinorValues('32 561,55 ₽ за шт. 65 123,10 ₽', 'RUB'), [3256155, 6512310], 'fractional RUB display must retain exact minor units');
 assert.deepEqual(
   validateCartMoneyText('100 ₽ 200 ₽', { currencyCode: 'RUB', unitMinor: 10000, quantity: 2 }).values,

@@ -45,3 +45,9 @@ export function matchesCollectionPage(href, selectedHref, page) {
     return false;
   }
 }
+
+export function canonicalRouteHref(routeHref, baseHref, { stripVariant = false } = {}) {
+  const route = new URL(routeHref, baseHref);
+  if (stripVariant) route.searchParams.delete('variant');
+  return route.href;
+}

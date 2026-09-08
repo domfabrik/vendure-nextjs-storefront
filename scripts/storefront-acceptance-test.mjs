@@ -8,7 +8,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
-import { matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
+import { canonicalRouteHref, matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const rawBase = process.env.BASE_URL;
 if (!rawBase) throw new Error('BASE_URL is required (for example https://test.domfabrik.ru)');
@@ -712,14 +712,14 @@ async function main() {
       assert.match(robots.text, /^Allow:\s*\/$/im, 'production robots must allow crawling');
       assert.match(robots.text, new RegExp(`^Sitemap:\\s*${base.origin.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}/sitemap\\.xml$`, 'im'));
     }
-    for (const [path, expected] of [
-      ['/', '/'],
-      [category, category],
-      [product, product],
+    for (const [path, expected, options] of [
+      ['/', '/', {}],
+      [category, category, {}],
+      [product, product, { stripVariant: true }],
     ]) {
       const page = path === '/' ? { text: homepage, response: { status: 200 } } : await get(path);
       assert.equal(page.response.status, 200);
-      assert.equal(new URL(canonical(page.text), base).href, new URL(expected, base).href, `canonical ${path}`);
+      assert.equal(new URL(canonical(page.text), base).href, canonicalRouteHref(expected, base.href, options), `canonical ${path}`);
       assert.doesNotMatch(robotsMeta(page.text), /noindex/i, `commercial page ${path} must be indexable`);
     }
     for (const path of ['/search?q=fabric_acceptance_no_such_product_9f3c', '/cart']) {
