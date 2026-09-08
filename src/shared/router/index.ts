@@ -4,7 +4,7 @@ export const routes = {
   home: () => '/',
   cart: () => '/cart',
   collection: (slug: string) => `/collections/${slug}`,
-  product: (slug: string) => `/products/${slug}`,
+  product: (slug: string, variantId?: string) => (variantId ? `/products/${slug}?variant=${encodeURIComponent(variantId)}` : `/products/${slug}`),
   search: (params: string | Record<string, string>) => {
     const query = typeof params === 'string' ? new URLSearchParams({ q: params }) : new URLSearchParams(params);
     return `/search?${query.toString()}`;

@@ -86,7 +86,7 @@ export function CartPage() {
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography
                     component={NextLink}
-                    href={routes.product(item.slug)}
+                    href={routes.product(item.slug, item.productVariantId)}
                     sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 500, display: 'block' }}
                     noWrap
                   >

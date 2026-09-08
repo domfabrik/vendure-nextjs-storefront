@@ -125,7 +125,13 @@ export function homepageFixture(tileProduct) {
         const productLinks = [...main.matchAll(/href="\/products\/([^"]+)"/g)].map((match) => match[1]);
         assert.deepEqual(
           productLinks,
-          ['shared-product', ...expected.map((slug) => `ssr-product-${slugs.indexOf(slug)}-1`)],
+          [
+            'shared-product?variant=variant-1',
+            ...expected.map((slug) => {
+              const index = slugs.indexOf(slug);
+              return `ssr-product-${index}-1?variant=variant-${index * 10 + 2}`;
+            }),
+          ],
           `${scenario}: TC-S1 first two per collection, deduplication and order preserved`,
         );
         assert.deepEqual(unavailable, scenario === 'happy' ? [] : [slugs[1]], `${scenario}: TC-S2 only failed block degrades`);
