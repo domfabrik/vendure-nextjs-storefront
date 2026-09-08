@@ -22,7 +22,7 @@ assert.match(acceptanceWorkflow, /npm install --ignore-scripts --no-audit --no-f
 assert.match(acceptanceWorkflow, /npm rebuild bcrypt/, 'TC-CI backend fixture must rebuild native bcrypt after scriptless install');
 assert.match(acceptanceWorkflow, /require\('bcrypt'\)/, 'TC-CI backend fixture must verify bcrypt can load before startup');
 assert.match(acceptanceWorkflow, /node scripts\/acceptance-aggregate\.mjs/, 'TC-CI must aggregate all A01-A18 profiles');
-assert.match(acceptanceWorkflow, /0387240ad3ee088270ffd4582c3c66c73a30f5e6/, 'TC-CI must pin accepted backend fixture source');
+assert.match(acceptanceWorkflow, /6715ebd31fa9e02d4e7d4ab1d38bc8a19093016b/, 'TC-CI must pin accepted backend fixture source');
 assert.match(acceptanceWorkflow, /path: storefront/, 'TC-CI must keep storefront checkout outside the backend tree');
 assert.match(acceptanceWorkflow, /path: vendure/, 'TC-CI must place backend checkout beside storefront');
 assert.match(acceptanceWorkflow, /LEAD_BACKEND_DIR: \.\.\/vendure/, 'TC-CI fixture must resolve the sibling backend checkout');
