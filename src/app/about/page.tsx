@@ -78,7 +78,7 @@ export default function AboutPage() {
           <ListItemText primary="Изготовление на заказ: меняем размеры, материалы, цвета" />
         </ListItem>
         <ListItem>
-          <ListItemText primary="Прозрачная оплата: предоплата 10%, остаток — перед получением" />
+          <ListItemText primary="Прозрачная оплата: 100% предоплата стоимости товара" />
         </ListItem>
         <ListItem>
           <ListItemText primary="Аккуратная доставка: перед отправкой всё проверяем и упаковываем" />
