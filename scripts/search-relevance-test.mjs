@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createSerializer } from 'nuqs/server';
 import { resolveSearchSort, searchParsers } from '../src/app/search/search-params.ts';
+import { buildHeaderSearchInput, HEADER_SEARCH_TAKE } from '../src/shared/ui/header/components/search-input.ts';
 
 const serializeSearch = createSerializer(searchParsers);
 const implicitSearch = new URLSearchParams(serializeSearch({ q: 'диван' }));
@@ -36,5 +37,16 @@ assert.match(pageSource, /defaultSortIsRelevance=\{term\.length > 0 && searchPar
 assert.match(pageSource, /take: PER_PAGE/, 'TC2 search page keeps the first-page size');
 assert.match(pageSource, /skip: \(page - 1\) \* PER_PAGE/, 'TC2 search page keeps the requested page offset');
 assert.match(pageSource, /\.\.\.baseQuery, take: 0, skip: 0/, 'TC2 facet count query keeps its zero-offset contract');
+
+for (const term of ['шкаф Натали', 'ШКАФ НАТАЛИ', '  шкаф   Натали  ', 'шкаф, Натали!', 'шкаф Натали 2-ств']) {
+  const input = buildHeaderSearchInput(term);
+  assert.deepEqual(input, { term, take: HEADER_SEARCH_TAKE }, `TC2 autocomplete keeps ${JSON.stringify(term)} and uses relevance`);
+  assert.equal(Object.hasOwn(input, 'sort'), false, 'TC1 autocomplete must not replace relevance with a price sort');
+}
+
+const headerSearchSource = readFileSync(new URL('../src/shared/ui/header/components/search.tsx', import.meta.url), 'utf8');
+assert.match(headerSearchSource, /searchProducts\(buildHeaderSearchInput\(debouncedQuery\)\)/, 'TC1 header uses the tested autocomplete input builder');
+assert.match(headerSearchSource, /setResults\(res\.items\)/, 'TC2 zero-result responses replace stale autocomplete options');
+assert.match(headerSearchSource, /setTotalItems\(res\.totalItems\)/, 'TC2 autocomplete keeps the API total for all-results navigation');
 
 console.log('Search relevance sort resolution checks passed');

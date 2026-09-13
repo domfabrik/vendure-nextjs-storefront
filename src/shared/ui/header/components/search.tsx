@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { searchProducts } from '@/shared/api/search';
 import type { SearchResult } from '@/shared/model';
+import { buildHeaderSearchInput } from './search-input';
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -48,7 +49,7 @@ export function Search() {
     let cancelled = false;
     setLoading(true);
 
-    searchProducts({ term: debouncedQuery, take: 6, sort: { price: 'DESC' } })
+    searchProducts(buildHeaderSearchInput(debouncedQuery))
       .then((res) => {
         if (cancelled) return;
         setResults(res.items);
