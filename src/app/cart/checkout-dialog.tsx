@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { type LeadOrderReceipt, prepareLeadOrder, submitLeadOrder } from '@/shared/api';
-import { trackOrderRequestSubmitted } from '@/shared/lib';
+import { trackGa4BeginCheckout, trackGa4GenerateLead, trackOrderRequestSubmitted } from '@/shared/lib';
 import { useCartStore } from '@/shared/store';
 import { clearLeadCheckoutAttempt, createLeadCheckoutAttempt, type LeadCheckoutAttempt, loadLeadCheckoutAttempt, saveLeadCheckoutAttempt } from './lead-checkout-attempt';
 
@@ -54,6 +54,7 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
   const mountedRef = useRef(false);
   const operationRef = useRef(0);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const beginCheckoutTrackedRef = useRef(false);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -87,6 +88,16 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
     if (inFlightRef.current) return;
     finishClose();
   }
+
+  useEffect(() => {
+    if (!open) {
+      beginCheckoutTrackedRef.current = false;
+      return;
+    }
+    if (beginCheckoutTrackedRef.current || items.length === 0) return;
+    beginCheckoutTrackedRef.current = true;
+    trackGa4BeginCheckout(items);
+  }, [items, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -174,6 +185,7 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
       clearLeadCheckoutAttempt(activeAttempt.input.submissionToken);
       attemptRef.current = null;
       trackOrderRequestSubmitted(result.receipt);
+      trackGa4GenerateLead(result.receipt);
       if (canUpdateUi()) {
         setAttempt(null);
         setReceipt(result.receipt);

@@ -72,12 +72,18 @@ jobs:
             deploy_env_file="${PROD_DEPLOY_ENV_FILE}"
             latest_tag="prod-latest"
             metrika_id="110706774"
+            ga4_id="G-P8696MK1EF"
+            ga4_enabled="true"
+            ga4_debug="false"
             indexation_allow="true"
           else
             server_host="${TEST_SERVER_HOST}"
             deploy_env_file="${TEST_DEPLOY_ENV_FILE}"
             latest_tag="test-latest"
             metrika_id="112305722"
+            ga4_id="G-0M5G35PLZW"
+            ga4_enabled="true"
+            ga4_debug="true"
             indexation_allow="false"
           fi
 
@@ -92,6 +98,9 @@ jobs:
           echo "deploy_env_file=${deploy_env_file}" >> "$GITHUB_OUTPUT"
           echo "latest_tag=${latest_tag}" >> "$GITHUB_OUTPUT"
           echo "metrika_id=${metrika_id}" >> "$GITHUB_OUTPUT"
+          echo "ga4_id=${ga4_id}" >> "$GITHUB_OUTPUT"
+          echo "ga4_enabled=${ga4_enabled}" >> "$GITHUB_OUTPUT"
+          echo "ga4_debug=${ga4_debug}" >> "$GITHUB_OUTPUT"
           echo "indexation_allow=${indexation_allow}" >> "$GITHUB_OUTPUT"
           echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
           echo "image_repo=${image_repo}" >> "$GITHUB_OUTPUT"
@@ -103,6 +112,9 @@ jobs:
           cat > .env.production <<EOF
           NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.public_origin }}
           NEXT_PUBLIC_METRIKA_ID=${{ steps.vars.outputs.metrika_id }}
+          NEXT_PUBLIC_GA4_ID=${{ steps.vars.outputs.ga4_id }}
+          NEXT_PUBLIC_GA4_ENABLED=${{ steps.vars.outputs.ga4_enabled }}
+          NEXT_PUBLIC_GA4_DEBUG=${{ steps.vars.outputs.ga4_debug }}
           STOREFRONT_ORIGIN=${{ steps.vars.outputs.public_origin }}
           INDEXATION_ALLOW=${{ steps.vars.outputs.indexation_allow }}
           EOF

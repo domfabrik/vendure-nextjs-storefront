@@ -286,6 +286,9 @@ async function main() {
     API_URL: `http://127.0.0.1:${apiPort}/shop-api`,
     NEXT_PUBLIC_SITE_URL: 'http://test.domfabrik.ru',
     NEXT_PUBLIC_METRIKA_ID: '112305722',
+    NEXT_PUBLIC_GA4_ID: 'G-0M5G35PLZW',
+    NEXT_PUBLIC_GA4_ENABLED: 'true',
+    NEXT_PUBLIC_GA4_DEBUG: 'true',
     STOREFRONT_ORIGIN: 'https://test.domfabrik.ru',
     INDEXATION_ALLOW: 'false',
     SEO_DIST_DIR: `.next-lead-ui-${process.pid}`,
@@ -338,6 +341,8 @@ async function main() {
   };
   const textIncludes = (text) => evaluate(`document.body?.innerText.includes(${JSON.stringify(text)}) ?? false`);
   const waitText = (text) => waitFor(() => textIncludes(text), `page text: ${text}`);
+  const gaEventCount = (name) => evaluate(`(window.gaDataLayer ?? []).filter((args) => args[0] === 'event' && args[1] === ${JSON.stringify(name)}).length`);
+  const gaEventPayloads = (name) => evaluate(`(window.gaDataLayer ?? []).filter((args) => args[0] === 'event' && args[1] === ${JSON.stringify(name)}).map((args) => args[2])`);
   const clickText = (text) =>
     evaluate(
       `(() => { const element = [...document.querySelectorAll('button')].find((node) => node.textContent.includes(${JSON.stringify(text)})); if (!element) return false; element.click(); return true; })()`,
@@ -372,24 +377,72 @@ async function main() {
   await call('Runtime.enable');
   await call('Network.enable');
   await call('Network.setCacheDisabled', { cacheDisabled: true });
-  await call('Network.setBlockedURLs', { urls: ['*://mc.yandex.ru/*', '*://mc.yandex.com/*', '*://metrika.yandex.ru/*', '*://yastatic.net/*'] });
+  await call('Network.setBlockedURLs', {
+    urls: ['*://mc.yandex.ru/*', '*://mc.yandex.com/*', '*://metrika.yandex.ru/*', '*://yastatic.net/*', '*://www.googletagmanager.com/*', '*://*.google-analytics.com/*'],
+  });
   await call('Page.addScriptToEvaluateOnNewDocument', {
     source: `window.__leadYmCalls = []; window.ym = (...args) => window.__leadYmCalls.push(args); if (sessionStorage.getItem('__seedLeadCart')) { localStorage.removeItem('lead-checkout-attempt-v1'); localStorage.removeItem('lead-checkout-completed-v1'); localStorage.removeItem('metrika-order-request-ids-v1'); localStorage.setItem('cart-storage', ${JSON.stringify(JSON.stringify(cartState))}); sessionStorage.removeItem('__seedLeadCart'); }`,
   });
 
   try {
     await navigate();
+    await waitText('Google Analytics собирает статистику');
+    assert.equal(await evaluate('window.gaDataLayer'), undefined, 'Google queue must not exist before consent');
+    assert.equal(await evaluate(`document.getElementById('google-analytics-G-0M5G35PLZW') !== null`), false, 'Google script must not load before consent');
+    assert.equal(await clickText('Не разрешать Google Analytics'), true);
+    assert.equal(await evaluate('window.gaDataLayer'), undefined, 'rejecting Google must not send a consent ping');
+    assert.equal(await clickText('Настройки Google Analytics'), true);
+    assert.equal(await clickText('Разрешить Google Analytics'), true);
+    await waitFor(() => gaEventCount('page_view').then((count) => count === 1), 'first consented GA page_view');
+    assert.equal(await evaluate(`document.getElementById('google-analytics-G-0M5G35PLZW') !== null`), true, 'consent loads only the configured test tag');
+    assert.deepEqual((await gaEventPayloads('page_view'))[0], {
+      page_location: 'https://test.domfabrik.ru/cart',
+      page_referrer: '',
+      page_title: 'Корзина | Дом Фабрик',
+    });
+    const initialPageViews = await gaEventCount('page_view');
+    await evaluate(`history.pushState({}, '', location.pathname + '?email=private@example.com#secret')`);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    assert.equal(await gaEventCount('page_view'), initialPageViews, 'query/hash-only changes do not emit another page_view');
+
+    await call('Page.navigate', { url: `http://test.domfabrik.ru:${sitePort}/products/fixture-chair?email=private@example.com#secret` });
+    await waitText('Fixture chair');
+    await waitFor(() => gaEventCount('view_item').then((count) => count === 1), 'current PDP variant view_item');
+    const productPageView = (await gaEventPayloads('page_view'))[0];
+    const productViewItem = (await gaEventPayloads('view_item'))[0];
+    assert.equal(productPageView.page_location, 'https://test.domfabrik.ru/products/fixture-chair');
+    assert.deepEqual(productViewItem.items[0], {
+      item_id: '1',
+      item_name: 'Fixture chair',
+      item_variant: 'Fixture chair',
+      price: 99.99,
+      quantity: 1,
+    });
+    assert.doesNotMatch(JSON.stringify([productPageView, productViewItem]), /private@example\.com|\?email=|#secret/);
+    await navigate();
+
     await seed();
+    assert.equal(await evaluate(`(() => { const button = document.querySelector('button[aria-label="Увеличить"]'); button?.click(); return !!button; })()`), true);
+    await waitFor(() => evaluate(`JSON.parse(localStorage.getItem('cart-storage')).state.items[0].quantity === 2`), 'cart increase');
+    assert.equal(await gaEventCount('add_to_cart'), 1, 'cart increase emits the actual added quantity');
+    assert.equal(await evaluate(`(window.gaDataLayer ?? []).filter((args) => args[0] === 'event' && args[1] === 'add_to_cart')[0][2].items[0].quantity`), 1);
+    assert.equal(await evaluate(`(() => { const button = document.querySelector('button[aria-label="Уменьшить"]'); button?.click(); return !!button; })()`), true);
+    await waitFor(() => evaluate(`JSON.parse(localStorage.getItem('cart-storage')).state.items[0].quantity === 1`), 'cart decrease');
+    assert.equal(await gaEventCount('remove_from_cart'), 1, 'cart decrease emits the actual removed quantity');
+    assert.equal(await evaluate(`(window.gaDataLayer ?? []).filter((args) => args[0] === 'event' && args[1] === 'remove_from_cart')[0][2].items[0].quantity`), 1);
 
     // The backend accepts the first mutation but its response is lost. Immediate double click is one flight.
     behavior = 'lost-once';
     const initialPrepare = prepareCount;
     const initialSubmit = submissions.length;
+    const beginCheckoutBefore = await gaEventCount('begin_checkout');
     await openAndFill('Lost Response');
+    assert.equal(await gaEventCount('begin_checkout'), beginCheckoutBefore + 1, 'non-empty checkout opening emits one begin_checkout');
     await evaluate(
       `(() => { const button = [...document.querySelectorAll('button')].find((node) => node.textContent.includes('Отправить заявку')); button.click(); button.click(); })()`,
     );
     await waitText('Результат отправки пока неизвестен');
+    assert.equal(await gaEventCount('generate_lead'), 0, 'uncertain or failed submit cannot emit a lead before receipt confirmation');
     assert.equal(submissions.length, initialSubmit + 1, 'immediate double click must issue one submit');
     const firstAttempt = submissions.at(-1).input;
     assert.match(firstAttempt.submissionToken, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
@@ -405,7 +458,15 @@ async function main() {
       `(() => { const original = Storage.prototype.removeItem; Storage.prototype.removeItem = function(key) { if (key === 'lead-checkout-attempt-v1') throw new Error('attempt deletion disabled'); return original.call(this, key); }; })()`,
     );
     assert.equal(await clickText('Повторить отправку'), true);
+    await evaluate(`window.ym = (...args) => { window.__leadYmCalls.push(args); if (args[2] === 'order_request_submitted') throw new Error('fixture ym failure'); };`);
     await waitText('Заявка LEAD-');
+    assert.equal(await gaEventCount('generate_lead'), 1, 'accepted replay receipt emits one generate_lead');
+    assert.equal(await gaEventCount('purchase'), 0, 'unpaid request never emits purchase');
+    const gaLeadPayload = (await gaEventPayloads('generate_lead'))[0];
+    assert.equal(gaLeadPayload.currency, 'RUB');
+    assert.equal(gaLeadPayload.value, 123.45);
+    assert.equal(gaLeadPayload.page_location, 'https://test.domfabrik.ru/cart');
+    assert.doesNotMatch(JSON.stringify(gaLeadPayload), /Lost Response|\+70000000000|submissionToken|private@example\.com/);
     assert.equal(submissions.length, initialSubmit + 2);
     assert.deepEqual(submissions.at(-1).input, firstAttempt, 'retry must preserve exact token, capability and payload');
     assert.equal(submissions.at(-1).authorization, 'Bearer ui-harness-session', 'submit must use the cookie established by prepare');
@@ -424,6 +485,44 @@ async function main() {
       'analytics must contain no contact or token',
     );
 
+    const gaEventsBeforeRevocation = {
+      pageViews: await gaEventCount('page_view'),
+      leads: await gaEventCount('generate_lead'),
+      adds: await gaEventCount('add_to_cart'),
+      removes: await gaEventCount('remove_from_cart'),
+    };
+    await evaluate(`document.cookie = '_ga=fixture; path=/'; document.cookie = '_ga_G-0M5G35PLZW=fixture; path=/'; document.cookie = 'store-pref=keep; path=/';`);
+    assert.equal(await clickText('Настройки Google Analytics'), true);
+    assert.equal(await clickText('Не разрешать Google Analytics'), true);
+    assert.equal(await evaluate(`localStorage.getItem('google-analytics-consent-v1')`), 'denied');
+    assert.equal(await evaluate(`document.cookie.includes('_ga=') || document.cookie.includes('_ga_G-0M5G35PLZW=')`), false, 'revocation clears only Google Analytics cookies');
+    assert.equal(await evaluate(`document.cookie.includes('store-pref=keep')`), true, 'revocation preserves unrelated site cookies');
+    assert.deepEqual(
+      {
+        pageViews: await gaEventCount('page_view'),
+        leads: await gaEventCount('generate_lead'),
+        adds: await gaEventCount('add_to_cart'),
+        removes: await gaEventCount('remove_from_cart'),
+      },
+      gaEventsBeforeRevocation,
+      'revocation suppresses future GA events',
+    );
+    assert.equal(await evaluate(`window['ga-disable-G-0M5G35PLZW']`), true);
+
+    await call('Page.navigate', { url: `http://test.domfabrik.ru:${sitePort}/products/fixture-chair?email=private@example.com#secret` });
+    await waitText('Fixture chair');
+    await waitText('Настройки Google Analytics');
+    assert.equal(await gaEventCount('view_item'), 0, 'revoked consent suppresses the current PDP item event');
+    assert.equal(await gaEventCount('page_view'), 0, 'revoked consent suppresses the current page event');
+    assert.equal(await clickText('Настройки Google Analytics'), true);
+    assert.equal(await clickText('Разрешить Google Analytics'), true);
+    assert.equal(await evaluate(`localStorage.getItem('google-analytics-consent-v1')`), 'granted');
+    await waitFor(() => gaEventCount('view_item').then((count) => count === 1), 'current PDP view_item after consent is granted on the PDP');
+    assert.equal(await gaEventCount('page_view'), 1, 'current PDP page_view precedes or accompanies its product event');
+    assert.equal((await gaEventPayloads('page_view'))[0].page_location, 'https://test.domfabrik.ru/products/fixture-chair');
+
+    await navigate();
+
     // A genuine next checkout gets a new token and receipt.
     await refillCartOnly();
     behavior = 'usd-success';
@@ -435,6 +534,7 @@ async function main() {
     assert.equal(await textIncludes('$'), true, 'receipt UI must format the backend currency instead of assuming RUB');
     assert.equal(await evaluate(`window.__leadYmCalls.at(-1)[3].currency`), 'USD');
     assert.equal(await evaluate(`window.__leadYmCalls.filter((call) => call[2] === 'order_request_submitted').length`), 1);
+    assert.equal(await gaEventCount('generate_lead'), 0, 'non-RUB backend receipt is not mislabeled as a RUB lead');
 
     // A malformed success-shaped response remains uncertain and cannot forge success.
     await seed();

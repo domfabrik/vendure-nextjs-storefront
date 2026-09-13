@@ -1,9 +1,9 @@
 'use client';
 
 import { Box, Chip, Typography } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
-import { normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
+import { GA4_CONSENT_CHANGE_EVENT, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, priceFormatter, trackGa4ViewItem } from '@/shared/lib';
 import { AddToCartButton } from '@/shared/ui/add-to-cart-button';
 import { ProductCharacteristics } from './product-characteristics';
 import { ProductGallery } from './product-gallery';
@@ -41,6 +41,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
 
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(initialSelected);
   const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(defaultVariant?.id);
+  const [consentRevision, setConsentRevision] = useState(0);
 
   const variant = useMemo(
     () => product.variants.find((candidate) => candidate.id === selectedVariantId) ?? findVariant(product, selectedOptions),
@@ -56,6 +57,24 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
   const discountPercent = variant?.customFields.discountPercent;
   const hasDiscount = typeof discountPercent === 'number' && Number.isFinite(discountPercent) && discountPercent > 0 && basePrice !== undefined;
   const featuredImage = variant?.featuredAsset ?? product.featuredAsset;
+  const categoryName = product.collections.find((collection) => collection.slug !== 'all' && collection.slug !== 'search')?.name;
+
+  useEffect(() => {
+    const onConsentChange = () => setConsentRevision((revision) => revision + 1);
+    window.addEventListener(GA4_CONSENT_CHANGE_EVENT, onConsentChange);
+    return () => window.removeEventListener(GA4_CONSENT_CHANGE_EVENT, onConsentChange);
+  }, []);
+
+  useEffect(() => {
+    if (!variant || price === undefined || currency !== 'RUB') return;
+    trackGa4ViewItem({
+      variantId: variant.id,
+      name: product.name,
+      variant: variant.name,
+      category: categoryName,
+      unitPriceMinor: price,
+    });
+  }, [categoryName, consentRevision, currency, price, product.name, variant?.id, variant?.name]);
 
   const handleOptionClick = (groupId: string, optionId: string) => {
     if (selectedOptions[groupId] === optionId) return;

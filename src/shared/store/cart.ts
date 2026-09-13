@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { pushEcommerceEvent, reachGoal } from '@/shared/lib';
+import { pushEcommerceEvent, reachGoal, trackGa4AddToCart, trackGa4RemoveFromCart } from '@/shared/lib';
 
 export interface CartItem {
   productVariantId: string;
@@ -38,6 +38,9 @@ export const useCartStore = create<CartState>()(
       totalPrice: 0,
 
       addToCart: (item, quantity = 1) => {
+        const gaItem = { productVariantId: item.productVariantId, productName: item.productName, variantName: item.variantName, price: item.price, quantity };
+        if (quantity > 0) trackGa4AddToCart(gaItem, quantity);
+        else if (quantity < 0) trackGa4RemoveFromCart(gaItem, Math.abs(quantity));
         pushEcommerceEvent({
           add: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity }] },
         });
@@ -58,6 +61,7 @@ export const useCartStore = create<CartState>()(
           pushEcommerceEvent({
             remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity }] },
           });
+          trackGa4RemoveFromCart(item, item.quantity);
         }
         set((state) => recalc(state.items.filter((i) => i.productVariantId !== productVariantId)));
       },
@@ -68,6 +72,9 @@ export const useCartStore = create<CartState>()(
           pushEcommerceEvent({
             remove: { products: [{ id: item.productVariantId, name: item.productName, price: item.price / 100, variant: item.variantName, quantity: item.quantity - quantity }] },
           });
+          trackGa4RemoveFromCart(item, quantity <= 0 ? item.quantity : item.quantity - quantity);
+        } else if (item && quantity > item.quantity) {
+          trackGa4AddToCart(item, quantity - item.quantity);
         }
         set((state) => {
           if (quantity <= 0) {

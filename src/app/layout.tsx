@@ -4,6 +4,7 @@ import { GeistSans } from 'geist/font/sans';
 import { Metadata } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
+import { GoogleAnalytics } from '@/features/google-analytics';
 import { MetrikaHit, MetrikaScript } from '@/features/metrika';
 import { envServer, SITE_NAME } from '@/shared/config/index.server';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
@@ -64,6 +65,7 @@ export default async function RootLayout(props: PropsWithChildren) {
               <Suspense fallback={null}>
                 <ScrollToTop />
                 <MetrikaHit />
+                <GoogleAnalytics />
               </Suspense>
 
               <Header />
