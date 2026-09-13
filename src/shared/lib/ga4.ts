@@ -3,7 +3,7 @@ import { getGa4ConsentChoice } from './ga4-consent';
 
 declare global {
   interface Window {
-    gaDataLayer?: unknown[][];
+    gaDataLayer?: Array<IArguments | unknown[] | Record<string, unknown>>;
     gtag?: (...args: unknown[]) => void;
   }
 }
@@ -162,7 +162,10 @@ export function startGa4AfterConsent(): boolean {
 
   try {
     window.gaDataLayer ??= [];
-    window.gtag = (...args: unknown[]) => window.gaDataLayer?.push(args);
+    window.gtag = function gtag(..._args: unknown[]): void {
+      // biome-ignore lint/complexity/noArguments: gtag.js consumes IArguments from its data layer.
+      window.gaDataLayer?.push(arguments);
+    };
 
     Object.assign(window, { [`ga-disable-${config.id}`]: false });
     activeConfig = config;

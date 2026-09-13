@@ -95,6 +95,11 @@ assert.equal(ga4Module.startGa4AfterConsent(), true);
 assert.equal(scripts.size, 1);
 assert.match([...scripts.values()][0].src, /id=G-0M5G35PLZW&l=gaDataLayer/);
 const queued = calls();
+assert.ok(window.gaDataLayer?.length, 'GA initializes a non-empty command queue after consent');
+assert.ok(
+  window.gaDataLayer.every((entry) => Object.prototype.toString.call(entry) === '[object Arguments]'),
+  'gtag.js data-layer commands use canonical IArguments queue entries',
+);
 assert.deepEqual(queued[0], ['consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' }]);
 assert.deepEqual(queued[1], ['consent', 'update', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'granted' }]);
 const configCall = queued.find((call) => call[0] === 'config');
