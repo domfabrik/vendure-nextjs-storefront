@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Контактная информация интернет-магазина DomFabrik — телефон, адрес, карта проезда',
   alternates: { canonical: `${envServer.SITE_URL}/contacts` },
 };
-const YANDEX_MAP_SRC = 'https://yandex.ru/map-widget/v1/?um=constructor%3A__&source=constructor&ll=37.6173%2C54.1961&z=16&pt=37.6173%2C54.1961%2Cpm2rdm';
+const YANDEX_MAP_SRC = 'https://yandex.ru/map-widget/v1/?ol=biz&oid=114768615150';
 
 export default function ContactsPage() {
   return (
@@ -51,14 +51,20 @@ export default function ContactsPage() {
             src={YANDEX_MAP_SRC}
             style={{ border: 0, position: 'absolute', inset: 0, width: '100%', height: '100%' }}
             allowFullScreen
-            title="Карта проезда"
+            loading="lazy"
+            title="Карта салона «Эра» на улице Галкина 2 в Туле"
           />
         </Box>
 
-        <Box sx={{ order: { xs: 1, md: 2 } }}>
+        <Box sx={{ order: { xs: 1, md: 2 }, minWidth: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
             <LocationOnIcon color="primary" />
-            <Typography variant="body1">{contacts.address}</Typography>
+            <Typography
+              variant="body1"
+              sx={{ minWidth: 0 }}
+            >
+              {contacts.address}
+            </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -83,6 +89,33 @@ export default function ContactsPage() {
                 {contacts.email}
               </Link>
             </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3, pl: 4 }}>
+            <Link
+              href={contacts.yandexMapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              Яндекс Карты
+            </Link>
+            <Link
+              href={contacts.twoGisHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              2ГИС
+            </Link>
+            <Link
+              href={contacts.twoGisRouteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+            >
+              Построить маршрут в 2ГИС
+            </Link>
           </Box>
         </Box>
       </Box>
