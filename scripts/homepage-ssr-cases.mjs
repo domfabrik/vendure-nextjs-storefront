@@ -65,6 +65,7 @@ export function homepageFixture(tileProduct) {
     const timings = {};
     for (const scenario of ['happy', '502', 'timeout', 'body-timeout', 'budget', 'empty', 'critical']) {
       reset(scenario);
+      await fetch(`${baseUrl}/api/revalidate`, { signal: AbortSignal.timeout(5_000) }).catch(() => {});
       const logStart = readLogs().length;
       const started = performance.now();
       const response = await fetch(`${baseUrl}/`, { headers: { 'user-agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(10_000) });
