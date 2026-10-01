@@ -2,6 +2,7 @@ export type Ga4ConsentChoice = 'granted' | 'denied';
 
 export const GA4_CONSENT_STORAGE_KEY = 'google-analytics-consent-v1';
 export const GA4_CONSENT_CHANGE_EVENT = 'ga4-consent-change';
+export const GA4_SETTINGS_OPEN_EVENT = 'ga4-settings-open';
 
 let memoryChoice: Ga4ConsentChoice | null = null;
 

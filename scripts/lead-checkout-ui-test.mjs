@@ -386,13 +386,20 @@ async function main() {
 
   try {
     await navigate();
-    await waitText('Google Analytics собирает статистику');
+    await waitText('Google Analytics помогает улучшать сайт');
     assert.equal(await evaluate('window.gaDataLayer'), undefined, 'Google queue must not exist before consent');
     assert.equal(await evaluate(`document.getElementById('google-analytics-G-0M5G35PLZW') !== null`), false, 'Google script must not load before consent');
-    assert.equal(await clickText('Не разрешать Google Analytics'), true);
+    assert.equal(await clickText('Не разрешать'), true);
     assert.equal(await evaluate('window.gaDataLayer'), undefined, 'rejecting Google must not send a consent ping');
-    assert.equal(await clickText('Настройки Google Analytics'), true);
-    assert.equal(await clickText('Разрешить Google Analytics'), true);
+    await waitFor(() => evaluate(`document.querySelector('[aria-label="Настройки Google Analytics"]') === null`), 'consent panel disappears after rejection');
+    assert.equal(await clickText('Настройки аналитики'), true);
+    await waitFor(() => evaluate(`document.querySelector('[aria-label="Настройки Google Analytics"]') !== null`), 'consent settings reopen from the footer');
+    await waitFor(() => evaluate(`document.activeElement?.textContent === 'Разрешить'`), 'reopened settings focus the first choice');
+    assert.equal(await clickText('Закрыть'), true);
+    await waitFor(() => evaluate(`document.querySelector('[aria-label="Настройки Google Analytics"]') === null`), 'settings close without changing consent');
+    await waitFor(() => evaluate(`document.activeElement?.textContent === 'Настройки аналитики'`), 'closing settings returns focus to the footer trigger');
+    assert.equal(await clickText('Настройки аналитики'), true);
+    assert.equal(await clickText('Разрешить'), true);
     await waitFor(() => gaEventCount('page_view').then((count) => count === 1), 'first consented GA page_view');
     assert.equal(await evaluate(`document.getElementById('google-analytics-G-0M5G35PLZW') !== null`), true, 'consent loads only the configured test tag');
     assert.deepEqual((await gaEventPayloads('page_view'))[0], {
@@ -492,8 +499,8 @@ async function main() {
       removes: await gaEventCount('remove_from_cart'),
     };
     await evaluate(`document.cookie = '_ga=fixture; path=/'; document.cookie = '_ga_G-0M5G35PLZW=fixture; path=/'; document.cookie = 'store-pref=keep; path=/';`);
-    assert.equal(await clickText('Настройки Google Analytics'), true);
-    assert.equal(await clickText('Не разрешать Google Analytics'), true);
+    assert.equal(await clickText('Настройки аналитики'), true);
+    assert.equal(await clickText('Не разрешать'), true);
     assert.equal(await evaluate(`localStorage.getItem('google-analytics-consent-v1')`), 'denied');
     assert.equal(await evaluate(`document.cookie.includes('_ga=') || document.cookie.includes('_ga_G-0M5G35PLZW=')`), false, 'revocation clears only Google Analytics cookies');
     assert.equal(await evaluate(`document.cookie.includes('store-pref=keep')`), true, 'revocation preserves unrelated site cookies');
@@ -511,11 +518,11 @@ async function main() {
 
     await call('Page.navigate', { url: `http://test.domfabrik.ru:${sitePort}/products/fixture-chair?email=private@example.com#secret` });
     await waitText('Fixture chair');
-    await waitText('Настройки Google Analytics');
+    await waitText('Настройки аналитики');
     assert.equal(await gaEventCount('view_item'), 0, 'revoked consent suppresses the current PDP item event');
     assert.equal(await gaEventCount('page_view'), 0, 'revoked consent suppresses the current page event');
-    assert.equal(await clickText('Настройки Google Analytics'), true);
-    assert.equal(await clickText('Разрешить Google Analytics'), true);
+    assert.equal(await clickText('Настройки аналитики'), true);
+    assert.equal(await clickText('Разрешить'), true);
     assert.equal(await evaluate(`localStorage.getItem('google-analytics-consent-v1')`), 'granted');
     await waitFor(() => gaEventCount('view_item').then((count) => count === 1), 'current PDP view_item after consent is granted on the PDP');
     assert.equal(await gaEventCount('page_view'), 1, 'current PDP page_view precedes or accompanies its product event');

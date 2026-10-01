@@ -3,6 +3,7 @@ import { routes } from '@routes';
 import NextImage from 'next/image';
 import NextLink from 'next/link';
 import { SITE_NAME } from '@/shared/config';
+import { AnalyticsSettingsTrigger } from './analytics-settings-trigger';
 
 const footerLinks = [
   { label: 'Политика конфиденциальности', href: routes.policy() },
@@ -45,6 +46,7 @@ export function Footer() {
               display: 'flex',
               flexDirection: { xs: 'column', md: 'row' },
               alignItems: 'center',
+              flexWrap: 'wrap',
               gap: { xs: 1, md: 3 },
             }}
           >
@@ -65,6 +67,12 @@ export function Footer() {
                 </NextLink>
               </Typography>
             ))}
+            <Typography
+              variant="body2"
+              color="textContrast"
+            >
+              <AnalyticsSettingsTrigger />
+            </Typography>
           </Box>
 
           <Typography
