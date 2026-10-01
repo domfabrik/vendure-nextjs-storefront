@@ -84,6 +84,7 @@ export function GoogleAnalytics() {
         bottom: 12,
         width: 'calc(100vw - 24px)',
         maxWidth: 320,
+        boxSizing: 'border-box',
         p: 1.25,
       }}
     >
