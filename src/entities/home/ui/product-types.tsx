@@ -16,6 +16,7 @@ export function ProductTypes({ collections }: ProductTypesProps) {
         <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Что ищете?</Typography>
         <NextLink
           href={routes.catalog()}
+          aria-label="Все категории"
           style={{ textDecoration: 'none', flexShrink: 0 }}
         >
           <Box

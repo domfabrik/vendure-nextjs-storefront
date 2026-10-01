@@ -20,6 +20,7 @@ export function Rooms({ collections }: RoomsProps) {
         <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Мебель по комнатам</Typography>
         <NextLink
           href={routes.catalog()}
+          aria-label="Весь каталог"
           style={{ textDecoration: 'none', flexShrink: 0 }}
         >
           <Box
