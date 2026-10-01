@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Consultation, Factories, Hero, HowWeWork, NewArrivals, ProductTypes, Rooms } from '@/entities/home';
 import { LdScript } from '@/entities/site/index.server';
 import { vendorsConfig } from '@/entities/vendor';
-import { getAllCollections, getNewProducts, getProductsByCollection } from '@/shared/api';
+import { getAllCollections, getCollectionsWithProducts, getNewProducts, getProductsByCollection } from '@/shared/api';
 import { COLLECTION_IMAGES } from '@/shared/config';
 import { envServer } from '@/shared/config/index.server';
 
@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [collections, newProducts] = await Promise.all([getAllCollections(), getNewProducts(1)]);
+  const [collections, collectionsWithProducts] = await Promise.all([getAllCollections(), getCollectionsWithProducts(6)]);
+  const newProducts = await getNewProducts(2, collectionsWithProducts);
 
   const roomSlugs = new Set(['spalni', 'gostinyie', 'kuhnya', 'prihozhaya', 'mebel-dlya-detskoj']);
   const topLevelCollections = collections.filter((c) => c.parent?.slug === '__root_collection__');
@@ -29,7 +30,7 @@ export default async function Page() {
 
   return (
     <>
-      <LdScript collections={[]} />
+      <LdScript collections={collectionsWithProducts.filter((c) => !c.unavailable)} />
       <Hero />
       <Rooms collections={roomCollections} />
       <NewArrivals products={newProducts} />
