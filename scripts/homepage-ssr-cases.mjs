@@ -115,11 +115,10 @@ export function homepageFixture(tileProduct) {
           expected.map((slug) => `/collections/${slug}`),
           `${scenario}: TC-S1/6 JSON-LD preserves category links/order`,
         );
-        // New layout renders products in a slider (NewArrivals), not as collection sections.
-        // Verify product links exist in the page (deduped across collections).
-        const main = html.slice(html.indexOf('<main'), html.indexOf('</main>'));
-        const productLinks = [...main.matchAll(/href="\/products\/([^"]+)"/g)].map((match) => match[1]);
-        assert.ok(productLinks.length > 0, `${scenario}: TC-S1 product links present in main`);
+        // New layout uses Suspense + streaming SSR: product content is streamed after </main>.
+        // Verify product links exist anywhere in the complete HTML (deduped across collections).
+        const productLinks = [...html.matchAll(/href="\/products\/([^"]+)"/g)].map((match) => match[1]);
+        assert.ok(productLinks.length > 0, `${scenario}: TC-S1 product links present in streamed HTML`);
         assert.ok(productLinks[0].startsWith('shared-product'), `${scenario}: TC-S1 deduplication preserves first shared product`);
         if (scenario !== 'happy') {
           assert.match(

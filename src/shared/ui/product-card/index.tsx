@@ -97,11 +97,11 @@ export function ProductCard({ product }: ProductCardProps) {
           {showDiscount && formattedBasePrice && <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>}
         </Box>
 
-        <Box
-          onClick={(e) => {
-            e.preventDefault();
-            if (price === undefined || !currency || !formattedPrice) return;
-            if (!offer) return;
+        <button
+          type="button"
+          disabled={price === undefined || !currency || !formattedPrice || !offer}
+          onClick={() => {
+            if (price === undefined || !currency || !formattedPrice || !offer) return;
             addToCart({
               productVariantId: offer.productVariantId,
               productName: product.productName,
@@ -111,29 +111,26 @@ export function ProductCard({ product }: ProductCardProps) {
               image: image ?? null,
             });
           }}
-          sx={{
+          style={{
             height: 46,
-            borderRadius: '10px',
+            borderRadius: 10,
             border: '1.5px solid #1B2B45',
-            bgcolor: '#FFFFFF',
+            background: '#FFFFFF',
             color: '#1B2B45',
             fontFamily: 'inherit',
             fontWeight: 700,
             fontSize: 15,
             cursor: price !== undefined ? 'pointer' : 'default',
-            opacity: price !== undefined ? 1 : 0.5,
+            width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            '&:hover': {
-              bgcolor: price !== undefined ? '#1B2B45' : '#FFFFFF',
-              color: price !== undefined ? '#FFFFFF' : '#1B2B45',
-            },
             transition: 'all .2s',
+            padding: 0,
           }}
         >
           В корзину
-        </Box>
+        </button>
       </Box>
     </Box>
   );
