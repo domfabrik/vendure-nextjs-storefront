@@ -94,9 +94,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, mt: 'auto' }}>
           <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#1B2B45' }}>{formattedPrice ?? 'Цена уточняется'}</Typography>
-          {showDiscount && formattedBasePrice && (
-            <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>
-          )}
+          {showDiscount && formattedBasePrice && <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>}
         </Box>
 
         <Box

@@ -1,5 +1,3 @@
-'use server';
-
 import type { Metadata } from 'next';
 import { Consultation, Factories, Hero, HowWeWork, NewArrivals, ProductTypes, Rooms } from '@/entities/home';
 import { LdScript } from '@/entities/site/index.server';
