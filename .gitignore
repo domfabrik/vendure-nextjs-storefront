@@ -14,6 +14,7 @@ users.json
 # testing
 /coverage
 /artifacts/
+/temp
 
 # next.js
 /.next/

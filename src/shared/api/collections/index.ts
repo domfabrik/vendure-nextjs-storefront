@@ -9,3 +9,4 @@ export type {
   NavigationCollection,
 } from '@/shared/model';
 export { getAllCollections, getCollectionBySlug, getCollectionsWithProducts, getNavigationTree, getProductsByCollection } from './api';
+export { getCachedAllCollections, getCachedCollectionsWithProducts, getCachedProductsByCollection } from './cached';
