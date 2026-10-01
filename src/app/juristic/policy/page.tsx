@@ -2,6 +2,7 @@ import { Box, Link, List, ListItem, ListItemText, Typography } from '@mui/materi
 import { contacts } from '@routes';
 import { Metadata } from 'next';
 import { envServer } from '@/shared/config/index.server';
+import { PageContainer } from '@/shared/ui';
 
 export const metadata: Metadata = {
   title: 'Политика конфиденциальности',
@@ -14,6 +15,7 @@ const bulletListSx = { listStyleType: 'disc', pl: 4, '& .MuiListItem-root': { di
 
 export default function PolicyPage() {
   return (
+    <PageContainer>
     <Box
       sx={{
         bgcolor: 'background.paper',
@@ -552,5 +554,6 @@ export default function PolicyPage() {
         .
       </Typography>
     </Box>
+    </PageContainer>
   );
 }

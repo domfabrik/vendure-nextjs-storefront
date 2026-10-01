@@ -1,3 +1,2 @@
-export { getVendors } from './model/api';
-export type { Vendor } from './model/vendor';
-export * from './ui';
+export type { VendorConfig } from './model/vendor';
+export { vendorsConfig } from './model/vendors-config';

@@ -7,6 +7,16 @@ declare module '@mui/material/styles' {
   interface TypeText {
     contrast: string;
   }
+
+  interface Palette {
+    accent: { main: string };
+    warmBg: string;
+  }
+
+  interface PaletteOptions {
+    accent?: { main: string };
+    warmBg?: string;
+  }
 }
 
 declare module '@mui/material/Typography' {
@@ -21,31 +31,36 @@ export function Theme(props: PropsWithChildren) {
 
     palette: {
       background: {
-        default: '#f9f8f6',
+        default: '#FFFFFF',
         paper: '#ffffff',
       },
       primary: {
-        main: '#212730',
+        main: '#1B2B45',
       },
       text: {
-        primary: '#212730',
+        primary: '#1B2B45',
+        secondary: '#5A6475',
         contrast: '#ffffff',
       },
+      accent: {
+        main: '#96592C',
+      },
+      warmBg: '#F5F2EC',
     },
 
     typography: {
-      fontFamily: 'var(--font-geist-sans), sans-serif',
+      fontFamily: 'var(--font-manrope), sans-serif',
 
       body1: {
-        fontWeight: 300,
+        fontWeight: 400,
       },
 
       body2: {
-        fontWeight: 300,
+        fontWeight: 400,
       },
 
       allVariants: {
-        color: '#212730',
+        color: '#1B2B45',
       },
 
       button: {

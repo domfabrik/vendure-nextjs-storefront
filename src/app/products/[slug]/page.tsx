@@ -11,6 +11,7 @@ import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
 import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/shared/lib';
+import { PageContainer } from '@/shared/ui';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -45,7 +46,7 @@ export default async function Page(props: PageProps) {
   const initialCurrency = normalizeCurrencyCode(initialVariant?.currencyCode);
 
   return (
-    <Box>
+    <PageContainer>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
@@ -89,6 +90,6 @@ export default async function Page(props: PageProps) {
           <ProductList products={alsoBought} />
         </Box>
       )}
-    </Box>
+    </PageContainer>
   );
 }

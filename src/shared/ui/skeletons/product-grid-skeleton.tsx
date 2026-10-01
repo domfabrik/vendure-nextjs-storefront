@@ -9,11 +9,11 @@ interface ProductGridSkeletonProps {
 
 const defaultColumns: Record<string, string> = {
   xs: 'repeat(2, 1fr)',
-  sm: 'repeat(4, 1fr)',
-  md: 'repeat(6, 1fr)',
+  sm: 'repeat(3, 1fr)',
+  md: 'repeat(4, 1fr)',
 };
 
-export function ProductGridSkeleton({ count = 6, columns = defaultColumns }: ProductGridSkeletonProps) {
+export function ProductGridSkeleton({ count = 4, columns = defaultColumns }: ProductGridSkeletonProps) {
   const gridTemplateColumns: SxProps<Theme> = columns;
 
   return (

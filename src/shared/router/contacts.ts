@@ -1,5 +1,5 @@
 export const contacts = {
-  phone: '8(920)273-39-71',
+  phone: '8 (920) 273-39-71',
   phoneHref: 'tel:+79202733971',
   email: 'eramebel71@gmail.com',
   emailHref: 'mailto:eramebel71@gmail.com',
@@ -10,4 +10,6 @@ export const contacts = {
   legalAddress: 'г. Тула, п. Молодежный, д. 18',
   inn: '312009220104',
   ogrn: '323710000036302',
+  telegram: 'https://t.me/domfabrik',
+  workingHours: 'Ежедневно с 10:00 до 20:00',
 };

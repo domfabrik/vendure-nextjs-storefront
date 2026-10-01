@@ -17,7 +17,6 @@ export function ProductList({ products }: Props) {
         <ProductCard
           key={product.slug}
           product={product}
-          imgHeight="auto"
         />
       ))}
     </Masonry>

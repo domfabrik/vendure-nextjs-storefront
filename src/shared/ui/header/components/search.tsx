@@ -143,11 +143,10 @@ export function Search() {
             }}
           >
             {option.productAsset?.preview && (
-              <Box
-                component="img"
+              <img
                 src={`${option.productAsset.preview}?w=80&h=80&format=webp`}
                 alt={option.productName}
-                sx={{ width: 40, height: 40, borderRadius: 1, objectFit: 'cover' }}
+                style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }}
               />
             )}
             <Typography variant="body2">{option.productName}</Typography>
@@ -159,7 +158,7 @@ export function Search() {
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder="Поиск товаров..."
+          placeholder="Кровать, диван, кухня…"
           size="small"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -173,17 +172,38 @@ export function Search() {
               ...params.slotProps.input,
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
+                  <SearchIcon
+                    fontSize="small"
+                    sx={{ color: '#5A6475' }}
+                  />
                 </InputAdornment>
               ),
               endAdornment: loading ? <CircularProgress size={18} /> : null,
+            },
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              height: 46,
+              borderRadius: '10px',
+              bgcolor: '#FAF9F7',
+              '& fieldset': {
+                borderWidth: '1.5px',
+                borderColor: '#D9D4CC',
+              },
+              '&:hover fieldset': {
+                borderColor: '#1B2B45',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#1B2B45',
+              },
             },
           }}
         />
       )}
       sx={{
         flex: 1,
-        maxWidth: '400px',
+        order: { xs: 3, md: 0 },
+        flexBasis: { xs: '100%', md: 'auto' },
       }}
     />
   );

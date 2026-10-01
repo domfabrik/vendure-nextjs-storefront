@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { searchProducts } from '@/shared/api';
 import { SITE_NAME } from '@/shared/config';
+import { PageContainer } from '@/shared/ui';
 import { SearchPage } from './search-page';
 import { PER_PAGE, resolveSearchSort, searchParamsCache } from './search-params';
 
@@ -34,11 +35,13 @@ export default async function Page(props: PageProps) {
 
   if (term.length < 1 && !hasFilters) {
     return (
-      <SearchPage
-        initialData={null}
-        allFacetValues={[]}
-        defaultSortIsRelevance={false}
-      />
+      <PageContainer>
+        <SearchPage
+          initialData={null}
+          allFacetValues={[]}
+          defaultSortIsRelevance={false}
+        />
+      </PageContainer>
     );
   }
 
@@ -58,10 +61,12 @@ export default async function Page(props: PageProps) {
   ]);
 
   return (
-    <SearchPage
-      initialData={initialData}
-      allFacetValues={(facetData ?? initialData).facetValues}
-      defaultSortIsRelevance={term.length > 0 && searchParams.sort === undefined}
-    />
+    <PageContainer>
+      <SearchPage
+        initialData={initialData}
+        allFacetValues={(facetData ?? initialData).facetValues}
+        defaultSortIsRelevance={term.length > 0 && searchParams.sort === undefined}
+      />
+    </PageContainer>
   );
 }

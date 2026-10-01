@@ -23,7 +23,8 @@
       "!tsconfig.json",
       "!.claude",
       "!next-env.d.ts",
-      "!public/yandex_034a519ab343ca46.html"
+      "!public/yandex_034a519ab343ca46.html",
+      "!temp"
     ]
   },
   "formatter": {

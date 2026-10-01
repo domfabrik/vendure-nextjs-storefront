@@ -1,13 +1,18 @@
-import { Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
-import { GeistSans } from 'geist/font/sans';
 import { Metadata } from 'next';
+import { Manrope } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { PropsWithChildren, Suspense } from 'react';
 import { GoogleAnalytics } from '@/features/google-analytics';
 import { MetrikaHit, MetrikaScript } from '@/features/metrika';
 import { envServer, SITE_NAME } from '@/shared/config/index.server';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
+
+const manrope = Manrope({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-manrope',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +61,7 @@ export default async function RootLayout(props: PropsWithChildren) {
         />
         <MetrikaScript />
       </head>
-      <body className={GeistSans.variable}>
+      <body className={manrope.variable}>
         <NuqsAdapter>
           <AppRouterCacheProvider>
             <Theme>
@@ -69,13 +74,7 @@ export default async function RootLayout(props: PropsWithChildren) {
               </Suspense>
 
               <Header />
-              <Container
-                component="main"
-                maxWidth={false}
-                sx={{ mb: 4 }}
-              >
-                {props.children}
-              </Container>
+              <main style={{ flex: 1 }}>{props.children}</main>
               <Footer />
             </Theme>
           </AppRouterCacheProvider>

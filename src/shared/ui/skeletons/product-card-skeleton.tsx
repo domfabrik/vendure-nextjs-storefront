@@ -1,39 +1,38 @@
-import { Box, Card, Skeleton } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 
 export function ProductCardSkeleton() {
   return (
-    <Card
-      elevation={2}
+    <Box
       sx={{
-        borderRadius: 2,
+        border: '1px solid #E6E2DB',
+        borderRadius: '16px',
         overflow: 'hidden',
       }}
     >
       <Skeleton
         variant="rectangular"
-        sx={{ aspectRatio: '3/4', width: '100%' }}
+        sx={{ aspectRatio: '4 / 3', width: '100%' }}
       />
-      <Box sx={{ p: 1 }}>
+      <Box sx={{ p: 1.5 }}>
         <Skeleton
           variant="text"
-          sx={{ width: '100%', height: '310px', fontWeight: 700, lineHeight: 1.3 }}
+          sx={{ width: '85%', fontSize: 16 }}
         />
         <Skeleton
           variant="text"
-          sx={{ mt: 0.5, width: '100%', lineHeight: 1.3 }}
+          sx={{ width: '55%', fontSize: 16 }}
         />
         <Skeleton
           variant="text"
-          sx={{ width: '70%', lineHeight: 1.3, minHeight: '2.6em' }}
+          sx={{ width: '40%', fontSize: 22, mt: 1 }}
         />
       </Box>
-      <Box sx={{ px: 1, pb: 1, display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{ px: 1.5, pb: 1.5 }}>
         <Skeleton
-          variant="circular"
-          width={28}
-          height={28}
+          variant="rounded"
+          sx={{ width: '100%', height: 46, borderRadius: '10px' }}
         />
       </Box>
-    </Card>
+    </Box>
   );
 }

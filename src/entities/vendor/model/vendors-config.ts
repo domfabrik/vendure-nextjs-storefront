@@ -38,9 +38,3 @@ export const vendorsConfig: Record<string, VendorConfig> = {
     banner: '/images/vendors/fsm-banner.jpg',
   },
 };
-
-export const defaultVendorConfig: VendorConfig = {
-  description: '',
-  logo: '/images/vendors/fsm-logo.png',
-  banner: '/images/vendors/arida-banner.webp',
-};

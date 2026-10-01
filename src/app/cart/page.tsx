@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/shared/config';
+import { PageContainer } from '@/shared/ui';
 import { CartPage } from './cart-page';
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <CartPage />;
+  return (
+    <PageContainer>
+      <CartPage />
+    </PageContainer>
+  );
 }

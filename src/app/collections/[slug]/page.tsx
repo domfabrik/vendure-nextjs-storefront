@@ -6,6 +6,7 @@ import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generat
 import { getCollectionBySlug, searchProducts } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
 import { serializeJsonLd } from '@/shared/lib';
+import { PageContainer } from '@/shared/ui';
 import { CollectionPage } from './collection-page';
 import { buildCollectionPageHref, collectionParamsCache, PER_PAGE, parseCollectionPage, sortMap, withoutPage } from './collection-params';
 
@@ -82,13 +83,15 @@ export default async function Page(props: PageProps) {
   );
 
   return (
-    <CollectionPage
-      collectionName={collection?.name ?? ''}
-      initialData={initialData}
-      allFacetValues={(facetData ?? initialData).facetValues}
-      jsonLdScripts={jsonLdScripts}
-      paginationSearchParams={withoutPage(searchParams)}
-      slug={slug}
-    />
+    <PageContainer>
+      <CollectionPage
+        collectionName={collection?.name ?? ''}
+        initialData={initialData}
+        allFacetValues={(facetData ?? initialData).facetValues}
+        jsonLdScripts={jsonLdScripts}
+        paginationSearchParams={withoutPage(searchParams)}
+        slug={slug}
+      />
+    </PageContainer>
   );
 }

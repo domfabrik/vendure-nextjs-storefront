@@ -1,22 +1,34 @@
 import { Box, Skeleton } from '@mui/material';
-import { ProductGridSkeleton } from './product-grid-skeleton';
+import { SectionContainer } from '@/shared/ui';
 
 export function CollectionSectionSkeleton() {
   return (
-    <Box sx={{ mb: 5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+    <SectionContainer sx={{ pt: 10 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 3.5 }}>
         <Skeleton
           variant="text"
-          sx={{ width: 200, fontSize: '1.5rem' }}
+          sx={{ width: 280, fontSize: 36 }}
         />
         <Skeleton
-          variant="circular"
-          width={28}
-          height={28}
-          sx={{ ml: 1 }}
+          variant="text"
+          sx={{ width: 120, fontSize: 15 }}
         />
       </Box>
-      <ProductGridSkeleton count={6} />
-    </Box>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fit, minmax(320px, 1fr))' },
+          gap: 2.5,
+        }}
+      >
+        {Array.from({ length: 5 }, (_, i) => (
+          <Skeleton
+            key={i}
+            variant="rounded"
+            sx={{ aspectRatio: '4 / 3', width: '100%', borderRadius: '16px' }}
+          />
+        ))}
+      </Box>
+    </SectionContainer>
   );
 }
