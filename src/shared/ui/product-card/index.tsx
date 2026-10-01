@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
@@ -97,8 +97,9 @@ export function ProductCard({ product }: ProductCardProps) {
           {showDiscount && formattedBasePrice && <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>}
         </Box>
 
-        <button
-          type="button"
+        <Button
+          variant="outlined"
+          fullWidth
           disabled={price === undefined || !currency || !formattedPrice || !offer}
           onClick={() => {
             if (price === undefined || !currency || !formattedPrice || !offer) return;
@@ -111,26 +112,9 @@ export function ProductCard({ product }: ProductCardProps) {
               image: image ?? null,
             });
           }}
-          style={{
-            height: 46,
-            borderRadius: 10,
-            border: '1.5px solid #1B2B45',
-            background: '#FFFFFF',
-            color: '#1B2B45',
-            fontFamily: 'inherit',
-            fontWeight: 700,
-            fontSize: 15,
-            cursor: price !== undefined ? 'pointer' : 'default',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all .2s',
-            padding: 0,
-          }}
         >
           В корзину
-        </button>
+        </Button>
       </Box>
     </Box>
   );

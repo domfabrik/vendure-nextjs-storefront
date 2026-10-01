@@ -3,7 +3,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Box, Collapse, Drawer, IconButton, List, ListItemButton, ListItemText, Typography } from '@mui/material';
+import { Box, Button, Collapse, Drawer, IconButton, List, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { useState } from 'react';
@@ -79,24 +79,10 @@ export function CatalogDrawer({ collections }: CatalogDrawerProps) {
 
   return (
     <>
-      <Box
+      <Button
+        variant="contained"
         onClick={() => setOpen(true)}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          bgcolor: '#1B2B45',
-          color: '#FFFFFF',
-          px: { xs: 1.5, sm: 2.25 },
-          height: 46,
-          borderRadius: '10px',
-          fontFamily: 'inherit',
-          fontWeight: 600,
-          fontSize: 15,
-          flexShrink: 0,
-          cursor: 'pointer',
-          '&:hover': { opacity: 0.9 },
-        }}
+        sx={{ px: { xs: 1.5, sm: 2.25 }, flexShrink: 0, minWidth: 'auto', gap: 1 }}
       >
         <svg
           width="18"
@@ -110,7 +96,7 @@ export function CatalogDrawer({ collections }: CatalogDrawerProps) {
           <path d="M4 6h16M4 12h16M4 18h10" />
         </svg>
         <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Каталог</Box>
-      </Box>
+      </Button>
       <Drawer
         anchor="left"
         open={open}

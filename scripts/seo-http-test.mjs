@@ -622,7 +622,7 @@ try {
     assert.doesNotMatch(edgeHtml, /<script id="jsonld-injected">|BackOrder|NaN|Infinity/, `${userAgent} TC-2/3/4 JSON-LD has no executable payload or fabricated/invalid values`);
     assert.match(edgeHtml, /10,5/, `${userAgent} TC-3 visible default price matches JSON-LD`);
     assert.match(edgeHtml, /Осталось мало товара/, `${userAgent} TC-2 LOW_STOCK enum does not fabricate a numeric quantity`);
-    assert.match(edgeHtml, /MuiButton-contained/, `${userAgent} TC-2 known available default remains purchasable`);
+    assert.match(edgeHtml, /data-testid="add-to-cart"/, `${userAgent} TC-2 known available default remains purchasable`);
     assert.match(edgeHtml, /tabindex="0"[^>]*role="button"|role="button"[^>]*tabindex="0"/, `${userAgent} TC-2 variant choice stays keyboard accessible`);
 
     const unknownHtml = await (await get('/products/structured-unknown')).text();
@@ -632,7 +632,7 @@ try {
     assert.equal(unknownProduct.offers.availability, undefined, `${userAgent} TC-2 aggregate unknown availability is omitted`);
     assert.equal(unknownProduct.offers.offers[0].availability, undefined, `${userAgent} TC-2 offer unknown availability is omitted`);
     assert.match(unknownHtml, /Наличие уточняется/, `${userAgent} TC-2 unknown stock has a neutral visible state`);
-    assert.doesNotMatch(unknownHtml, /MuiButton-contained/, `${userAgent} TC-2 unknown stock cannot be submitted as known available`);
+    assert.doesNotMatch(unknownHtml, /data-testid="add-to-cart"/, `${userAgent} TC-2 unknown stock cannot be submitted as known available`);
 
     const emptyProductHtml = await (await get('/products/structured-empty')).text();
     const emptyProduct = jsonLdByType(emptyProductHtml, 'Product');
@@ -643,7 +643,7 @@ try {
     const unsupportedCurrencyProduct = jsonLdByType(unsupportedCurrencyHtml, 'Product');
     assert.equal(unsupportedCurrencyProduct.offers, undefined, `${userAgent} TC-3 unsupported non-RUB PDP currency omits offers`);
     assert.match(unsupportedCurrencyHtml, /Цена уточняется/, `${userAgent} TC-3 unsupported non-RUB PDP currency has a neutral visible price`);
-    assert.doesNotMatch(unsupportedCurrencyHtml, /MuiButton-contained/, `${userAgent} TC-3 unsupported non-RUB PDP currency cannot enter the RUB-only cart`);
+    assert.doesNotMatch(unsupportedCurrencyHtml, /data-testid="add-to-cart"/, `${userAgent} TC-3 unsupported non-RUB PDP currency cannot enter the RUB-only cart`);
 
     const outHtml = await (await get('/products/structured-out')).text();
     const outProduct = jsonLdByType(outHtml, 'Product');

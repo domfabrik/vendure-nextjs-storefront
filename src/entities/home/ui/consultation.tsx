@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { contacts } from '@routes';
 import { SectionContainer } from '@/shared/ui';
 
@@ -27,26 +27,14 @@ export function Consultation() {
             <Typography sx={{ fontSize: 28, fontWeight: 800, color: '#1B2B45', mt: 1 }}>{contacts.phone}</Typography>
           </a>
 
-          <a
+          <Button
+            variant="contained"
+            size="large"
             href={contacts.phoneHref}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 54,
-              maxWidth: 440,
-              border: 0,
-              borderRadius: 12,
-              background: '#1B2B45',
-              color: '#FFFFFF',
-              fontFamily: 'inherit',
-              fontWeight: 700,
-              fontSize: 16,
-              textDecoration: 'none',
-            }}
+            sx={{ maxWidth: 440 }}
           >
             Позвонить
-          </a>
+          </Button>
         </Box>
 
         <Box sx={{ position: 'relative', minHeight: { xs: 280, md: 440 } }}>

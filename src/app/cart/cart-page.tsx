@@ -28,13 +28,12 @@ export function CartPage() {
           >
             Корзина пуста
           </Typography>
-          <Button
-            variant="contained"
-            component={NextLink}
+          <NextLink
             href={routes.home()}
+            style={{ textDecoration: 'none' }}
           >
-            Перейти к покупкам
-          </Button>
+            <Button variant="contained">Перейти к покупкам</Button>
+          </NextLink>
         </Box>
         <CheckoutDialog
           open={checkoutOpen}

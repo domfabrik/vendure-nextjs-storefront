@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { SectionContainer } from '@/shared/ui';
@@ -48,21 +48,14 @@ export function Hero() {
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
             <NextLink
               href={routes.catalog()}
-              style={{
-                background: '#1B2B45',
-                color: '#FFFFFF',
-                height: 54,
-                padding: '0 28px',
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                fontFamily: 'inherit',
-                fontWeight: 700,
-                fontSize: 16,
-                textDecoration: 'none',
-              }}
+              style={{ textDecoration: 'none' }}
             >
-              Перейти в каталог
+              <Button
+                variant="contained"
+                size="large"
+              >
+                Перейти в каталог
+              </Button>
             </NextLink>
           </Box>
         </Box>

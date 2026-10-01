@@ -48,6 +48,46 @@ export function Theme(props: PropsWithChildren) {
       warmBg: '#F5F2EC',
     },
 
+    components: {
+      MuiButton: {
+        defaultProps: {
+          disableElevation: true,
+        },
+        styleOverrides: {
+          root: {
+            borderRadius: 10,
+            fontWeight: 700,
+            fontSize: 15,
+          },
+          contained: {
+            height: 46,
+            '&:hover': {
+              opacity: 0.9,
+              backgroundColor: '#1B2B45',
+              color: '#FFFFFF',
+            },
+          },
+          outlined: {
+            height: 46,
+            borderWidth: '1.5px',
+            borderColor: '#1B2B45',
+            '&:hover': {
+              borderWidth: '1.5px',
+              borderColor: '#1B2B45',
+              backgroundColor: 'rgba(27, 43, 69, 0.08)',
+            },
+          },
+          sizeLarge: {
+            height: 54,
+            borderRadius: 12,
+            fontSize: 16,
+            paddingLeft: 28,
+            paddingRight: 28,
+          },
+        },
+      },
+    },
+
     typography: {
       fontFamily: 'var(--font-manrope), sans-serif',
 

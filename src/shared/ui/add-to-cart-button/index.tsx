@@ -36,6 +36,7 @@ export function AddToCartButton(props: AddToCartButtonProps) {
       disabled={disabled}
       onClick={handleClick}
       startIcon={<ShoppingCartIcon />}
+      data-testid="add-to-cart"
     >
       В корзину
     </Button>

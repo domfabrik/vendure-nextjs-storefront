@@ -25,6 +25,11 @@ export function CartBadge() {
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
+          transition: 'all .2s',
+          '&:hover': {
+            borderColor: '#1B2B45',
+            backgroundColor: 'rgba(27, 43, 69, 0.08)',
+          },
         }}
       >
         <svg
