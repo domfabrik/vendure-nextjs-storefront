@@ -1,5 +1,7 @@
 'use client';
 
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { HomepageProduct } from '@/shared/model';
@@ -23,15 +25,15 @@ export function NewArrivals({ products }: NewArrivalsProps) {
 
   return (
     <SectionContainer sx={{ pt: 10 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 2, mb: 3.5 }}>
-        <Typography sx={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Новинки</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 3.5 }}>
+        <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Новинки</Typography>
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Box
               onClick={goPrev}
               sx={{
-                width: 46,
-                height: 46,
+                width: { xs: 40, md: 46 },
+                height: { xs: 40, md: 46 },
                 borderRadius: '23px',
                 border: '1.5px solid',
                 borderColor: page === 0 ? '#D9D4CC' : '#1B2B45',
@@ -45,13 +47,13 @@ export function NewArrivals({ products }: NewArrivalsProps) {
                 userSelect: 'none',
               }}
             >
-              ←
+              <ChevronLeftIcon sx={{ fontSize: 22 }} />
             </Box>
             <Box
               onClick={goNext}
               sx={{
-                width: 46,
-                height: 46,
+                width: { xs: 40, md: 46 },
+                height: { xs: 40, md: 46 },
                 borderRadius: '23px',
                 border: '1.5px solid #1B2B45',
                 bgcolor: page === totalPages - 1 ? '#FFFFFF' : '#1B2B45',
@@ -64,7 +66,7 @@ export function NewArrivals({ products }: NewArrivalsProps) {
                 userSelect: 'none',
               }}
             >
-              →
+              <ChevronRightIcon sx={{ fontSize: 22 }} />
             </Box>
           </Box>
         )}

@@ -1,3 +1,4 @@
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
@@ -11,13 +12,29 @@ interface ProductTypesProps {
 export function ProductTypes({ collections }: ProductTypesProps) {
   return (
     <SectionContainer sx={{ pt: 10 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 2, mb: 3.5 }}>
-        <Typography sx={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Что ищете?</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 3.5 }}>
+        <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Что ищете?</Typography>
         <NextLink
           href={routes.catalog()}
-          style={{ textDecoration: 'none' }}
+          style={{ textDecoration: 'none', flexShrink: 0 }}
         >
-          <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#1B2B45', '&:hover': { color: '#96592C' } }}>Все категории →</Typography>
+          <Box
+            sx={{
+              display: { xs: 'flex', sm: 'none' },
+              width: 40,
+              height: 40,
+              borderRadius: '20px',
+              border: '1.5px solid #1B2B45',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#1B2B45',
+              '&:hover': { bgcolor: '#1B2B45', color: '#FFFFFF' },
+              transition: 'all .2s',
+            }}
+          >
+            <ChevronRightIcon sx={{ fontSize: 22 }} />
+          </Box>
+          <Typography sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 600, fontSize: 15, color: '#1B2B45', '&:hover': { color: '#96592C' } }}>Все категории →</Typography>
         </NextLink>
       </Box>
 
