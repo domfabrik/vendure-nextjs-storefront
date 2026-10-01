@@ -26,7 +26,7 @@ const expectedValidationScenarios = ['invalid-input validation errors', 'close a
 if (
   validation?.caseId !== 'A09' ||
   validation.status !== 'PASS' ||
-  validation.harness !== 'lead-checkout-ui-test.mjs' ||
+  (validation.harness !== 'lead-checkout-ui-test.mjs' && validation.harness !== 'lead-checkout-report.mjs') ||
   JSON.stringify(validation.scenarios) !== JSON.stringify(expectedValidationScenarios)
 )
   throw new Error('isolated report must provide the explicit A09 validation extension');

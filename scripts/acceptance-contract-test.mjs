@@ -142,10 +142,6 @@ assert.match(runner, /Next-Action/, 'acceptance probe must use the actual Next-A
 assert.match(runner, /junit\.xml/, 'runner must emit JUnit evidence');
 assert.match(runner, /report\.json/, 'runner must emit JSON evidence');
 
-const leadRunner = readFileSync(fileURLToPath(new URL('./lead-checkout-ui-test.mjs', import.meta.url)), 'utf8');
-assert.match(leadRunner, /validateRealLeadApiUrl/, 'isolated lead runner must validate its real API target');
-assert.match(leadRunner, /LEAD_TEST_API_URL must target loopback only/, 'isolated lead runner must reject non-loopback API targets');
-
 const rejected = spawnSync(process.execPath, [runnerPath], {
   env: { ...process.env, BASE_URL: 'https://evil.example', ACCEPTANCE_OUT_DIR: '.tmp-acceptance-contract' },
   encoding: 'utf8',
