@@ -42,7 +42,7 @@ export function Hero() {
           </Typography>
 
           <Typography sx={{ fontSize: 18, lineHeight: 1.55, color: '#4A5466', maxWidth: 480 }}>
-            Спальни, гостиные, кухни и мягкая мебель от Fortuna Home, Арида, Эра, Nartmi и ФСМ. Привезём и соберём.
+            Спальни, гостиные, кухни и мягкая мебель от Fortuna Home, Арида, Эра, Nartmi и ФСМ. Привезём в любой город России.
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
