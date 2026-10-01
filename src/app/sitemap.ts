@@ -41,29 +41,34 @@ async function getAllProductSlugs(): Promise<string[]> {
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [collections, productSlugs] = await Promise.all([getAllCollections(), getAllProductSlugs()]);
-
-  const collectionEntries = collections
-    .filter((collection) => collection.slug && !SERVICE_COLLECTION_SLUGS.has(collection.slug))
-    .map((collection) => ({
-      url: buildPublicUrl(`/collections/${encodeURIComponent(collection.slug)}`),
-      changeFrequency: 'daily' as const,
-      priority: 0.8,
-    }));
-
-  const productEntries = productSlugs.map((slug) => ({
-    url: buildPublicUrl(`/products/${encodeURIComponent(slug)}`),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
+  const staticEntries = STATIC_PAGES.map((page) => ({
+    url: buildPublicUrl(page.path),
+    changeFrequency: page.changeFrequency,
+    priority: page.priority,
   }));
 
-  return [
-    ...STATIC_PAGES.map((page) => ({
-      url: buildPublicUrl(page.path),
-      changeFrequency: page.changeFrequency,
-      priority: page.priority,
-    })),
-    ...collectionEntries,
-    ...productEntries,
-  ];
+  let collectionEntries: MetadataRoute.Sitemap = [];
+  let productEntries: MetadataRoute.Sitemap = [];
+
+  try {
+    const [collections, productSlugs] = await Promise.all([getAllCollections(), getAllProductSlugs()]);
+
+    collectionEntries = collections
+      .filter((collection) => collection.slug && !SERVICE_COLLECTION_SLUGS.has(collection.slug))
+      .map((collection) => ({
+        url: buildPublicUrl(`/collections/${encodeURIComponent(collection.slug)}`),
+        changeFrequency: 'daily' as const,
+        priority: 0.8,
+      }));
+
+    productEntries = productSlugs.map((slug) => ({
+      url: buildPublicUrl(`/products/${encodeURIComponent(slug)}`),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // API unavailable at build time — return static pages only; dynamic content will appear after revalidation.
+  }
+
+  return [...staticEntries, ...collectionEntries, ...productEntries];
 }
