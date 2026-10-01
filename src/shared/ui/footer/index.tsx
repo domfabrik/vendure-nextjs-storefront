@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { contacts, routes } from '@routes';
 import NextLink from 'next/link';
+import { AnalyticsSettingsTrigger } from './analytics-settings-trigger';
 
 const catalogLinks = [
   { label: 'Спальня', href: routes.collection('spalni') },
@@ -134,6 +135,9 @@ export function Footer() {
               <Typography sx={{ fontSize: 13, color: '#C9D1DD', '&:hover': { color: '#FFFFFF' } }}>{link.label}</Typography>
             </NextLink>
           ))}
+          <Typography sx={{ fontSize: 13, color: '#C9D1DD' }}>
+            <AnalyticsSettingsTrigger />
+          </Typography>
         </Box>
       </Box>
     </footer>
