@@ -1,14 +1,21 @@
 'use server';
 
+import { cache } from 'react';
 import type { CollectionSlider, HomepageCollection, HomepageProduct, Product, SearchResult } from '@/shared/model';
 
 import { apiClient } from '../api-client';
 import { getCollectionsWithProducts } from '../collections';
 import { GET_FEATURED_PRODUCTS, GET_PRODUCT_BY_SLUG, GET_PRODUCT_SLIDERS } from './queries';
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+// React cache is scoped to one server render, so metadata and the page share a
+// request while the next HTTP request still reads the current product state.
+const loadProductBySlug = cache(async (slug: string): Promise<Product | null> => {
   const data = await apiClient.request<{ product: Product | null }>(GET_PRODUCT_BY_SLUG, { slug });
   return data.product;
+});
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  return loadProductBySlug(slug);
 }
 
 export async function getFeaturedProducts(take = 4): Promise<SearchResult[]> {

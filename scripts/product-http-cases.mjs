@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 export function productHttpFixture(product, collection) {
   const productRequests = new Map();
   const recommendationRequests = new Map();
+  let freshnessState = { priceWithTax: 1000, stockLevel: 'IN_STOCK' };
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const recommendations = new Set(['pdp-related-http', 'pdp-related-graphql', 'pdp-related-slow-error', 'pdp-related-slow-ok']);
   return {
@@ -24,6 +25,16 @@ export function productHttpFixture(product, collection) {
         if (slug === 'pdp-no-related') {
           const item = product(slug);
           item.collections = [collection('all'), collection('search')];
+          response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ data: { product: item } }));
+          return true;
+        }
+        if (slug === 'pdp-freshness') {
+          const item = product(slug);
+          item.variants[0] = {
+            ...item.variants[0],
+            priceWithTax: freshnessState.priceWithTax,
+            stockLevel: freshnessState.stockLevel,
+          };
           response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ data: { product: item } }));
           return true;
         }
@@ -71,14 +82,35 @@ export function productHttpFixture(product, collection) {
       };
       for (const userAgent of ['Mozilla/5.0', 'YandexBot/3.0']) {
         const get = (path) => fetch(`${baseUrl}${path}`, { headers: { 'user-agent': userAgent } });
+        freshnessState = { priceWithTax: 1000, stockLevel: 'IN_STOCK' };
+        const freshnessBefore = productRequests.get('pdp-freshness') ?? 0;
+        const freshFirstResponse = await get('/products/pdp-freshness');
+        const freshFirstHtml = await freshFirstResponse.text();
+        const freshnessAfterFirst = productRequests.get('pdp-freshness') ?? 0;
+        assert.equal(freshnessAfterFirst - freshnessBefore, 1, `TC-2 ${userAgent} first freshness GET is one raw request`);
+        assert.equal(freshFirstResponse.status, 200);
+        assert.match(freshFirstHtml, />10(?:\s|&nbsp;|<)/);
+        assert.match(freshFirstHtml, /В наличии/);
+        assert.equal(productJson(freshFirstHtml)?.offers.availability, 'https://schema.org/InStock');
+        freshnessState = { priceWithTax: 2000, stockLevel: 'OUT_OF_STOCK' };
+        const freshSecondResponse = await get('/products/pdp-freshness');
+        const freshSecondHtml = await freshSecondResponse.text();
+        const freshnessAfterSecond = productRequests.get('pdp-freshness') ?? 0;
+        assert.equal(freshnessAfterSecond - freshnessAfterFirst, 1, `TC-2 ${userAgent} second freshness GET is fresh`);
+        assert.equal(freshSecondResponse.status, 200);
+        assert.match(freshSecondHtml, />20(?:\s|&nbsp;|<)/);
+        assert.match(freshSecondHtml, /Нет в наличии/);
+        assert.equal(productJson(freshSecondHtml)?.offers.availability, 'https://schema.org/OutOfStock');
         const relatedBefore = recommendationRequests.get('chairs') ?? 0;
+        const normalBefore = productRequests.get('test-chair') ?? 0;
         const normalResponse = await get('/products/test-chair');
         const normalHtml = await normalResponse.text();
         assert.equal(normalResponse.status, 200, `TC-F1 ${userAgent} normal product status`);
+        assert.equal((productRequests.get('test-chair') ?? 0) - normalBefore, 1, `TC-PDP ${userAgent} test-chair GetProductBySlug requests`);
         assert.match(normalHtml, /Также вам может быть интересно/);
         assert.match(normalHtml, /href="\/products\/test-chair-1(?:\?[^\"]*)?"/);
         assert.match(normalHtml, /Тестовый стул 1/);
-        assert.ok((recommendationRequests.get('chairs') ?? 0) > relatedBefore, `TC-F1 ${userAgent} normal product loads recommendations`);
+        assert.equal((recommendationRequests.get('chairs') ?? 0) - relatedBefore, 1, `TC-F1 ${userAgent} normal product loads one recommendation request`);
         const noRelatedBefore = recommendationRequestTotal();
         const noRelatedResponse = await get('/products/pdp-no-related');
         const noRelatedHtml = await noRelatedResponse.text();
@@ -91,7 +123,9 @@ export function productHttpFixture(product, collection) {
           const html = await response.text();
           assertCompletePrimaryProduct(response, html, slug, `TC-PDP ${userAgent} ${slug}`);
           if (slug !== 'test-chair') assert.doesNotMatch(html, /Также вам может быть интересно/);
-          console.log(`TC-PDP ${userAgent} ${slug} GetProductBySlug requests=${(productRequests.get(slug) ?? 0) - before}`);
+          const requestDelta = (productRequests.get(slug) ?? 0) - before;
+          assert.equal(requestDelta, 1, `TC-PDP ${userAgent} ${slug} GetProductBySlug requests`);
+          console.log(`TC-PDP ${userAgent} ${slug} GetProductBySlug requests=${requestDelta}`);
         }
         for (const suffix of ['', '?variant=cheapest-offer', '?variant=does-not-exist']) {
           const response = await get(`/products/chosen-offer-product${suffix}`);
