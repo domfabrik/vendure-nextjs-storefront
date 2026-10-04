@@ -3,7 +3,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { buildCollectionBreadcrumbJsonLd, buildCollectionItemListJsonLd, generateCollectionMetadata } from '@/entities/collection/index.server';
-import { getCollectionBySlug, searchProducts } from '@/shared/api';
+import { getCollectionBySlug, searchFacets, searchProducts } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
 import { serializeJsonLd } from '@/shared/lib';
 import { PageContainer } from '@/shared/ui';
@@ -58,7 +58,7 @@ export default async function Page(props: PageProps) {
       skip: (page - 1) * PER_PAGE,
       facetValueFilters: hasFilters ? facetValueFilters : undefined,
     }),
-    hasFilters ? searchProducts({ ...baseQuery, take: 0, skip: 0 }) : null,
+    hasFilters ? searchFacets(baseQuery) : null,
   ]);
 
   const totalPages = Math.ceil(initialData.totalItems / PER_PAGE);

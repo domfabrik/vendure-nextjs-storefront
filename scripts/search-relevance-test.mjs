@@ -32,11 +32,25 @@ assert.equal(resolveSearchSort('диван', 'relevance', true), undefined, 'TC2
 assert.deepEqual(resolveSearchSort('диван', 'unknown', true), { name: 'ASC' }, 'TC2 invalid explicit sort keeps safe default');
 
 const pageSource = readFileSync(new URL('../src/app/search/page.tsx', import.meta.url), 'utf8');
+const collectionPageSource = readFileSync(new URL('../src/app/collections/[slug]/page.tsx', import.meta.url), 'utf8');
+const searchClientPageSource = readFileSync(new URL('../src/app/search/search-page.tsx', import.meta.url), 'utf8');
+const collectionClientPageSource = readFileSync(new URL('../src/app/collections/[slug]/collection-page.tsx', import.meta.url), 'utf8');
+const searchApiSource = readFileSync(new URL('../src/shared/api/search/api.ts', import.meta.url), 'utf8');
+const searchQueriesSource = readFileSync(new URL('../src/shared/api/search/queries.ts', import.meta.url), 'utf8');
 assert.match(pageSource, /resolveSearchSort\(term, sortKey, searchParams\.sort !== undefined\)/, 'TC1 page uses the tested sort resolver');
 assert.match(pageSource, /defaultSortIsRelevance=\{term\.length > 0 && searchParams\.sort === undefined\}/, 'TC2 page exposes implicit relevance to the control');
 assert.match(pageSource, /take: PER_PAGE/, 'TC2 search page keeps the first-page size');
 assert.match(pageSource, /skip: \(page - 1\) \* PER_PAGE/, 'TC2 search page keeps the requested page offset');
-assert.match(pageSource, /\.\.\.baseQuery, take: 0, skip: 0/, 'TC2 facet count query keeps its zero-offset contract');
+assert.match(pageSource, /hasFilters \? searchFacets\(baseQuery\) : null/, 'TC2 search facet counts use the bounded facet-only operation');
+assert.match(collectionPageSource, /hasFilters \? searchFacets\(baseQuery\) : null/, 'TC2 collection facet counts use the bounded facet-only operation');
+assert.match(pageSource, /allFacetValues=\{\(facetData \?\? initialData\)\.facetValues\}/, 'TC2 search SSR passes facet-only data with primary fallback');
+assert.match(collectionPageSource, /allFacetValues=\{\(facetData \?\? initialData\)\.facetValues\}/, 'TC2 collection SSR passes facet-only data with primary fallback');
+assert.match(searchClientPageSource, /reduceFacets\(allFacetValues, initialData\?\.facetValues \?\? \[\]\)/, 'TC2 search client derives counts from primary filtered data');
+assert.match(collectionClientPageSource, /reduceFacets\(allFacetValues, initialData\.facetValues\)/, 'TC2 collection client derives counts from primary filtered data');
+assert.match(searchApiSource, /export async function searchFacets\(params: SearchInput\)/, 'TC2 facet-only API is publicly exported');
+assert.match(searchQueriesSource, /query SearchFacets\(\$input: SearchInput!\)/, 'TC2 facet-only operation has a separate GraphQL document');
+const facetQuery = searchQueriesSource.slice(searchQueriesSource.indexOf('query SearchFacets'));
+assert.doesNotMatch(facetQuery, /\bitems\b|discountPercent|basePriceWithTax|chosenOffer/, 'TC2 facet-only document excludes product items and pricing fields');
 
 for (const term of ['шкаф Натали', 'ШКАФ НАТАЛИ', '  шкаф   Натали  ', 'шкаф, Натали!', 'шкаф Натали 2-ств']) {
   const input = buildHeaderSearchInput(term);

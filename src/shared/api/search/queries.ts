@@ -65,3 +65,24 @@ export const SEARCH_PRODUCTS = gql`
     }
   }
 `;
+
+export const SEARCH_FACETS = gql`
+  query SearchFacets($input: SearchInput!) {
+    search(input: $input) {
+      totalItems
+      facetValues {
+        count
+        facetValue {
+          id
+          name
+          code
+          facet {
+            id
+            name
+            code
+          }
+        }
+      }
+    }
+  }
+`;

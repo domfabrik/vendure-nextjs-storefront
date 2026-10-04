@@ -38,6 +38,11 @@ export interface SearchResponse {
   facetValues: SearchFacetValue[];
 }
 
+export interface SearchFacetResponse {
+  totalItems: number;
+  facetValues: SearchFacetValue[];
+}
+
 export interface SearchInput {
   collectionSlug?: string;
   take?: number;

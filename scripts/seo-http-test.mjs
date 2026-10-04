@@ -26,6 +26,29 @@ async function closeMock(server) {
 
 let searchRequestCount = 0;
 let primaryApiRequestCount = 0;
+let facetOnlyRequestCount = 0;
+let lastFacetOnlyResponse = null;
+const seoFacetValue = {
+  count: 1,
+  facetValue: {
+    id: 'facet-value-wood',
+    name: 'Дерево',
+    code: 'wood',
+    facet: { id: 'facet-material', name: 'Материал', code: 'material' },
+  },
+};
+const seoUnfilteredFacetValues = [
+  seoFacetValue,
+  {
+    count: 50,
+    facetValue: {
+      id: 'facet-value-metal',
+      name: 'Металл',
+      code: 'metal',
+      facet: { id: 'facet-material', name: 'Материал', code: 'material' },
+    },
+  },
+];
 
 async function freePort() {
   const probe = net.createServer();
@@ -62,6 +85,19 @@ async function handleApiRequest(request, response, recordRequest) {
     data = { collections: { items: [collection('chairs')] } };
   } else if (query.includes('SearchCollectionProducts')) {
     data = { search: { totalItems: variables.collectionSlug === 'empty' ? 0 : 1, items: variables.collectionSlug === 'empty' ? [] : [tileProduct()] } };
+  } else if (query.includes('SearchFacets')) {
+    searchRequestCount += 1;
+    facetOnlyRequestCount += 1;
+    data = {
+      search: {
+        totalItems: variables.input?.collectionSlug === 'empty' ? 0 : 178,
+        facetValues:
+          variables.input?.collectionSlug === 'empty'
+            ? []
+            : seoUnfilteredFacetValues.map((value) => ({ ...value, count: value.facetValue.id === 'facet-value-wood' ? 178 : value.count })),
+      },
+    };
+    lastFacetOnlyResponse = data.search;
   } else if (query.includes('SearchProducts') || query.includes('search(')) {
     searchRequestCount += 1;
     const input = variables.input ?? {};
@@ -80,7 +116,8 @@ async function handleApiRequest(request, response, recordRequest) {
         : input.collectionSlug === 'chosen-offer'
           ? chosenOfferCatalogProducts().slice(skip, skip + itemCount)
           : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
-    data = { search: { totalItems, items, facetValues: [] } };
+    const facetValues = variables.input?.collectionSlug !== 'chairs' ? [] : variables.input?.facetValueFilters ? [seoFacetValue] : seoUnfilteredFacetValues;
+    data = { search: { totalItems, items, facetValues } };
   } else {
     data = { search: { totalItems: 0, items: [], facetValues: [] } };
   }
@@ -533,12 +570,24 @@ try {
     assertSingleCanonical(explicitPageOneHtml, '/collections/chairs', `${userAgent} TC-P2 explicit page 1 canonical`);
     assert.doesNotMatch(explicitPageOneHtml, /<title>[^<]*страница 1[^<]*<\/title>/i, `${userAgent} TC-P2 page 1 title has no suffix`);
 
-    const filterValue = JSON.stringify({ material: ['wood'] });
+    const filterValue = JSON.stringify({ 'facet-material': ['facet-value-wood'] });
     const filteredUrl = new URL('/collections/chairs', 'http://catalog.local');
     filteredUrl.searchParams.set('sort', 'price-DESC');
     filteredUrl.searchParams.set('filters', filterValue);
     filteredUrl.searchParams.set('page', '2');
     const filteredHtml = await (await get(`${filteredUrl.pathname}${filteredUrl.search}`)).text();
+    assert.match(filteredHtml, /Тестовый стул 25/, `${userAgent} TC-P3 filtered page keeps the expected product set`);
+    assert.doesNotMatch(filteredHtml, /Тестовый стул 1</, `${userAgent} TC-P3 filtered page excludes page 1 products`);
+    assert.match(filteredHtml, /Фильтры/, `${userAgent} TC-P3 filtered page renders filter controls`);
+    assert.equal(facetOnlyRequestCount > 0, true, `${userAgent} TC-P3 filtered page performs facet-only SSR request`);
+    assert.deepEqual(
+      lastFacetOnlyResponse?.facetValues?.map(({ facetValue, count }) => ({ id: facetValue.id, count })),
+      [
+        { id: 'facet-value-wood', count: 178 },
+        { id: 'facet-value-metal', count: 50 },
+      ],
+      `${userAgent} TC-P3 facet-only response keeps the complete unfiltered facet set`,
+    );
     for (const targetPage of [1, 3]) {
       const href = findCollectionPageHref(filteredHtml, 'chairs', targetPage);
       assert.ok(href, `${userAgent} TC-P3 filtered page must link to page ${targetPage}`);

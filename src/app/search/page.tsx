@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { searchProducts } from '@/shared/api';
+import { searchFacets, searchProducts } from '@/shared/api';
 import { SITE_NAME } from '@/shared/config';
 import { PageContainer } from '@/shared/ui';
 import { SearchPage } from './search-page';
@@ -57,7 +57,7 @@ export default async function Page(props: PageProps) {
       skip: (page - 1) * PER_PAGE,
       facetValueFilters: hasFilters ? facetValueFilters : undefined,
     }),
-    hasFilters ? searchProducts({ ...baseQuery, take: 0, skip: 0 }) : null,
+    hasFilters ? searchFacets(baseQuery) : null,
   ]);
 
   return (
