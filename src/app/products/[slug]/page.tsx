@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 import { ProductDetails, ProductList } from '@/entities/product';
 import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } from '@/entities/product/index.server';
 import { ProductDetailEvent } from '@/features/metrika';
-import { getProductBySlug, getProductsByCollection } from '@/shared/api';
+import { getProductBySlug, getProductsByCollection, reportCatalogFailure } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
 import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/shared/lib';
 import { PageContainer } from '@/shared/ui';
@@ -33,7 +33,15 @@ export default async function Page(props: PageProps) {
   if (!product) notFound();
 
   const relatedCollectionSlug = product.collections.find((c) => c.slug !== 'all' && c.slug !== 'search')?.slug;
-  const alsoBought = relatedCollectionSlug ? (await getProductsByCollection(relatedCollectionSlug, 12)).filter((p) => p.slug !== slug) : [];
+  // Recommendations are optional; their API failure must not discard a loaded product.
+  const alsoBought = relatedCollectionSlug
+    ? await getProductsByCollection(relatedCollectionSlug, 12)
+        .then((products) => products.filter((p) => p.slug !== slug))
+        .catch((error: unknown) => {
+          reportCatalogFailure('SearchCollectionProducts', relatedCollectionSlug, error);
+          return [];
+        })
+    : [];
 
   const collection = product.collections.find((c) => c.slug !== 'all' && c.slug !== 'search');
   const collectionHref = collection ? routes.collection(collection.slug) : null;

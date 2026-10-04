@@ -6,8 +6,10 @@ import net from 'node:net';
 import { resolve } from 'node:path';
 import { homepageFixture } from './homepage-ssr-cases.mjs';
 import { ownedProductionDotenvFixture } from './owned-dotenv-fixture.mjs';
+import { productHttpFixture } from './product-http-cases.mjs';
 
 const homepage = homepageFixture(tileProduct);
+const productHttp = productHttpFixture(product, collection);
 const mockErrors = [];
 
 function serveApi(recordRequest) {
@@ -69,6 +71,7 @@ async function handleApiRequest(request, response, recordRequest) {
   const payload = JSON.parse(body);
   const variables = payload.variables ?? {};
   const query = payload.query ?? '';
+  if (await productHttp.handle(query, variables, response)) return;
   if (await homepage.handle(query, variables, response, request)) return;
 
   if (variables.slug === 'api-error' || variables.collectionSlug === 'api-error') {
@@ -478,6 +481,7 @@ try {
   const allowedRuntimeEnv = { ...env, STOREFRONT_ORIGIN: 'https://domfabrik.ru', INDEXATION_ALLOW: 'true' };
   await startNext(allowedRuntimeEnv);
   await homepage.verify(`http://127.0.0.1:${sitePort}`, () => nextLogs);
+  await productHttp.verify(`http://127.0.0.1:${sitePort}`, () => nextLogs);
   assert.deepEqual(mockErrors, [], 'SSR mock protocol assertions passed');
 
   const sitemapResponse = await fetch(`http://127.0.0.1:${sitePort}/sitemap.xml`);
