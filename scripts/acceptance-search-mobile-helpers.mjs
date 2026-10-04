@@ -22,13 +22,5 @@ export function distinctProductSlugs(hrefs, baseUrl = 'https://test.example/') {
 
 /** Browser-independent visibility contract for the mobile search control. */
 export function isVisibleSearchControl({ exists, display, visibility, opacity, width, height }) {
-  return Boolean(
-    exists &&
-      display !== 'none' &&
-      visibility !== 'hidden' &&
-      visibility !== 'collapse' &&
-      opacity !== '0' &&
-      Number(width) > 0 &&
-      Number(height) > 0,
-  );
+  return Boolean(exists && display !== 'none' && visibility !== 'hidden' && visibility !== 'collapse' && opacity !== '0' && Number(width) > 0 && Number(height) > 0);
 }

@@ -5,8 +5,8 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { canonicalRouteHref, matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 import { CURRENT_SEARCH_INPUT_PLACEHOLDER, CURRENT_SEARCH_INPUT_SELECTOR, distinctProductSlugs, isVisibleSearchControl } from './acceptance-search-mobile-helpers.mjs';
+import { canonicalRouteHref, matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const runnerPath = fileURLToPath(new URL('./storefront-acceptance-test.mjs', import.meta.url));
 function runChild(command, args, options) {
@@ -215,12 +215,7 @@ assert.throws(
   'genuine one-cent display mismatch must fail',
 );
 assert.deepEqual(
-  distinctProductSlugs([
-    '/products/first?variant=1',
-    '/products/first?variant=2',
-    '/products/second',
-    '/products/second?variant=3',
-  ]),
+  distinctProductSlugs(['/products/first?variant=1', '/products/first?variant=2', '/products/second', '/products/second?variant=3']),
   ['first', 'second'],
   'duplicate image/title product links must collapse in first appearance order',
 );

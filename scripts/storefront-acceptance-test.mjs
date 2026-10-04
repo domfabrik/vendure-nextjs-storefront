@@ -8,8 +8,8 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
-import { canonicalRouteHref, matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 import { CURRENT_SEARCH_INPUT_SELECTOR, distinctProductSlugs, isVisibleSearchControl } from './acceptance-search-mobile-helpers.mjs';
+import { canonicalRouteHref, matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const rawBase = process.env.BASE_URL;
 if (!rawBase) throw new Error('BASE_URL is required (for example https://test.domfabrik.ru)');
