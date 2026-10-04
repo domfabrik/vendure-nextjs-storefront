@@ -272,6 +272,7 @@ export function SearchPage({ initialData, allFacetValues, defaultSortIsRelevance
                   slug: p.slug,
                   productVariantId: p.productVariantId,
                   currencyCode: p.currencyCode,
+                  priceNotSpecified: p.priceNotSpecified,
                   discountPercent: p.discountPercent,
                   basePriceWithTax: p.basePriceWithTax,
                   priceWithTax: p.priceWithTax,

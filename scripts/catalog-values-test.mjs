@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { normalizeCatalogBrand, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice } from '../src/shared/lib/catalog-values.ts';
+import { normalizeCatalogBrand, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, resolveCatalogPriceState } from '../src/shared/lib/catalog-values.ts';
 import { priceFormatter } from '../src/shared/lib/price-formatter.ts';
 import { serializeJsonLd } from '../src/shared/lib/serialize-json-ld.ts';
 import { stripHtml } from '../src/shared/lib/strip-html.ts';
@@ -34,6 +34,11 @@ assert.equal(normalizeCurrencyCode('USD'), undefined, 'TC-3 unsupported non-RUB 
 assert.match(priceFormatter(1000), /10\s?₽/, 'TC-3 integer ruble price has no artificial decimals');
 assert.match(priceFormatter(1050), /10,5/, 'TC-3 fractional ruble price remains visible');
 assert.match(priceFormatter(10099), /100,99/, 'TC-3 two fractional ruble digits remain visible');
+assert.deepEqual(resolveCatalogPriceState(true, 0, 'RUB'), { kind: 'not-specified' }, 'TC-5 explicit missing-price flag wins over the zero sentinel');
+assert.deepEqual(resolveCatalogPriceState(false, 0, 'RUB'), { kind: 'priced', price: 0, currency: 'RUB' }, 'TC-5 false keeps the existing real zero-price behavior');
+assert.deepEqual(resolveCatalogPriceState(null, 1050, 'RUB'), { kind: 'priced', price: 1050, currency: 'RUB' }, 'TC-5 nullable legacy flag keeps the existing priced behavior');
+assert.deepEqual(resolveCatalogPriceState(undefined, 1050, 'RUB'), { kind: 'priced', price: 1050, currency: 'RUB' }, 'TC-5 absent legacy flag keeps the existing priced behavior');
+assert.deepEqual(resolveCatalogPriceState(true, 1050, 'RUB'), { kind: 'not-specified' }, 'TC-5 flag suppresses even a stale nonzero price');
 
 const hostile = {
   description: 'Ткань & дерево \u2028 снеговик ☃',
@@ -45,4 +50,4 @@ assert.deepEqual(JSON.parse(serialized), hostile, 'TC-4 escaped JSON-LD preserve
 assert.equal(stripHtml('<p>Ткань &amp; дерево &#9731;&nbsp;&lt;ok&gt;</p>'), 'Ткань & дерево ☃ <ok>', 'TC-4 structured description matches decoded visible text');
 assert.equal(stripHtml('&AMP; &#x2603;'), '& ☃', 'TC-4 named and hexadecimal entities decode case-insensitively');
 
-console.log('TC-1..TC-4 catalog value and JSON-LD boundary checks passed');
+console.log('TC-1..TC-5 catalog value and JSON-LD boundary checks passed');

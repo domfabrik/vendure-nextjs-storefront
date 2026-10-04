@@ -10,7 +10,7 @@ import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } fr
 import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
 import { envServer } from '@/shared/config/index.server';
-import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/shared/lib';
+import { resolveCatalogPriceState, serializeJsonLd } from '@/shared/lib';
 import { PageContainer } from '@/shared/ui';
 
 interface PageProps {
@@ -42,8 +42,7 @@ export default async function Page(props: PageProps) {
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product, envServer.SITE_URL);
   const requestedVariantId = typeof searchParams.variant === 'string' ? searchParams.variant : undefined;
   const initialVariant = product.variants.find((variant) => variant.id === requestedVariantId) ?? product.variants[0];
-  const initialPrice = normalizeMinorPrice(initialVariant?.priceWithTax);
-  const initialCurrency = normalizeCurrencyCode(initialVariant?.currencyCode);
+  const initialPriceState = resolveCatalogPriceState(initialVariant?.customFields.priceNotSpecified, initialVariant?.priceWithTax, initialVariant?.currencyCode);
 
   return (
     <PageContainer>
@@ -61,11 +60,11 @@ export default async function Page(props: PageProps) {
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
 
-      {initialPrice !== undefined && initialCurrency === 'RUB' && (
+      {initialPriceState.kind === 'priced' && (
         <ProductDetailEvent
           id={product.id}
           name={product.name}
-          price={initialPrice}
+          price={initialPriceState.price}
           category={collection?.name}
           variant={initialVariant?.name}
         />

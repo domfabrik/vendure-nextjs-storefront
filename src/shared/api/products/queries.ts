@@ -44,6 +44,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
           name
         }
         customFields {
+          priceNotSpecified
           discountPercent
           oldPrice
           finishLabel
@@ -118,6 +119,7 @@ export const GET_FEATURED_PRODUCTS = gql`
         currencyCode
         productVariantId
         productVariantName
+        priceNotSpecified
         discountPercent
         basePriceWithTax {
           __typename
@@ -175,6 +177,9 @@ export const GET_PRODUCT_SLIDERS = gql`
           name
           currencyCode
           priceWithTax
+          customFields {
+            priceNotSpecified
+          }
           featuredAsset {
             preview
           }

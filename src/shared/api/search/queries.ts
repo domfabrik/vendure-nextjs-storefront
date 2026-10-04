@@ -10,6 +10,7 @@ export const SEARCH_PRODUCTS = gql`
         currencyCode
         productVariantId
         productVariantName
+        priceNotSpecified
         discountPercent
         basePriceWithTax {
           __typename

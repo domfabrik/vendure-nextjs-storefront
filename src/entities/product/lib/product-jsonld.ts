@@ -1,16 +1,15 @@
 import type { Product } from '@/shared/api';
-import { normalizeCatalogBrand, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, stripHtml } from '@/shared/lib';
+import { normalizeCatalogBrand, normalizeCatalogStock, resolveCatalogPriceState, stripHtml } from '@/shared/lib';
 
 function buildVariantOffer(variant: Product['variants'][number], canonical: string) {
-  const minorPrice = normalizeMinorPrice(variant.priceWithTax);
-  const priceCurrency = normalizeCurrencyCode(variant.currencyCode);
-  if (minorPrice === undefined || !priceCurrency) return null;
+  const priceState = resolveCatalogPriceState(variant.customFields.priceNotSpecified, variant.priceWithTax, variant.currencyCode);
+  if (priceState.kind !== 'priced') return null;
 
   const stock = normalizeCatalogStock(variant.stockLevel);
   return {
     '@type': 'Offer',
-    price: minorPrice / 100,
-    priceCurrency,
+    price: priceState.price / 100,
+    priceCurrency: priceState.currency,
     url: canonical,
     ...(variant.sku && { sku: variant.sku }),
     ...(stock.schemaAvailability && { availability: stock.schemaAvailability }),

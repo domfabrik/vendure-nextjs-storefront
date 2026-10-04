@@ -3,7 +3,7 @@
 import { Box, Chip, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
-import { GA4_CONSENT_CHANGE_EVENT, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, priceFormatter, trackGa4ViewItem } from '@/shared/lib';
+import { GA4_CONSENT_CHANGE_EVENT, normalizeCatalogStock, priceFormatter, resolveCatalogPriceState, trackGa4ViewItem } from '@/shared/lib';
 import { AddToCartButton } from '@/shared/ui/add-to-cart-button';
 import { ProductCharacteristics } from './product-characteristics';
 import { ProductGallery } from './product-gallery';
@@ -51,11 +51,13 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
   const images = useMemo(() => getImagesForVariant(product, variant), [product, variant]);
 
   const stock = normalizeCatalogStock(variant?.stockLevel);
-  const price = normalizeMinorPrice(variant?.priceWithTax);
-  const basePrice = normalizeMinorPrice(variant?.basePriceWithTax);
-  const currency = normalizeCurrencyCode(variant?.currencyCode);
+  const priceState = resolveCatalogPriceState(variant?.customFields.priceNotSpecified, variant?.priceWithTax, variant?.currencyCode);
+  const basePriceState = resolveCatalogPriceState(variant?.customFields.priceNotSpecified, variant?.basePriceWithTax, variant?.currencyCode);
+  const price = priceState.kind === 'priced' ? priceState.price : undefined;
+  const currency = priceState.kind === 'priced' ? priceState.currency : undefined;
+  const basePrice = basePriceState.kind === 'priced' ? basePriceState.price : undefined;
   const discountPercent = variant?.customFields.discountPercent;
-  const hasDiscount = typeof discountPercent === 'number' && Number.isFinite(discountPercent) && discountPercent > 0 && basePrice !== undefined;
+  const hasDiscount = priceState.kind === 'priced' && typeof discountPercent === 'number' && Number.isFinite(discountPercent) && discountPercent > 0 && basePrice !== undefined;
   const featuredImage = variant?.featuredAsset ?? product.featuredAsset;
   const categoryName = product.collections.find((collection) => collection.slug !== 'all' && collection.slug !== 'search')?.name;
 
@@ -93,6 +95,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
           return {
             ...option,
             stock: normalizeCatalogStock(relatedVariant.stockLevel),
+            priceNotSpecified: relatedVariant.customFields.priceNotSpecified === true,
             isSelected: selectedOptions[group.id] === option.id,
           };
         })
@@ -101,6 +104,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         id: string;
         code: string;
         stock: ReturnType<typeof normalizeCatalogStock>;
+        priceNotSpecified: boolean;
         isSelected: boolean;
       }>,
     }));
@@ -132,11 +136,20 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
           {product.name}
         </Typography>
 
-        {variant && price !== undefined && currency ? (
+        {priceState.kind === 'not-specified' ? (
+          <Typography
+            variant="h5"
+            data-testid="price-not-specified"
+            sx={{ fontWeight: 700, lineHeight: 1.2, mb: 2 }}
+          >
+            Цена не указана
+          </Typography>
+        ) : variant && price !== undefined && currency ? (
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <Typography
                 variant="h5"
+                data-testid="current-price"
                 sx={{ fontWeight: 700, lineHeight: 1.2 }}
               >
                 {priceFormatter(price, currency)}
@@ -145,6 +158,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
                 <Typography
                   variant="body1"
                   color="text.secondary"
+                  data-testid="old-price"
                   sx={{ textDecoration: 'line-through', lineHeight: 1.2 }}
                 >
                   {priceFormatter(basePrice, currency)}
@@ -156,6 +170,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
                 label={`-${discountPercent}%`}
                 color="error"
                 size="small"
+                data-testid="discount"
                 sx={{ fontWeight: 700 }}
               />
             )}
@@ -171,54 +186,59 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         ) : null}
 
         {/* Stock */}
-        <Box sx={{ mb: 3 }}>
-          {!variant ? (
-            <Chip
-              label="Нет доступных вариантов"
-              color="default"
-              size="small"
-            />
-          ) : stock.purchasable ? (
-            <>
+        {priceState.kind !== 'not-specified' && (
+          <Box sx={{ mb: 3 }}>
+            {!variant ? (
               <Chip
-                label="В наличии"
-                color="success"
+                label="Нет доступных вариантов"
+                color="default"
                 size="small"
               />
-              {stock.kind === 'low-stock' && (
-                <Typography
-                  variant="body2"
-                  color="error"
-                  sx={{ mt: 1 }}
-                >
-                  {stock.quantity === undefined ? 'Осталось мало товара' : `Торопитесь, осталось всего ${stock.quantity} шт.!`}
-                </Typography>
-              )}
-            </>
-          ) : stock.kind === 'out-of-stock' ? (
-            <Chip
-              label="Нет в наличии"
-              color="error"
-              size="small"
-            />
-          ) : (
-            <Chip
-              label="Наличие уточняется"
-              color="default"
-              size="small"
-            />
-          )}
-        </Box>
+            ) : stock.purchasable ? (
+              <>
+                <Chip
+                  label="В наличии"
+                  color="success"
+                  size="small"
+                  data-testid="stock-status"
+                />
+                {stock.kind === 'low-stock' && (
+                  <Typography
+                    variant="body2"
+                    color="error"
+                    sx={{ mt: 1 }}
+                  >
+                    {stock.quantity === undefined ? 'Осталось мало товара' : `Торопитесь, осталось всего ${stock.quantity} шт.!`}
+                  </Typography>
+                )}
+              </>
+            ) : stock.kind === 'out-of-stock' ? (
+              <Chip
+                label="Нет в наличии"
+                color="error"
+                size="small"
+                data-testid="stock-status"
+              />
+            ) : (
+              <Chip
+                label="Наличие уточняется"
+                color="default"
+                size="small"
+                data-testid="stock-status"
+              />
+            )}
+          </Box>
+        )}
 
         {/* Add to cart */}
-        {variant && stock.purchasable && price !== undefined && currency && (
+        {variant && priceState.kind === 'priced' && stock.purchasable && (
           <Box sx={{ mb: 3 }}>
             <AddToCartButton
               variantId={variant.id}
               productName={product.name}
               variantName={variant.name}
               slug={product.slug}
-              price={price}
+              price={priceState.price}
               image={featuredImage?.preview ?? null}
             />
           </Box>
@@ -250,8 +270,8 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
                       onClick={() => handleOptionClick(group.id, option.id)}
                       sx={{
                         cursor: 'pointer',
-                        opacity: option.stock.kind === 'out-of-stock' ? 0.5 : 1,
-                        textDecoration: option.stock.kind === 'out-of-stock' ? 'line-through' : 'none',
+                        opacity: !option.priceNotSpecified && option.stock.kind === 'out-of-stock' ? 0.5 : 1,
+                        textDecoration: !option.priceNotSpecified && option.stock.kind === 'out-of-stock' ? 'line-through' : 'none',
                       }}
                     />
                   ))}

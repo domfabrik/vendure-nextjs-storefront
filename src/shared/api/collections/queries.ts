@@ -54,6 +54,7 @@ export const SEARCH_COLLECTION_PRODUCTS = gql`
         slug
         productVariantId
         currencyCode
+        priceNotSpecified
         discountPercent
         basePriceWithTax {
           __typename
@@ -106,6 +107,9 @@ export const GET_COLLECTION_PRODUCT_VARIANTS = gql`
           }
           priceWithTax
           currencyCode
+          customFields {
+            priceNotSpecified
+          }
           name
           product {
             name

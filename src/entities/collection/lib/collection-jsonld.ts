@@ -23,6 +23,7 @@ export function buildCollectionBreadcrumbJsonLd(collection: Collection, siteUrl:
 }
 
 function getMinPrice(product: HomepageProduct): number | undefined {
+  if (product.priceNotSpecified === true) return undefined;
   const p = product.priceWithTax;
   if (p.__typename === 'SinglePrice') {
     const minorPrice = normalizeMinorPrice(p.value);

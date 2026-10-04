@@ -6,6 +6,7 @@ import net from 'node:net';
 import { resolve } from 'node:path';
 import { homepageFixture } from './homepage-ssr-cases.mjs';
 import { ownedProductionDotenvFixture } from './owned-dotenv-fixture.mjs';
+import { runPriceNotSpecifiedBrowserTest } from './price-not-specified-browser-test.mjs';
 
 const homepage = homepageFixture(tileProduct);
 const mockErrors = [];
@@ -69,7 +70,7 @@ async function handleApiRequest(request, response, recordRequest) {
       response.writeHead(400).end('GraphQL Int overflow');
       return;
     }
-    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1, 'structured-catalog': 4, 'chosen-offer': 1 };
+    const collectionSizes = { chairs: 178, empty: 0, exact: 48, 'one-page': 1, 'structured-catalog': 4, 'chosen-offer': 1, 'price-not-specified': 1 };
     const totalItems = input.collectionSlug ? (collectionSizes[input.collectionSlug] ?? 1) : 1;
     const skip = input.skip ?? 0;
     const take = input.take ?? totalItems;
@@ -79,7 +80,9 @@ async function handleApiRequest(request, response, recordRequest) {
         ? structuredCatalogProducts().slice(skip, skip + itemCount)
         : input.collectionSlug === 'chosen-offer'
           ? chosenOfferCatalogProducts().slice(skip, skip + itemCount)
-          : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
+          : input.collectionSlug === 'price-not-specified'
+            ? priceNotSpecifiedCatalogProducts().slice(skip, skip + itemCount)
+            : Array.from({ length: itemCount }, (_, index) => tileProduct(skip + index + 1));
     data = { search: { totalItems, items, facetValues: [] } };
   } else {
     data = { search: { totalItems: 0, items: [], facetValues: [] } };
@@ -103,6 +106,7 @@ function tileProduct(index = 1) {
     slug: `test-chair-${index}`,
     productVariantId: `variant-${index}`,
     currencyCode: 'RUB',
+    priceNotSpecified: false,
     discountPercent: 0,
     basePriceWithTax: { __typename: 'SinglePrice', value: 1000 },
     priceWithTax: { __typename: 'SinglePrice', value: 1000 },
@@ -117,6 +121,26 @@ function tileProduct(index = 1) {
       productAsset: null,
     },
   };
+}
+
+function priceNotSpecifiedCatalogProducts() {
+  return [
+    {
+      ...tileProduct(1),
+      productName: 'Товар без указанной цены',
+      slug: 'price-not-specified',
+      priceNotSpecified: true,
+      discountPercent: 50,
+      basePriceWithTax: { __typename: 'SinglePrice', value: 10_000 },
+      priceWithTax: { __typename: 'SinglePrice', value: 0 },
+      chosenOffer: {
+        ...tileProduct(1).chosenOffer,
+        priceWithTax: 0,
+        basePriceWithTax: 10_000,
+        discountPercent: 50,
+      },
+    },
+  ];
 }
 
 function structuredCatalogProducts() {
@@ -178,7 +202,7 @@ function product(slug) {
         featuredAsset: null,
         assets: [],
         options: [],
-        customFields: {},
+        customFields: { priceNotSpecified: false },
       },
     ],
   };
@@ -274,6 +298,56 @@ function product(slug) {
       variants: [{ ...baseProduct.variants[0], priceWithTax: 10099, basePriceWithTax: 10099, stockLevel: 'OUT_OF_STOCK' }],
     };
   }
+  if (slug === 'price-not-specified') {
+    return {
+      ...baseProduct,
+      name: 'Товар без указанной цены',
+      variants: [
+        {
+          ...baseProduct.variants[0],
+          priceWithTax: 0,
+          basePriceWithTax: 10_000,
+          customFields: { priceNotSpecified: true, discountPercent: 50, oldPrice: 10_000 },
+        },
+      ],
+    };
+  }
+  if (slug === 'mixed-price') {
+    return {
+      ...baseProduct,
+      name: 'Товар со смешанными ценами',
+      optionGroups: [
+        {
+          id: 'finish',
+          code: 'finish',
+          name: 'Отделка',
+          options: [
+            { id: 'missing', code: 'missing', name: 'Без цены' },
+            { id: 'priced', code: 'priced', name: 'С ценой' },
+          ],
+        },
+      ],
+      variants: [
+        {
+          ...baseProduct.variants[0],
+          id: 'missing-price',
+          priceWithTax: 0,
+          basePriceWithTax: 20_000,
+          stockLevel: 'OUT_OF_STOCK',
+          options: [{ id: 'missing', groupId: 'finish', code: 'missing', name: 'Без цены' }],
+          customFields: { priceNotSpecified: true, discountPercent: 50 },
+        },
+        {
+          ...baseProduct.variants[0],
+          id: 'regular-price',
+          priceWithTax: 12_000,
+          basePriceWithTax: 15_000,
+          options: [{ id: 'priced', groupId: 'finish', code: 'priced', name: 'С ценой' }],
+          customFields: { priceNotSpecified: false, discountPercent: 20 },
+        },
+      ],
+    };
+  }
   return baseProduct;
 }
 
@@ -322,6 +396,16 @@ function jsonLdByType(html, type) {
   const value = values.find((entry) => entry?.['@type'] === type);
   assert.ok(value, `missing ${type} JSON-LD`);
   return value;
+}
+
+function visibleText(html) {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<!--.*?-->/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function decodeHtmlAttribute(value) {
@@ -385,6 +469,9 @@ const env = {
   API_URL: `http://127.0.0.1:${apiPort}/shop-api`,
   NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${sitePort}`,
   NEXT_PUBLIC_METRIKA_ID: '112305722',
+  NEXT_PUBLIC_GA4_ID: 'G-0M5G35PLZW',
+  NEXT_PUBLIC_GA4_ENABLED: 'true',
+  NEXT_PUBLIC_GA4_DEBUG: 'true',
   NEXT_PUBLIC_HOST: `http://127.0.0.1:${publicApiPort}`,
   VENDURE_SERVER_URL: `http://127.0.0.1:${publicApiPort}`,
   STOREFRONT_ORIGIN: 'https://test.domfabrik.ru',
@@ -442,6 +529,7 @@ try {
   await startNext(allowedRuntimeEnv);
   await homepage.verify(`http://127.0.0.1:${sitePort}`, () => nextLogs);
   assert.deepEqual(mockErrors, [], 'SSR mock protocol assertions passed');
+  await runPriceNotSpecifiedBrowserTest(`http://test.domfabrik.ru:${sitePort}`);
 
   const sitemapResponse = await fetch(`http://127.0.0.1:${sitePort}/sitemap.xml`);
   assert.equal(sitemapResponse.status, 200, 'TC-005 sitemap HTTP status is preserved');
@@ -606,6 +694,31 @@ try {
     assert.match(productHtml, /"lowPrice":10/, `${userAgent} valid product price`);
     assert.doesNotMatch(productHtml, /name="robots"[^>]+content="[^"]*noindex/i, `${userAgent} TC-R4 production product must not receive global noindex`);
 
+    const missingPriceHtml = await (await get('/products/price-not-specified')).text();
+    const missingPriceProduct = jsonLdByType(missingPriceHtml, 'Product');
+    const missingPriceText = visibleText(missingPriceHtml);
+    assert.equal(missingPriceProduct.offers, undefined, `${userAgent} flagged PDP omits Product offers`);
+    assert.match(missingPriceText, /Цена не указана/, `${userAgent} flagged PDP uses the exact missing-price label`);
+    assert.doesNotMatch(missingPriceText, /-50%/, `${userAgent} flagged PDP hides the discount`);
+    assert.doesNotMatch(missingPriceHtml, /data-testid="add-to-cart"/, `${userAgent} flagged PDP hides the cart control`);
+    assert.doesNotMatch(missingPriceText, /В наличии/, `${userAgent} flagged PDP hides importer-derived stock assurance`);
+
+    const mixedMissingHtml = await (await get('/products/mixed-price?variant=missing-price')).text();
+    const mixedMissingProduct = jsonLdByType(mixedMissingHtml, 'Product');
+    assert.equal(mixedMissingProduct.offers.offerCount, 1, `${userAgent} mixed PDP excludes only the flagged variant offer`);
+    assert.equal(mixedMissingProduct.offers.lowPrice, 120, `${userAgent} mixed PDP keeps the ordinary variant offer`);
+    const mixedMissingText = visibleText(mixedMissingHtml);
+    assert.match(mixedMissingText, /Цена не указана/, `${userAgent} selecting the flagged mixed variant shows the missing-price state`);
+    assert.doesNotMatch(mixedMissingHtml, /data-testid="add-to-cart"/, `${userAgent} selecting the flagged mixed variant hides the cart control`);
+    assert.doesNotMatch(mixedMissingText, /В наличии/, `${userAgent} selecting the flagged mixed variant hides stock assurance`);
+
+    const mixedPricedHtml = await (await get('/products/mixed-price?variant=regular-price')).text();
+    const mixedPricedText = visibleText(mixedPricedHtml);
+    assert.match(mixedPricedText, />?120(?:\s|₽)/, `${userAgent} selecting the ordinary mixed variant restores its price`);
+    assert.doesNotMatch(mixedPricedText, /Цена не указана/, `${userAgent} selecting the ordinary mixed variant clears the missing-price state`);
+    assert.match(mixedPricedHtml, /data-testid="add-to-cart"/, `${userAgent} selecting the ordinary mixed variant restores the cart control`);
+    assert.match(mixedPricedText, /В наличии/, `${userAgent} selecting the ordinary mixed variant restores normal stock state`);
+
     const edgeHtml = await (await get('/products/structured-edge')).text();
     const edgeProduct = jsonLdByType(edgeHtml, 'Product');
     assert.equal(edgeProduct.brand, undefined, `${userAgent} TC-1 blank brand is omitted`);
@@ -667,6 +780,14 @@ try {
       /schema\.org\/(?:InStock|OutOfStock|BackOrder)|NaN|Infinity/,
       `${userAgent} TC-2/3 catalog does not invent unavailable search stock or invalid values`,
     );
+
+    const missingPriceCollectionHtml = await (await get('/collections/price-not-specified')).text();
+    const missingPriceItemList = jsonLdByType(missingPriceCollectionHtml, 'ItemList');
+    const missingPriceCollectionText = visibleText(missingPriceCollectionHtml);
+    assert.equal(missingPriceItemList.itemListElement[0].item, undefined, `${userAgent} flagged collection entry omits its Product offer`);
+    assert.match(missingPriceCollectionText, /Цена не указана/, `${userAgent} flagged listing uses the exact missing-price label`);
+    assert.doesNotMatch(missingPriceCollectionText, /-50%/, `${userAgent} flagged listing hides the discount`);
+    assert.doesNotMatch(missingPriceCollectionText, />В корзину</, `${userAgent} flagged listing hides the cart control`);
 
     const chosenOfferHtml = await (await get('/collections/chosen-offer')).text();
     assert.match(chosenOfferHtml, /href="\/products\/chosen-offer-product\?variant=cheapest-offer"/, `${userAgent} chosen offer card links to its selected PDP variant`);

@@ -3,7 +3,7 @@
 import { Box, Button, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
-import { normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
+import { priceFormatter, resolveCatalogPriceState } from '@/shared/lib';
 import type { HomepageProduct } from '@/shared/model';
 import { useCartStore } from '@/shared/store/cart';
 
@@ -16,12 +16,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const offer = product.chosenOffer;
   const image = offer?.productAsset?.preview ?? product.productAsset?.preview;
   const href = routes.product(product.slug, offer?.productVariantId);
-  const currency = normalizeCurrencyCode(offer?.currencyCode);
-  const price = normalizeMinorPrice(offer?.priceWithTax);
-  const formattedPrice = price !== undefined && currency ? priceFormatter(price, currency) : undefined;
-  const basePrice = normalizeMinorPrice(offer?.basePriceWithTax);
-  const formattedBasePrice = basePrice !== undefined && currency ? priceFormatter(basePrice, currency) : undefined;
-  const showDiscount = Boolean(offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
+  const priceState = resolveCatalogPriceState(product.priceNotSpecified, offer?.priceWithTax, offer?.currencyCode);
+  const formattedPrice = priceState.kind === 'priced' ? priceFormatter(priceState.price, priceState.currency) : undefined;
+  const basePriceState = resolveCatalogPriceState(product.priceNotSpecified, offer?.basePriceWithTax, offer?.currencyCode);
+  const formattedBasePrice = basePriceState.kind === 'priced' ? priceFormatter(basePriceState.price, basePriceState.currency) : undefined;
+  const showDiscount = Boolean(priceState.kind === 'priced' && offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
 
   return (
     <Box
@@ -93,28 +92,32 @@ export function ProductCard({ product }: ProductCardProps) {
         </NextLink>
 
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, mt: 'auto' }}>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#1B2B45' }}>{formattedPrice ?? 'Цена уточняется'}</Typography>
+          <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#1B2B45' }}>
+            {priceState.kind === 'not-specified' ? 'Цена не указана' : (formattedPrice ?? 'Цена уточняется')}
+          </Typography>
           {showDiscount && formattedBasePrice && <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>}
         </Box>
 
-        <Button
-          variant="outlined"
-          fullWidth
-          disabled={price === undefined || !currency || !formattedPrice || !offer}
-          onClick={() => {
-            if (price === undefined || !currency || !formattedPrice || !offer) return;
-            addToCart({
-              productVariantId: offer.productVariantId,
-              productName: product.productName,
-              variantName: product.productName,
-              slug: product.slug,
-              price,
-              image: image ?? null,
-            });
-          }}
-        >
-          В корзину
-        </Button>
+        {priceState.kind !== 'not-specified' && (
+          <Button
+            variant="outlined"
+            fullWidth
+            disabled={priceState.kind !== 'priced' || !formattedPrice || !offer}
+            onClick={() => {
+              if (priceState.kind !== 'priced' || !formattedPrice || !offer) return;
+              addToCart({
+                productVariantId: offer.productVariantId,
+                productName: product.productName,
+                variantName: product.productName,
+                slug: product.slug,
+                price: priceState.price,
+                image: image ?? null,
+              });
+            }}
+          >
+            В корзину
+          </Button>
+        )}
       </Box>
     </Box>
   );

@@ -28,6 +28,7 @@ export interface CollectionTileProductVariant {
   featuredAsset: { preview: string } | null;
   priceWithTax: number;
   currencyCode: string;
+  customFields: { priceNotSpecified: boolean | null };
   name: string;
   product: {
     name: string;
@@ -64,6 +65,7 @@ export interface HomepageProduct {
   slug: string;
   productVariantId: string;
   currencyCode: string;
+  priceNotSpecified: boolean;
   discountPercent: number;
   basePriceWithTax: HomepageProductPrice;
   priceWithTax: HomepageProductPrice;

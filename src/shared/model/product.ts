@@ -55,6 +55,7 @@ export interface ProductCustomFields {
 }
 
 export interface ProductVariantCustomFields {
+  priceNotSpecified: boolean | null;
   discountPercent: number | null;
   oldPrice: number | null;
   finishLabel: string | null;
@@ -113,6 +114,7 @@ export interface SearchResult {
   currencyCode: string;
   productVariantId: string;
   productVariantName: string;
+  priceNotSpecified: boolean;
   discountPercent: number;
   basePriceWithTax: SearchResultPrice;
   priceWithTax: SearchResultPrice;
@@ -135,6 +137,7 @@ export interface ProductVariantTile {
   name: string;
   currencyCode: string;
   priceWithTax: number;
+  customFields: { priceNotSpecified: boolean | null };
   featuredAsset: { preview: string } | null;
   product: {
     collections: { slug: string; name: string; parent: { slug: string } }[];

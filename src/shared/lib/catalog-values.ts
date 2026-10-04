@@ -5,6 +5,8 @@ export type CatalogStockState = {
   schemaAvailability?: 'https://schema.org/InStock' | 'https://schema.org/OutOfStock';
 };
 
+export type CatalogPriceState = { kind: 'not-specified' } | { kind: 'priced'; price: number; currency: 'RUB' } | { kind: 'invalid' };
+
 const UNKNOWN_STOCK: CatalogStockState = { kind: 'unknown', purchasable: false };
 
 export function normalizeCatalogStock(value: unknown): CatalogStockState {
@@ -41,6 +43,16 @@ export function normalizeCurrencyCode(value: unknown): 'RUB' | undefined {
   if (typeof value !== 'string') return undefined;
   const normalized = value.trim().toUpperCase();
   return normalized === 'RUB' ? normalized : undefined;
+}
+
+export function resolveCatalogPriceState(priceNotSpecified: unknown, price: unknown, currency: unknown): CatalogPriceState {
+  if (priceNotSpecified === true) return { kind: 'not-specified' };
+
+  const normalizedPrice = normalizeMinorPrice(price);
+  const normalizedCurrency = normalizeCurrencyCode(currency);
+  if (normalizedPrice === undefined || !normalizedCurrency) return { kind: 'invalid' };
+
+  return { kind: 'priced', price: normalizedPrice, currency: normalizedCurrency };
 }
 
 export function normalizeCatalogBrand(value: unknown): string | undefined {
