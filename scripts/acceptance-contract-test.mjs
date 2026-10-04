@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalRouteHref, matchesCollectionPage, parseMoneyMinorValues, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
+import { CURRENT_SEARCH_INPUT_PLACEHOLDER, CURRENT_SEARCH_INPUT_SELECTOR, distinctProductSlugs, isVisibleSearchControl } from './acceptance-search-mobile-helpers.mjs';
 
 const runnerPath = fileURLToPath(new URL('./storefront-acceptance-test.mjs', import.meta.url));
 function runChild(command, args, options) {
@@ -212,5 +213,37 @@ assert.throws(
   () => validateCartMoneyText('32 561,54 ₽', { currencyCode: 'RUB', unitMinor: 3256155, quantity: 1 }),
   /minor mismatch/,
   'genuine one-cent display mismatch must fail',
+);
+assert.deepEqual(
+  distinctProductSlugs([
+    '/products/first?variant=1',
+    '/products/first?variant=2',
+    '/products/second',
+    '/products/second?variant=3',
+  ]),
+  ['first', 'second'],
+  'duplicate image/title product links must collapse in first appearance order',
+);
+assert.notDeepEqual(
+  distinctProductSlugs(['/products/second', '/products/first', '/products/first?variant=2']),
+  ['first', 'second'],
+  'a genuinely wrong product order must remain observable after deduplication',
+);
+assert.equal(CURRENT_SEARCH_INPUT_PLACEHOLDER, 'Кровать, диван, кухня…');
+assert.equal(CURRENT_SEARCH_INPUT_SELECTOR, 'input[placeholder="Кровать, диван, кухня…"]');
+assert.equal(
+  isVisibleSearchControl({ exists: true, display: 'block', visibility: 'visible', opacity: '1', width: 320, height: 44 }),
+  true,
+  'the current search input placeholder must count when visibly rendered',
+);
+assert.equal(
+  isVisibleSearchControl({ exists: false, display: undefined, visibility: undefined, opacity: undefined, width: 0, height: 0 }),
+  false,
+  'a missing search input must fail the mobile contract',
+);
+assert.equal(
+  isVisibleSearchControl({ exists: true, display: 'none', visibility: 'visible', opacity: '1', width: 320, height: 44 }),
+  false,
+  'a hidden search input must fail the mobile contract',
 );
 console.log('Acceptance runner safety, behavioral 500 failure, complete matrix and evidence contracts passed');
