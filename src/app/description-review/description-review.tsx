@@ -2,14 +2,7 @@
 
 import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  createDescriptionReviewController,
-  DESCRIPTION_EXPERIMENT_KEY,
-  type DescriptionComparison,
-  isDescriptionComparisonConflict,
-  prepareDescriptionComparison,
-  submitDescriptionComparison,
-} from '@/shared/api';
+import { createDescriptionReviewController, DESCRIPTION_EXPERIMENT_KEY, type DescriptionComparison, prepareDescriptionComparison, submitDescriptionComparison } from '@/shared/api';
 import { DescriptionEvidence } from './description-evidence';
 import { DescriptionPanel } from './description-panel';
 
@@ -39,7 +32,6 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
   const controller = useMemo(
     () =>
       createDescriptionReviewController({
-        isConflictError: isDescriptionComparisonConflict,
         prepare: () => prepareDescriptionComparison(experimentKey),
         submit: submitDescriptionComparison,
       }),

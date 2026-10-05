@@ -22,9 +22,13 @@ interface DescriptionComparisonVoteInput {
   rightComment: string;
 }
 interface DescriptionComparisonVoteResult {
+  outcome: 'RESULT';
   saved: boolean;
   duplicate: boolean;
   completed: number;
+}
+interface DescriptionComparisonConflictResult {
+  outcome: 'CONFLICT';
 }
 
 export type DescriptionReviewRetryAction = { type: 'load'; clearComments?: boolean } | { type: 'submit'; choice: DescriptionComparisonChoice };
@@ -46,8 +50,7 @@ export interface DescriptionReviewState {
 
 export interface DescriptionReviewControllerDependencies {
   prepare: () => Promise<DescriptionComparison>;
-  submit: (input: DescriptionComparisonVoteInput) => Promise<DescriptionComparisonVoteResult>;
-  isConflictError?: (error: unknown) => boolean;
+  submit: (input: DescriptionComparisonVoteInput) => Promise<DescriptionComparisonVoteResult | DescriptionComparisonConflictResult>;
 }
 
 export interface DescriptionReviewController {
@@ -124,6 +127,13 @@ export function createDescriptionReviewController(dependencies: DescriptionRevie
 
     try {
       const result = await dependencies.submit(input);
+      if (result.outcome === 'CONFLICT') {
+        update({
+          submitting: false,
+          error: { message: 'Эта пара уже была обработана. Поля сохранены — повторите попытку.', retry: { type: 'load', clearComments: true } },
+        });
+        return;
+      }
       if (!result.saved && !result.duplicate) {
         update({
           submitting: false,
@@ -136,13 +146,10 @@ export function createDescriptionReviewController(dependencies: DescriptionRevie
       update({ comparison: null, leftComment: '', rightComment: '', loading: true });
       await loadNext();
       if (duplicate && !state.error) update({ notice: 'Этот ответ уже был сохранён. Загружена следующая пара.' });
-    } catch (error) {
-      const conflict = dependencies.isConflictError?.(error) ?? false;
+    } catch {
       update({
         submitting: false,
-        error: conflict
-          ? { message: 'Эта пара уже была обработана. Поля сохранены — повторите попытку.', retry: { type: 'load', clearComments: true } }
-          : { message: 'Не удалось сохранить ответ. Поля сохранены — повторите попытку.', retry: { type: 'submit', choice } },
+        error: { message: 'Не удалось сохранить ответ. Поля сохранены — повторите попытку.', retry: { type: 'submit', choice } },
       });
     } finally {
       if (state.submitting) update({ submitting: false });

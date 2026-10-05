@@ -35,11 +35,7 @@ export interface DescriptionComparisonVoteInput {
   rightComment: string;
 }
 
-export interface DescriptionComparisonVoteResult {
-  saved: boolean;
-  duplicate: boolean;
-  completed: number;
-}
+export type DescriptionComparisonVoteResult = { outcome: 'RESULT'; saved: boolean; duplicate: boolean; completed: number } | { outcome: 'CONFLICT' };
 
 export function createDescriptionComparisonVote(input: DescriptionComparisonVoteInput): DescriptionComparisonVoteInput {
   return {
@@ -50,15 +46,8 @@ export function createDescriptionComparisonVote(input: DescriptionComparisonVote
   };
 }
 
-export const DESCRIPTION_COMPARISON_ERROR_CODES = {
-  conflict: 'DESCRIPTION_COMPARISON_CONFLICT',
-  requestFailed: 'DESCRIPTION_COMPARISON_REQUEST_FAILED',
-} as const;
+export const DESCRIPTION_COMPARISON_ERROR_CODES = { requestFailed: 'DESCRIPTION_COMPARISON_REQUEST_FAILED' } as const;
 
 export function displayDescriptionText(text: string | null | undefined): string {
   return text && text.length > 0 ? text : 'Описание отсутствует';
-}
-
-export function isDescriptionComparisonConflict(error: unknown): boolean {
-  return error instanceof Error && error.message === DESCRIPTION_COMPARISON_ERROR_CODES.conflict;
 }

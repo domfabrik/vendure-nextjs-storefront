@@ -107,9 +107,10 @@ export async function submitDescriptionComparison(input: DescriptionComparisonVo
 
   try {
     const result = await sessionRequest<{ submitDescriptionComparison: unknown }>(SUBMIT_DESCRIPTION_COMPARISON, { input: parsedInput });
-    return voteResultSchema.parse(result.submitDescriptionComparison);
+    const parsedResult = voteResultSchema.parse(result.submitDescriptionComparison);
+    return { outcome: 'RESULT', ...parsedResult };
   } catch (error) {
-    if (isConflictError(error)) throw new Error(DESCRIPTION_COMPARISON_ERROR_CODES.conflict);
+    if (isConflictError(error)) return { outcome: 'CONFLICT' };
     throw new Error(DESCRIPTION_COMPARISON_ERROR_CODES.requestFailed);
   }
 }

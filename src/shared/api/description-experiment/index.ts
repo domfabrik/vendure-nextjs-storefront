@@ -25,5 +25,4 @@ export {
   DESCRIPTION_EXPERIMENT_KEY,
   DESCRIPTION_QA_EXPERIMENT_KEY,
   displayDescriptionText,
-  isDescriptionComparisonConflict,
 } from './model';

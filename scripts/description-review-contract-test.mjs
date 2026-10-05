@@ -81,7 +81,7 @@ async function testSavedThenFailedPrepareHidesOldBallot() {
     },
     submit: async (input) => {
       submissions.push(input);
-      return { saved: true, duplicate: false, completed: 1 };
+      return { outcome: 'RESULT', saved: true, duplicate: false, completed: 1 };
     },
   });
 
@@ -119,7 +119,7 @@ async function testSubmitFailurePreservesPairAndComments() {
     submit: async (input) => {
       submissions.push(input);
       if (submissions.length === 1) throw new Error('network failed');
-      return { saved: true, duplicate: false, completed: 1 };
+      return { outcome: 'RESULT', saved: true, duplicate: false, completed: 1 };
     },
   });
 
@@ -159,7 +159,7 @@ async function testDoubleClickSubmitsOnce() {
   const first = controller.submit('LEFT');
   const second = controller.submit('RIGHT');
   assert.equal(submissions.length, 1, 'double click starts one submit callback');
-  submitGate.resolve({ saved: true, duplicate: false, completed: 1 });
+  submitGate.resolve({ outcome: 'RESULT', saved: true, duplicate: false, completed: 1 });
   await Promise.all([first, second]);
   assert.equal(submissions[0].choice, 'LEFT');
 }
@@ -168,7 +168,7 @@ async function testDuplicateConflictAndReset() {
   let prepareCalls = 0;
   const duplicateController = createDescriptionReviewController({
     prepare: async () => (prepareCalls++ === 0 ? ready('ballot-duplicate') : complete(1, 1)),
-    submit: async () => ({ saved: false, duplicate: true, completed: 1 }),
+    submit: async () => ({ outcome: 'RESULT', saved: false, duplicate: true, completed: 1 }),
   });
   await load(duplicateController);
   duplicateController.setComment('left', 'duplicate left');
@@ -178,12 +178,11 @@ async function testDuplicateConflictAndReset() {
   assert.equal(duplicateController.getState().leftComment, '');
 
   let conflictPrepareCalls = 0;
+  const conflictOutcome = JSON.parse(JSON.stringify({ outcome: 'CONFLICT' }));
+  assert.deepEqual(conflictOutcome, { outcome: 'CONFLICT' });
   const conflictController = createDescriptionReviewController({
-    isConflictError: (error) => error instanceof Error && error.message === 'DESCRIPTION_COMPARISON_CONFLICT',
     prepare: async () => (conflictPrepareCalls++ === 0 ? ready('ballot-conflict') : ready('ballot-after-conflict', 1)),
-    submit: async () => {
-      throw new Error('DESCRIPTION_COMPARISON_CONFLICT');
-    },
+    submit: async () => conflictOutcome,
   });
   await load(conflictController);
   conflictController.setComment('left', 'retain on conflict');
@@ -198,7 +197,10 @@ async function testDuplicateConflictAndReset() {
 
 async function testCompleteUnavailableAndProgress() {
   for (const result of [complete(512, 512), unavailable(7, 512)]) {
-    const controller = createDescriptionReviewController({ prepare: async () => result, submit: async () => ({ saved: true, duplicate: false, completed: result.completed }) });
+    const controller = createDescriptionReviewController({
+      prepare: async () => result,
+      submit: async () => ({ outcome: 'RESULT', saved: true, duplicate: false, completed: result.completed }),
+    });
     await load(controller);
     assert.equal(controller.getState().comparison?.status, result.status);
     assert.equal(controller.getState().comparison?.completed, result.completed);
@@ -214,7 +216,7 @@ async function testLogicalSidesAndBothCommentsForEveryChoice() {
       prepare: async () => (prepareCalls++ === 0 ? ready(`ballot-${choice}`) : complete(1, 1)),
       submit: async (input) => {
         submissions.push(input);
-        return { saved: true, duplicate: false, completed: 1 };
+        return { outcome: 'RESULT', saved: true, duplicate: false, completed: 1 };
       },
     });
     await load(controller);
