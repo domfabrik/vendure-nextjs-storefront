@@ -1,58 +1,107 @@
 'use client';
 
-import { Box, CardMedia } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { Asset } from '@/shared/api';
 
 interface ProductGalleryProps {
   images: Asset[];
   name: string;
+  discountPercent?: number;
 }
 
-export function ProductGallery({ images, name }: ProductGalleryProps) {
+export function ProductGallery({ images, name, discountPercent }: ProductGalleryProps) {
   const [selected, setSelected] = useState(0);
   const current = images[selected] ?? images[0];
 
   if (!images.length) return null;
 
+  const showBadge = typeof discountPercent === 'number' && discountPercent > 0;
+
   return (
-    <Box>
-      <CardMedia
-        component="img"
-        image={current?.preview}
-        alt={name}
+    <Box sx={{ position: { md: 'sticky' }, top: { md: 16 } }}>
+      <Box
         sx={{
-          width: '100%',
-          objectFit: 'contain',
-          borderRadius: 2,
+          position: 'relative',
+          aspectRatio: '4 / 3',
+          bgcolor: '#F3F1EE',
+          borderRadius: '20px',
+          p: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           mb: 2,
+          overflow: 'hidden',
         }}
-      />
+      >
+        <img
+          src={current?.preview}
+          alt={name}
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            mixBlendMode: 'multiply',
+          }}
+        />
+        {showBadge && (
+          <Typography
+            sx={{
+              position: 'absolute',
+              top: 16,
+              left: 16,
+              bgcolor: '#96592C',
+              color: '#FFFFFF',
+              fontSize: 14,
+              fontWeight: 700,
+              px: 1.5,
+              py: 0.75,
+              borderRadius: '8px',
+              lineHeight: 1,
+            }}
+          >
+            −{discountPercent}%
+          </Typography>
+        )}
+      </Box>
+
       {images.length > 1 && (
-        <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto' }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 1.5,
+          }}
+        >
           {images.map((img, i) => (
             <Box
               key={img.source}
               onClick={() => setSelected(i)}
               sx={{
-                width: 64,
-                height: 64,
-                flexShrink: 0,
-                borderRadius: 1,
+                aspectRatio: '4 / 3',
+                borderRadius: '12px',
                 overflow: 'hidden',
                 cursor: 'pointer',
-                border: 2,
-                borderColor: i === selected ? 'primary.main' : 'transparent',
-                opacity: i === selected ? 1 : 0.6,
-                transition: 'all 0.2s',
-                '&:hover': { opacity: 1 },
+                border: '2px solid',
+                borderColor: i === selected ? '#1B2B45' : 'transparent',
+                bgcolor: '#F3F1EE',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                p: 1,
+                transition: 'border-color 0.2s',
+                '&:hover': { borderColor: i === selected ? '#1B2B45' : '#C8C3BA' },
               }}
             >
-              <CardMedia
-                component="img"
-                image={img.preview}
+              <img
+                src={img.preview}
                 alt={`${name} ${i + 1}`}
-                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  mixBlendMode: 'multiply',
+                }}
               />
             </Box>
           ))}

@@ -1,6 +1,8 @@
 'use client';
 
-import { Box, Button, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { Box, Button, IconButton, Typography } from '@mui/material';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { normalizeCurrencyCode, normalizeMinorPrice, priceFormatter } from '@/shared/lib';
@@ -13,6 +15,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
+  const setItemQuantity = useCartStore((s) => s.setItemQuantity);
+  const cartItem = useCartStore((s) => s.items.find((i) => i.productVariantId === product.chosenOffer?.productVariantId));
+
   const offer = product.chosenOffer;
   const image = offer?.productAsset?.preview ?? product.productAsset?.preview;
   const href = routes.product(product.slug, offer?.productVariantId);
@@ -22,6 +27,20 @@ export function ProductCard({ product }: ProductCardProps) {
   const basePrice = normalizeMinorPrice(offer?.basePriceWithTax);
   const formattedBasePrice = basePrice !== undefined && currency ? priceFormatter(basePrice, currency) : undefined;
   const showDiscount = Boolean(offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
+  const canAdd = price !== undefined && !!currency && !!formattedPrice && !!offer;
+  const inCart = !!cartItem && cartItem.quantity > 0;
+
+  const handleAdd = () => {
+    if (!canAdd) return;
+    addToCart({
+      productVariantId: offer.productVariantId,
+      productName: product.productName,
+      variantName: product.productName,
+      slug: product.slug,
+      price,
+      image: image ?? null,
+    });
+  };
 
   return (
     <Box
@@ -60,6 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
               maxWidth: '100%',
               maxHeight: '100%',
               objectFit: 'contain',
+              mixBlendMode: 'multiply',
               transition: 'transform .5s',
             }}
           />
@@ -93,28 +113,54 @@ export function ProductCard({ product }: ProductCardProps) {
         </NextLink>
 
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, mt: 'auto' }}>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#1B2B45' }}>{formattedPrice ?? 'Цена уточняется'}</Typography>
+          <Typography sx={{ fontSize: 21, fontWeight: 800, color: '#1B2B45' }}>{formattedPrice ?? 'Цена уточняется'}</Typography>
           {showDiscount && formattedBasePrice && <Typography sx={{ fontSize: 14, color: '#6B7586', textDecoration: 'line-through' }}>{formattedBasePrice}</Typography>}
         </Box>
 
-        <Button
-          variant="outlined"
-          fullWidth
-          disabled={price === undefined || !currency || !formattedPrice || !offer}
-          onClick={() => {
-            if (price === undefined || !currency || !formattedPrice || !offer) return;
-            addToCart({
-              productVariantId: offer.productVariantId,
-              productName: product.productName,
-              variantName: product.productName,
-              slug: product.slug,
-              price,
-              image: image ?? null,
-            });
-          }}
-        >
-          В корзину
-        </Button>
+        {inCart ? (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              height: 46,
+              border: '1.5px solid #1B2B45',
+              borderRadius: '10px',
+              overflow: 'hidden',
+            }}
+          >
+            <IconButton
+              onClick={() => setItemQuantity(cartItem.productVariantId, cartItem.quantity - 1)}
+              sx={{ borderRadius: 0, px: 1.5, color: '#1B2B45' }}
+            >
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1B2B45' }}>{cartItem.quantity}</Typography>
+            <IconButton
+              onClick={handleAdd}
+              sx={{ borderRadius: 0, px: 1.5, color: '#1B2B45' }}
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        ) : (
+          <Button
+            variant="outlined"
+            fullWidth
+            disabled={!canAdd}
+            sx={{
+              height: 46,
+              border: '1.5px solid #1B2B45',
+              borderRadius: '10px',
+              color: '#1B2B45',
+              fontWeight: 600,
+              '&:hover': { bgcolor: '#1B2B45', color: '#FFFFFF', borderColor: '#1B2B45' },
+            }}
+            onClick={handleAdd}
+          >
+            В корзину
+          </Button>
+        )}
       </Box>
     </Box>
   );

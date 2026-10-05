@@ -5,7 +5,7 @@ import { routes } from '@routes';
 import type { Metadata } from 'next';
 import NextLink from 'next/link';
 import { notFound } from 'next/navigation';
-import { ProductDetails, ProductList } from '@/entities/product';
+import { ProductDetails, ProductList, ProductTabs } from '@/entities/product';
 import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } from '@/entities/product/index.server';
 import { ProductDetailEvent } from '@/features/metrika';
 import { getProductBySlug, getProductsByCollection } from '@/shared/api';
@@ -76,13 +76,18 @@ export default async function Page(props: PageProps) {
         initialVariantId={initialVariant?.id}
       />
 
+      <ProductTabs
+        description={product.description}
+        productCustomFields={product.customFields}
+        variantCustomFields={initialVariant?.customFields ?? null}
+      />
+
       {/* Also bought */}
       {alsoBought.length > 0 && (
         <Box sx={{ mt: 6 }}>
           <Typography
-            variant="h5"
-            component="h2"
-            sx={{ fontWeight: 600, mb: 2 }}
+            variant="h2"
+            sx={{ fontSize: 28, fontWeight: 800, mb: 3, color: '#1B2B45' }}
           >
             Также вам может быть интересно
           </Typography>
