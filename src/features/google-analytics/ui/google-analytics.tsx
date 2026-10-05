@@ -16,19 +16,18 @@ import {
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
-  const [configured, setConfigured] = useState(false);
+  const configured = isGa4Configured();
   const [choice, setChoice] = useState<Ga4ConsentChoice | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsTriggerRef = useRef<HTMLElement | null>(null);
   const firstChoiceRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
-    if (!isGa4Configured()) return;
-    setConfigured(true);
+    if (!configured) return;
     const savedChoice = getGa4ConsentChoice();
     setChoice(savedChoice);
     if (savedChoice === 'granted') startGa4AfterConsent();
-  }, []);
+  }, [configured]);
 
   useEffect(() => {
     if (configured && choice === 'granted') trackGa4PageView(pathname);
@@ -70,7 +69,7 @@ export function GoogleAnalytics() {
   const openedFromFooter = choice !== null && settingsOpen;
   const shouldRenderPanel = choice === null || settingsOpen;
 
-  if (!configured || !shouldRenderPanel) return null;
+  if (!shouldRenderPanel) return null;
 
   return (
     <Paper

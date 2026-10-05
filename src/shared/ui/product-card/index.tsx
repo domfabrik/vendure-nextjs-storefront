@@ -16,7 +16,11 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const setItemQuantity = useCartStore((s) => s.setItemQuantity);
-  const cartItem = useCartStore((s) => s.items.find((i) => i.productVariantId === product.chosenOffer?.productVariantId));
+  const variantId = product.chosenOffer?.productVariantId;
+  const cartQuantity = useCartStore((s) => {
+    if (!variantId) return 0;
+    return s.items.find((i) => i.productVariantId === variantId)?.quantity ?? 0;
+  });
 
   const offer = product.chosenOffer;
   const image = offer?.productAsset?.preview ?? product.productAsset?.preview;
@@ -28,7 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const formattedBasePrice = basePrice !== undefined && currency ? priceFormatter(basePrice, currency) : undefined;
   const showDiscount = Boolean(offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
   const canAdd = price !== undefined && !!currency && !!formattedPrice && !!offer;
-  const inCart = !!cartItem && cartItem.quantity > 0;
+  const inCart = cartQuantity > 0;
 
   const handleAdd = () => {
     if (!canAdd) return;
@@ -130,12 +134,12 @@ export function ProductCard({ product }: ProductCardProps) {
             }}
           >
             <IconButton
-              onClick={() => setItemQuantity(cartItem.productVariantId, cartItem.quantity - 1)}
+              onClick={() => variantId && setItemQuantity(variantId, cartQuantity - 1)}
               sx={{ borderRadius: 0, px: 1.5, color: '#1B2B45' }}
             >
               <RemoveIcon fontSize="small" />
             </IconButton>
-            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1B2B45' }}>{cartItem.quantity}</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1B2B45' }}>{cartQuantity}</Typography>
             <IconButton
               onClick={handleAdd}
               sx={{ borderRadius: 0, px: 1.5, color: '#1B2B45' }}

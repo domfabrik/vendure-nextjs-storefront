@@ -1,16 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { GA4_SETTINGS_OPEN_EVENT, isGa4Configured } from '@/shared/lib';
 
 export function AnalyticsSettingsTrigger() {
-  const [configured, setConfigured] = useState(false);
-
-  useEffect(() => {
-    setConfigured(isGa4Configured());
-  }, []);
-
-  if (!configured) return null;
+  if (!isGa4Configured()) return null;
 
   return (
     <button
