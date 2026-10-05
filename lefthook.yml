@@ -1,0 +1,8 @@
+pre-commit:
+  commands:
+    prebuild:
+      run: yarn prebuild
+    gitleaks:
+      skip:
+        - run: "! command -v gitleaks"
+      run: gitleaks protect --staged --no-banner

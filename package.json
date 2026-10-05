@@ -29,7 +29,7 @@
     "build": "yarn prebuild && next build",
     "postbuild": "node scripts/strip-standalone-env.mjs",
     "start": "next start -p 3001",
-    "prepare": "husky"
+    "prepare": "test -d .git && lefthook install || true"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -59,7 +59,7 @@
     "@types/node": "25.6.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "husky": "9.1.7",
+    "lefthook": "2.1.17",
     "steiger": "0.5.12",
     "typescript": "6.0.3"
   },
