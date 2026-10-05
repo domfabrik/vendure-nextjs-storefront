@@ -11,6 +11,12 @@ export const PREPARE_DESCRIPTION_COMPARISON = gql`
       imageUrl
       leftText
       rightText
+      sourceUrl
+      sourceKind
+      parsedCharacteristics {
+        name
+        value
+      }
       completed
       total
     }

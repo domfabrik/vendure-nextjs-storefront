@@ -5,11 +5,23 @@ import { sessionRequest } from '../api-client';
 import {
   DESCRIPTION_COMPARISON_ERROR_CODES,
   DESCRIPTION_EXPERIMENT_KEY,
+  DESCRIPTION_QA_EXPERIMENT_KEY,
   type DescriptionComparison,
   type DescriptionComparisonVoteInput,
   type DescriptionComparisonVoteResult,
 } from './model';
 import { PREPARE_DESCRIPTION_COMPARISON, SUBMIT_DESCRIPTION_COMPARISON } from './queries';
+
+const sourceUrlSchema = z.string().refine((value) => {
+  if ([...value].some((character) => character.charCodeAt(0) <= 31 || character.charCodeAt(0) === 127)) return false;
+  try {
+    const parsed = new URL(value);
+    return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.username === '' && parsed.password === '';
+  } catch {
+    return false;
+  }
+}, 'sourceUrl must be a userinfo-free HTTP(S) URL');
+const experimentKeySchema = z.enum([DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY]);
 
 const comparisonSchema = z.object({
   status: z.enum(['READY', 'COMPLETE', 'UNAVAILABLE']),
@@ -20,6 +32,24 @@ const comparisonSchema = z.object({
   imageUrl: z.string().nullable(),
   leftText: z.string().nullable(),
   rightText: z.string().nullable(),
+  sourceUrl: sourceUrlSchema.nullable(),
+  sourceKind: z.enum(['VENDOR', 'CATALOG']).nullable(),
+  parsedCharacteristics: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(200),
+        value: z.string().min(1).max(2000),
+      }),
+    )
+    .max(100)
+    .superRefine((items, context) => {
+      const seen = new Set<string>();
+      for (const [index, item] of items.entries()) {
+        const key = `${item.name}\u0000${item.value}`;
+        if (seen.has(key)) context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate characteristic', path: [index] });
+        seen.add(key);
+      }
+    }),
   completed: z.number().int().nonnegative(),
   total: z.number().int().nonnegative(),
 });
@@ -52,10 +82,13 @@ function isConflictError(error: unknown): boolean {
   return /CONFLICT|ALREADY_SUBMITTED|VERSION_MISMATCH/i.test(firstGraphqlMessage(error));
 }
 
-export async function prepareDescriptionComparison(): Promise<DescriptionComparison> {
+export async function prepareDescriptionComparison(experimentKey = DESCRIPTION_EXPERIMENT_KEY): Promise<DescriptionComparison> {
+  const parsedExperimentKey = experimentKeySchema.safeParse(experimentKey);
+  if (!parsedExperimentKey.success) throw new Error(DESCRIPTION_COMPARISON_ERROR_CODES.requestFailed);
+
   try {
     const result = await sessionRequest<{ prepareDescriptionComparison: unknown }>(PREPARE_DESCRIPTION_COMPARISON, {
-      experimentKey: DESCRIPTION_EXPERIMENT_KEY,
+      experimentKey: parsedExperimentKey.data,
     });
 
     return comparisonSchema.parse(result.prepareDescriptionComparison);

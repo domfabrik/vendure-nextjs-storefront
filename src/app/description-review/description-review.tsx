@@ -4,12 +4,19 @@ import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material'
 import { useEffect, useMemo, useState } from 'react';
 import {
   createDescriptionReviewController,
+  DESCRIPTION_EXPERIMENT_KEY,
   type DescriptionComparison,
   isDescriptionComparisonConflict,
   prepareDescriptionComparison,
   submitDescriptionComparison,
 } from '@/shared/api';
+import { DescriptionEvidence } from './description-evidence';
 import { DescriptionPanel } from './description-panel';
+
+interface DescriptionReviewProps {
+  experimentKey?: string;
+  qaMode?: boolean;
+}
 
 function imageCanRender(imageUrl: string | null): imageUrl is string {
   if (!imageUrl) return false;
@@ -28,15 +35,15 @@ function statusMessage(comparison: DescriptionComparison): string {
   return 'Сравнение временно недоступно.';
 }
 
-export function DescriptionReview() {
+export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, qaMode = false }: DescriptionReviewProps) {
   const controller = useMemo(
     () =>
       createDescriptionReviewController({
         isConflictError: isDescriptionComparisonConflict,
-        prepare: prepareDescriptionComparison,
+        prepare: () => prepareDescriptionComparison(experimentKey),
         submit: submitDescriptionComparison,
       }),
-    [],
+    [experimentKey],
   );
   const [state, setState] = useState(controller.getState());
 
@@ -52,6 +59,7 @@ export function DescriptionReview() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, py: { xs: 2, sm: 4 } }}>
       <Box>
+        {qaMode && <Alert severity="info">Режим проверки: ответы не входят в статистику исследования.</Alert>}
         <Typography
           component="h1"
           sx={{ fontSize: { xs: '1.75rem', sm: '2.25rem' }, fontWeight: 700 }}
@@ -107,16 +115,14 @@ export function DescriptionReview() {
                   sx={{ aspectRatio: '4 / 3', borderRadius: 1, maxWidth: 480, objectFit: 'contain', width: '100%' }}
                 />
               )}
-              {comparison.productName && (
-                <Typography
-                  component="h2"
-                  sx={{ fontSize: '1.25rem', fontWeight: 700, textAlign: 'center' }}
-                >
-                  {comparison.productName}
-                </Typography>
-              )}
             </Box>
           )}
+          <DescriptionEvidence
+            parsedCharacteristics={comparison.parsedCharacteristics}
+            productName={comparison.productName}
+            sourceKind={comparison.sourceKind}
+            sourceUrl={comparison.sourceUrl}
+          />
           <Typography
             aria-live="polite"
             color="text.secondary"

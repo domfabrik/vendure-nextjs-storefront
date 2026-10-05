@@ -9,6 +9,9 @@ interface DescriptionComparison {
   imageUrl: string | null;
   leftText: string | null;
   rightText: string | null;
+  sourceUrl: string | null;
+  sourceKind: 'VENDOR' | 'CATALOG' | null;
+  parsedCharacteristics: Array<{ name: string; value: string }>;
   completed: number;
   total: number;
 }

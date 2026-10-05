@@ -1,8 +1,16 @@
 export const DESCRIPTION_EXPERIMENT_KEY = 'description-third-20261005-v1';
+export const DESCRIPTION_QA_EXPERIMENT_KEY = 'description-study-qa-20261005-v1';
 
 export type DescriptionComparisonStatus = 'READY' | 'COMPLETE' | 'UNAVAILABLE';
 
 export type DescriptionComparisonChoice = 'LEFT' | 'RIGHT' | 'EQUAL' | 'SKIP';
+
+export type DescriptionSourceKind = 'VENDOR' | 'CATALOG';
+
+export interface DescriptionCharacteristic {
+  name: string;
+  value: string;
+}
 
 export interface DescriptionComparison {
   status: DescriptionComparisonStatus;
@@ -13,6 +21,9 @@ export interface DescriptionComparison {
   imageUrl: string | null;
   leftText: string | null;
   rightText: string | null;
+  sourceUrl: string | null;
+  sourceKind: DescriptionSourceKind | null;
+  parsedCharacteristics: DescriptionCharacteristic[];
   completed: number;
   total: number;
 }

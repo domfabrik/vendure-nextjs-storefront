@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { DescriptionEvidence } from '../src/app/description-review/description-evidence.ts';
+import { resolveDescriptionExperimentKey } from '../src/app/description-review/description-experiment-key.ts';
 import { DescriptionPanel } from '../src/app/description-review/description-panel.ts';
 import { isDescriptionReviewEnabled } from '../src/app/description-review/description-review-gate.ts';
 import { createDescriptionReviewController } from '../src/shared/api/description-experiment/controller.ts';
@@ -9,6 +11,7 @@ import { displayDescriptionText } from '../src/shared/api/description-experiment
 
 const pageSource = readFileSync(new URL('../src/app/description-review/page.tsx', import.meta.url), 'utf8');
 const reviewSource = readFileSync(new URL('../src/app/description-review/description-review.tsx', import.meta.url), 'utf8');
+const apiSource = readFileSync(new URL('../src/shared/api/description-experiment/api.ts', import.meta.url), 'utf8');
 
 const choices = ['LEFT', 'RIGHT', 'EQUAL', 'SKIP'];
 
@@ -32,6 +35,9 @@ function ready(token, completed = 0, total = 512) {
     imageUrl: null,
     leftText: 'Левая строка\n\nЛевый абзац',
     rightText: '<script>alert(1)</script>',
+    sourceUrl: null,
+    sourceKind: null,
+    parsedCharacteristics: [],
     completed,
     total,
   };
@@ -47,6 +53,9 @@ function complete(completed = 512, total = 512) {
     imageUrl: null,
     leftText: null,
     rightText: null,
+    sourceUrl: null,
+    sourceKind: null,
+    parsedCharacteristics: [],
     completed,
     total,
   };
@@ -231,9 +240,15 @@ assert.equal(isDescriptionReviewEnabled(undefined), false);
 assert.match(pageSource, /isDescriptionReviewEnabled\(envServer\.SITE_URL\)/);
 assert.match(pageSource, /if \(!isDescriptionReviewEnabled\(envServer\.SITE_URL\)\) notFound\(\)/);
 assert.match(pageSource, /robots: \{ index: false, follow: false \}/);
+assert.match(pageSource, /searchParams/);
+assert.match(reviewSource, /Режим проверки: ответы не входят в статистику исследования/);
+assert.match(apiSource, /z\.enum\(\[DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY\]\)/);
 assert.match(reviewSource, /import \{ DescriptionPanel \} from '\.\/description-panel'/);
 assert.match(reviewSource, /headingId="description-review-variant-left-heading"/);
 assert.match(reviewSource, /headingId="description-review-variant-right-heading"/);
+assert.deepEqual(resolveDescriptionExperimentKey(undefined, 'description-third-20261005-v1'), { experimentKey: 'description-third-20261005-v1', qaMode: false });
+assert.deepEqual(resolveDescriptionExperimentKey('1', 'description-third-20261005-v1'), { experimentKey: 'description-study-qa-20261005-v1', qaMode: true });
+assert.deepEqual(resolveDescriptionExperimentKey('anything-else', 'description-third-20261005-v1'), { experimentKey: 'description-third-20261005-v1', qaMode: false });
 
 const renderedPanel = renderToStaticMarkup(
   createElement(DescriptionPanel, {
@@ -251,6 +266,47 @@ assert.match(renderedPanel, /aria-describedby="description-review-variant-left-h
 assert.match(renderedPanel, /aria-label="Комментарий к Вариант 1"/);
 assert.match(renderedPanel, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 assert.doesNotMatch(renderedPanel, /<script>alert\(1\)<\/script>/);
+
+const renderedEvidence = renderToStaticMarkup(
+  createElement(DescriptionEvidence, {
+    parsedCharacteristics: [
+      { name: 'Ширина', value: '120 см' },
+      { name: 'Особенность', value: '<script>alert(2)</script>' },
+    ],
+    productName: 'Товар <script>alert(3)</script>',
+    sourceKind: 'VENDOR',
+    sourceUrl: 'https://vendor.example/item?name=%3Cscript%3E',
+  }),
+);
+assert.match(renderedEvidence, /Исходная информация/);
+assert.match(renderedEvidence, /target="_blank"/);
+assert.match(renderedEvidence, /rel="noopener noreferrer"/);
+assert.match(renderedEvidence, /Ширина/);
+assert.match(renderedEvidence, /120 см/);
+assert.match(renderedEvidence, /&lt;script&gt;alert\(2\)&lt;\/script&gt;/);
+assert.doesNotMatch(renderedEvidence, /<script>alert\(2\)<\/script>/);
+assert.doesNotMatch(renderedEvidence, /<script>alert\(3\)<\/script>/);
+
+const renderedEmptyEvidence = renderToStaticMarkup(
+  createElement(DescriptionEvidence, {
+    parsedCharacteristics: [],
+    productName: 'Товар',
+    sourceKind: 'CATALOG',
+    sourceUrl: 'https://domfabrik.ru/products/item',
+  }),
+);
+assert.match(renderedEmptyEvidence, /Исходная карточка DomFabrik/);
+assert.match(renderedEmptyEvidence, /Подтверждённые характеристики не найдены/);
+
+const renderedUnsafeEvidence = renderToStaticMarkup(
+  createElement(DescriptionEvidence, {
+    parsedCharacteristics: [],
+    productName: 'Товар',
+    sourceKind: 'VENDOR',
+    sourceUrl: 'https://user:password@vendor.example/item',
+  }),
+);
+assert.doesNotMatch(renderedUnsafeEvidence, /Исходная информация/);
 
 await testSavedThenFailedPrepareHidesOldBallot();
 await testSubmitFailurePreservesPairAndComments();
