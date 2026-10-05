@@ -6,7 +6,7 @@ import { Autocomplete, Box, CircularProgress, InputAdornment, Paper, type PaperP
 import { routes } from '@routes';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { searchProducts } from '@/shared/api/search';
 import type { SearchResult } from '@/shared/model';
 import { buildHeaderSearchInput } from './search-input';
@@ -69,42 +69,39 @@ export function Search() {
     };
   }, [debouncedQuery]);
 
-  const navigateToSearch = useCallback(() => {
+  const navigateToSearch = () => {
     const q = stateRef.current.query.trim();
     if (q.length >= 3) {
       setOpen(false);
       router.push(routes.search(q));
     }
-  }, [router]);
+  };
 
-  const SearchPaper = useCallback(
-    (props: PaperProps) => (
-      <Paper {...props}>
-        {props.children}
-        {stateRef.current.totalItems > 0 && (
-          <Box
-            sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', cursor: 'pointer' }}
-            onMouseDown={(e) => e.preventDefault()}
+  const SearchPaper = (props: PaperProps) => (
+    <Paper {...props}>
+      {props.children}
+      {stateRef.current.totalItems > 0 && (
+        <Box
+          sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', cursor: 'pointer' }}
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <Link
+            href={routes.search(stateRef.current.query)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              textDecoration: 'none',
+              color: 'inherit',
+              fontSize: 14,
+            }}
           >
-            <Link
-              href={routes.search(stateRef.current.query)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                textDecoration: 'none',
-                color: 'inherit',
-                fontSize: 14,
-              }}
-            >
-              Все результаты ({stateRef.current.totalItems})
-              <ArrowForwardIcon fontSize="small" />
-            </Link>
-          </Box>
-        )}
-      </Paper>
-    ),
-    [],
+            Все результаты ({stateRef.current.totalItems})
+            <ArrowForwardIcon fontSize="small" />
+          </Link>
+        </Box>
+      )}
+    </Paper>
   );
 
   return (

@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -68,21 +68,21 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
     defaultValues: { recipientFullName: '', recipientPhoneNumber: '' },
   });
 
-  const resetDialog = useCallback(() => {
+  const resetDialog = () => {
     reset();
     setReceipt(null);
     setError(null);
     setAttempt(null);
     attemptRef.current = null;
     setSessionCapability(null);
-  }, [reset]);
+  };
 
-  const finishClose = useCallback(() => {
+  const finishClose = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     closeTimerRef.current = null;
     resetDialog();
     onCloseRef.current();
-  }, [resetDialog]);
+  };
 
   function handleClose() {
     if (inFlightRef.current) return;

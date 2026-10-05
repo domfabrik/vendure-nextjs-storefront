@@ -6,7 +6,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ShieldOutlined from '@mui/icons-material/ShieldOutlined';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Button, IconButton, Typography } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Asset, Product, ProductVariant } from '@/shared/api';
 import { GA4_CONSENT_CHANGE_EVENT, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, priceFormatter, trackGa4ViewItem } from '@/shared/lib';
 import { contacts } from '@/shared/router';
@@ -38,7 +38,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
   const cartItems = useCartStore((s) => s.items);
   const defaultVariant = product.variants.find((variant) => variant.id === initialVariantId) ?? product.variants[0];
 
-  const initialSelected = useMemo(() => {
+  const initialSelected = (() => {
     const sel: Record<string, string> = {};
     if (defaultVariant) {
       for (const opt of defaultVariant.options) {
@@ -46,18 +46,15 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
       }
     }
     return sel;
-  }, [defaultVariant]);
+  })();
 
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(initialSelected);
   const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(defaultVariant?.id);
   const [consentRevision, setConsentRevision] = useState(0);
 
-  const variant = useMemo(
-    () => product.variants.find((candidate) => candidate.id === selectedVariantId) ?? findVariant(product, selectedOptions),
-    [product, selectedOptions, selectedVariantId],
-  );
+  const variant = product.variants.find((candidate) => candidate.id === selectedVariantId) ?? findVariant(product, selectedOptions);
 
-  const images = useMemo(() => getImagesForVariant(product, variant), [product, variant]);
+  const images = getImagesForVariant(product, variant);
 
   const stock = normalizeCatalogStock(variant?.stockLevel);
   const price = normalizeMinorPrice(variant?.priceWithTax);
@@ -96,31 +93,29 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
     setSelectedOptions((prev) => ({ ...prev, [groupId]: optionId }));
   };
 
-  const enrichedGroups = useMemo(() => {
-    return product.optionGroups.map((group) => ({
-      ...group,
-      options: group.options
-        .map((option) => {
-          const testSelected = { ...selectedOptions, [group.id]: option.id };
-          const relatedVariant = findVariant(product, testSelected);
-          if (!relatedVariant) return null;
-          return {
-            ...option,
-            stock: normalizeCatalogStock(relatedVariant.stockLevel),
-            isSelected: selectedOptions[group.id] === option.id,
-            preview: relatedVariant.featuredAsset?.preview ?? null,
-          };
-        })
-        .filter(Boolean) as Array<{
-        name: string;
-        id: string;
-        code: string;
-        stock: ReturnType<typeof normalizeCatalogStock>;
-        isSelected: boolean;
-        preview: string | null;
-      }>,
-    }));
-  }, [product, selectedOptions]);
+  const enrichedGroups = product.optionGroups.map((group) => ({
+    ...group,
+    options: group.options
+      .map((option) => {
+        const testSelected = { ...selectedOptions, [group.id]: option.id };
+        const relatedVariant = findVariant(product, testSelected);
+        if (!relatedVariant) return null;
+        return {
+          ...option,
+          stock: normalizeCatalogStock(relatedVariant.stockLevel),
+          isSelected: selectedOptions[group.id] === option.id,
+          preview: relatedVariant.featuredAsset?.preview ?? null,
+        };
+      })
+      .filter(Boolean) as Array<{
+      name: string;
+      id: string;
+      code: string;
+      stock: ReturnType<typeof normalizeCatalogStock>;
+      isSelected: boolean;
+      preview: string | null;
+    }>,
+  }));
 
   const handleAddToCart = () => {
     if (!variant || price === undefined || !currency) return;
