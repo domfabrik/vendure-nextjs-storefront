@@ -6,7 +6,6 @@ import { PropsWithChildren, Suspense } from 'react';
 import { GoogleAnalytics } from '@/features/google-analytics';
 import { MetrikaHit, MetrikaScript } from '@/features/metrika';
 import { envServer, SITE_NAME } from '@/shared/config/index.server';
-import { CartHydration } from '@/shared/store';
 import { Footer, GlobalStyles, Header, ScrollToTop, Theme } from '@/shared/ui';
 
 const manrope = Manrope({
@@ -68,7 +67,6 @@ export default async function RootLayout(props: PropsWithChildren) {
             <Theme>
               <GlobalStyles />
 
-              <CartHydration />
               <Suspense fallback={null}>
                 <ScrollToTop />
                 <MetrikaHit />

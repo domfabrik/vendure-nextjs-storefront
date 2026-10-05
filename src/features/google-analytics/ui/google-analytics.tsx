@@ -16,11 +16,15 @@ import {
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
-  const configured = isGa4Configured();
+  const [configured, setConfigured] = useState(false);
   const [choice, setChoice] = useState<Ga4ConsentChoice | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsTriggerRef = useRef<HTMLElement | null>(null);
   const firstChoiceRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    setConfigured(isGa4Configured());
+  }, []);
 
   useEffect(() => {
     if (!configured) return;
