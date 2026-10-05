@@ -62,7 +62,7 @@ export function Hero() {
 
         <Box sx={{ position: 'relative', minHeight: { xs: 280, md: 520 } }}>
           <img
-            src="/images/home/hero.jpg"
+            src="/images/home/hero.webp"
             alt="Интерьер шоурума"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
