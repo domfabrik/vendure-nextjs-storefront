@@ -12,6 +12,7 @@ interface PriceBlockProps {
   basePrice?: number;
   savings: number;
   hasDiscount: boolean;
+  discountPercent?: number;
   purchasable: boolean;
   inCart: boolean;
   cartQuantity: number;
@@ -19,7 +20,7 @@ interface PriceBlockProps {
   onChangeQuantity: (quantity: number) => void;
 }
 
-export function PriceBlock({ price, currency, basePrice, savings, hasDiscount, purchasable, inCart, cartQuantity, onAdd, onChangeQuantity }: PriceBlockProps) {
+export function PriceBlock({ price, currency, basePrice, savings, hasDiscount, discountPercent, purchasable, inCart, cartQuantity, onAdd, onChangeQuantity }: PriceBlockProps) {
   return (
     <Box
       sx={(t) => ({
@@ -39,6 +40,21 @@ export function PriceBlock({ price, currency, basePrice, savings, hasDiscount, p
           >
             {priceFormatter(basePrice, currency)}
           </Typography>
+          {typeof discountPercent === 'number' && discountPercent > 0 && (
+            <Typography
+              variant="overline"
+              sx={{
+                bgcolor: 'accent.light',
+                color: 'accent.dark',
+                fontWeight: 600,
+                px: 1,
+                py: 0.5,
+                borderRadius: '6px',
+              }}
+            >
+              -{discountPercent}%
+            </Typography>
+          )}
           {savings > 0 && (
             <Typography
               variant="overline"
@@ -108,6 +124,7 @@ export function PriceBlock({ price, currency, basePrice, savings, hasDiscount, p
               variant="contained"
               fullWidth
               onClick={onAdd}
+              data-testid="add-to-cart"
               startIcon={<ShoppingCartIcon />}
               sx={{
                 bgcolor: 'primary.main',

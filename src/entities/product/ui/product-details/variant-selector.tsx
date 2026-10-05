@@ -46,7 +46,15 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
             {group.options.map((option) => (
               <Box
                 key={option.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelect(group.id, option.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect(group.id, option.id);
+                  }
+                }}
                 sx={(t) => ({
                   cursor: 'pointer',
                   border: '2px solid',

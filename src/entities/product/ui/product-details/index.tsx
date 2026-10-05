@@ -185,6 +185,14 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               Нет в наличии
             </Typography>
           )}
+          {variant && stock.kind === 'unknown' && (
+            <Typography
+              variant="overline"
+              sx={{ bgcolor: 'warmBg', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'text.secondary' }}
+            >
+              Наличие уточняется
+            </Typography>
+          )}
           {variant?.sku && (
             <Typography
               variant="overline"
@@ -198,6 +206,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         {/* Title */}
         <Typography
           variant="h2"
+          component="h1"
           sx={{ lineHeight: 1.15 }}
         >
           {product.name}
@@ -232,6 +241,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
             basePrice={basePrice}
             savings={savings}
             hasDiscount={hasDiscount}
+            discountPercent={hasDiscount ? discountPercent : undefined}
             purchasable={stock.purchasable}
             inCart={inCart}
             cartQuantity={cartQuantity}
