@@ -4,11 +4,20 @@ import assert from 'node:assert/strict';
 export function productHttpFixture(product, collection) {
   const productRequests = new Map();
   const recommendationRequests = new Map();
+  const propagatedRequests = [];
   let freshnessState = { priceWithTax: 1000, stockLevel: 'IN_STOCK' };
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const recommendations = new Set(['pdp-related-http', 'pdp-related-graphql', 'pdp-related-slow-error', 'pdp-related-slow-ok']);
   return {
-    async handle(query, variables, response) {
+    async handle(query, variables, response, request) {
+      if (query.includes('GetProductBySlug') || query.includes('SearchCollectionProducts')) {
+        propagatedRequests.push({
+          slug: variables.slug ?? variables.collectionSlug ?? null,
+          requestID: request.headers['x-fabric-request-id'],
+          stage: request.headers['x-fabric-stage'],
+          operation: request.headers['x-fabric-operation'],
+        });
+      }
       if (query.includes('GetProductBySlug')) {
         const slug = variables.slug;
         productRequests.set(slug, (productRequests.get(slug) ?? 0) + 1);
@@ -62,6 +71,7 @@ export function productHttpFixture(product, collection) {
       return false;
     },
     async verify(baseUrl, logs) {
+      const initialLogLength = logs().length;
       const productJson = (html) => {
         const entries = [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
         return entries.find((entry) => entry['@type'] === 'Product');
@@ -108,7 +118,7 @@ export function productHttpFixture(product, collection) {
         assert.equal(normalResponse.status, 200, `TC-F1 ${userAgent} normal product status`);
         assert.equal((productRequests.get('test-chair') ?? 0) - normalBefore, 1, `TC-PDP ${userAgent} test-chair GetProductBySlug requests`);
         assert.match(normalHtml, /Также вам может быть интересно/);
-        assert.match(normalHtml, /href="\/products\/test-chair-1(?:\?[^\"]*)?"/);
+        assert.match(normalHtml, /href="\/products\/test-chair-1(?:\?[^"]*)?"/);
         assert.match(normalHtml, /Тестовый стул 1/);
         assert.equal((recommendationRequests.get('chairs') ?? 0) - relatedBefore, 1, `TC-F1 ${userAgent} normal product loads one recommendation request`);
         const noRelatedBefore = recommendationRequestTotal();
@@ -145,15 +155,35 @@ export function productHttpFixture(product, collection) {
           assert.match(html, /name="robots"[^>]*content="[^"]*noindex/);
         }
       }
-      assert.match(logs(), /\[catalog-ssr\].*SearchCollectionProducts/);
-      assert.doesNotMatch(logs(), /synthetic recommendations failure|synthetic recommendations unavailable/);
-      const records = [...logs().matchAll(/\[catalog-ssr\] (\{[^\n]+\})/g)].map((match) => JSON.parse(match[1])).filter((entry) => entry.category?.startsWith('pdp-related-'));
+      const spoofedID = '00000000-0000-4000-8000-000000000000';
+      const parallelSlugs = ['pdp-parallel-a', 'pdp-parallel-b'];
+      const parallelResponses = await Promise.all(parallelSlugs.map((slug) => fetch(`${baseUrl}/products/${slug}`, { headers: { 'x-fabric-request-id': spoofedID } })));
+      assert.deepEqual(
+        parallelResponses.map((response) => response.status),
+        [200, 200],
+        'TC-O3 parallel products remain available',
+      );
+      const parallelProductRecords = parallelSlugs.map((slug) => propagatedRequests.find((record) => record.slug === slug && record.operation === 'GetProductBySlug'));
+      for (const record of parallelProductRecords) {
+        assert.ok(record, 'TC-O3 product request reached the API');
+        assert.match(record.requestID, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+        assert.notEqual(record.requestID, spoofedID, 'TC-O3 browser-supplied ID is not reused');
+        assert.ok(['metadata', 'product'].includes(record.stage), 'TC-O3 propagated public PDP stage');
+      }
+      assert.notEqual(parallelProductRecords[0].requestID, parallelProductRecords[1].requestID, 'TC-O3 parallel HTTP requests have distinct IDs');
+
+      const productLogs = logs().slice(initialLogLength);
+      assert.match(productLogs, /\[catalog-observability\].*SearchCollectionProducts/);
+      assert.doesNotMatch(productLogs, /synthetic recommendations failure|synthetic recommendations unavailable/);
+      const records = [...productLogs.matchAll(/\[catalog-observability\] (\{[^\n]+\})/g)]
+        .map((match) => JSON.parse(match[1]))
+        .filter((entry) => entry.stage === 'recommendations' && entry.outcome === 'failure');
       assert.equal(records.length, 6, 'one safe diagnostic per failing recommendation request');
       for (const record of records) {
-        assert.deepEqual(Object.keys(record).sort(), ['category', 'errorClass', 'operation']);
+        assert.deepEqual(Object.keys(record).sort(), ['durationMs', 'errorClass', 'event', 'operation', 'outcome', 'requestID', 'schemaVersion', 'stage']);
         assert.equal(record.operation, 'SearchCollectionProducts');
       }
-      console.log('TC-PDP complete product, variants, recommendations failures/delay, primary errors/disconnect, 404 and UA parity passed');
+      console.log('TC-PDP/TC-O3 complete product, variants, safe failures, parallel request IDs, propagation, 404 and UA parity passed');
     },
   };
 }

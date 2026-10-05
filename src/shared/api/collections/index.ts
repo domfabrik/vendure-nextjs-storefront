@@ -10,4 +10,3 @@ export type {
 } from '@/shared/model';
 export { getAllCollections, getCollectionBySlug, getCollectionsWithProducts, getNavigationTree, getProductsByCollection } from './api';
 export { getCachedAllCollections, getCachedCollectionsWithProducts, getCachedProductsByCollection } from './cached';
-export { reportCatalogFailure } from './ssr-budget';

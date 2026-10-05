@@ -8,7 +8,8 @@ import { notFound } from 'next/navigation';
 import { ProductDetails, ProductList } from '@/entities/product';
 import { buildBreadcrumbJsonLd, buildProductJsonLd, generateProductMetadata } from '@/entities/product/index.server';
 import { ProductDetailEvent } from '@/features/metrika';
-import { getProductBySlug, getProductsByCollection, reportCatalogFailure } from '@/shared/api';
+import { getProductBySlug, getProductsByCollection } from '@/shared/api';
+import { observeCatalogStage, reportCatalogFailure } from '@/shared/api/index.server';
 import { envServer } from '@/shared/config/index.server';
 import { normalizeCurrencyCode, normalizeMinorPrice, serializeJsonLd } from '@/shared/lib';
 import { PageContainer } from '@/shared/ui';
@@ -20,7 +21,7 @@ interface PageProps {
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = await props.params;
-  const product = await getProductBySlug(slug);
+  const product = await observeCatalogStage('metadata', 'GetProductBySlug', () => getProductBySlug(slug));
   if (!product) notFound();
 
   return generateProductMetadata(product);
@@ -29,16 +30,16 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page(props: PageProps) {
   const { slug } = await props.params;
   const searchParams = await props.searchParams;
-  const product = await getProductBySlug(slug);
+  const product = await observeCatalogStage('product', 'GetProductBySlug', () => getProductBySlug(slug));
   if (!product) notFound();
 
   const relatedCollectionSlug = product.collections.find((c) => c.slug !== 'all' && c.slug !== 'search')?.slug;
   // Recommendations are optional; their API failure must not discard a loaded product.
   const alsoBought = relatedCollectionSlug
-    ? await getProductsByCollection(relatedCollectionSlug, 12)
+    ? await observeCatalogStage('recommendations', 'SearchCollectionProducts', () => getProductsByCollection(relatedCollectionSlug, 12, 'recommendations'))
         .then((products) => products.filter((p) => p.slug !== slug))
         .catch((error: unknown) => {
-          reportCatalogFailure('SearchCollectionProducts', relatedCollectionSlug, error);
+          reportCatalogFailure('SearchCollectionProducts', null, error);
           return [];
         })
     : [];

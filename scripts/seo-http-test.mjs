@@ -71,7 +71,7 @@ async function handleApiRequest(request, response, recordRequest) {
   const payload = JSON.parse(body);
   const variables = payload.variables ?? {};
   const query = payload.query ?? '';
-  if (await productHttp.handle(query, variables, response)) return;
+  if (await productHttp.handle(query, variables, response, request)) return;
   if (await homepage.handle(query, variables, response, request)) return;
 
   if (variables.slug === 'api-error' || variables.collectionSlug === 'api-error') {
@@ -429,6 +429,9 @@ const env = {
   VENDURE_SERVER_URL: `http://127.0.0.1:${publicApiPort}`,
   STOREFRONT_ORIGIN: 'https://test.domfabrik.ru',
   INDEXATION_ALLOW: 'false',
+  CATALOG_OBSERVABILITY_ENABLED: 'true',
+  CATALOG_OBSERVABILITY_SLOW_MS: '100',
+  CATALOG_OBSERVABILITY_MAX_EVENTS_PER_MINUTE: '120',
   SEO_DIST_DIR: distDir,
 };
 const useWebpack = process.env.SEO_HTTP_USE_WEBPACK === 'true';
@@ -833,6 +836,27 @@ try {
   assert.match(prodHtml, /mc\.yandex\.ru\/watch\/110706774/, 'production build must render production Metrika noscript');
   console.log('SEO HTTP integration checks passed');
   assert.deepEqual(mockErrors, [], 'all API mock protocol assertions passed');
+  if (process.env.SEO_HTTP_RESULT_PATH) {
+    writeFileSync(
+      resolve(process.env.SEO_HTTP_RESULT_PATH),
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          passed: true,
+          node: process.version,
+          productAndMetadataDedup: true,
+          parallelRequestIDs: true,
+          headerFailureTiming: true,
+          recommendationBatchFailureTiming: true,
+          safeCatalogErrors: true,
+          fullSeoHttpSuite: true,
+        },
+        null,
+        2,
+      )}\n`,
+      { encoding: 'utf8', flag: 'wx' },
+    );
+  }
 } finally {
   try {
     await stopNext();

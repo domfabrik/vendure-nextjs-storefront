@@ -3,15 +3,16 @@
 import { cache } from 'react';
 import type { CollectionSlider, HomepageCollection, HomepageProduct, Product, SearchResult } from '@/shared/model';
 
-import { apiClient } from '../api-client';
+import { apiClient, catalogApiRequest } from '../api-client';
+import { inheritCatalogRequestID } from '../catalog-observability';
 import { getCollectionsWithProducts } from '../collections';
 import { GET_FEATURED_PRODUCTS, GET_PRODUCT_BY_SLUG, GET_PRODUCT_SLIDERS } from './queries';
 
 // React cache is scoped to one server render, so metadata and the page share a
 // request while the next HTTP request still reads the current product state.
 const loadProductBySlug = cache(async (slug: string): Promise<Product | null> => {
-  const data = await apiClient.request<{ product: Product | null }>(GET_PRODUCT_BY_SLUG, { slug });
-  return data.product;
+  const data = await catalogApiRequest<{ product: Product | null }>('GetProductBySlug', 'product', GET_PRODUCT_BY_SLUG, { slug });
+  return inheritCatalogRequestID(data.product, data);
 });
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

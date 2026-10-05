@@ -16,8 +16,10 @@ export function homepageFixture(tileProduct) {
     const snapshot = stats;
     if (query.includes('GetAllCollections')) {
       snapshot.lists++;
-      if (mode === 'critical') response.writeHead(502).end(SECRET);
-      else {
+      if (mode === 'critical') {
+        await pause(150);
+        response.writeHead(502).end(SECRET);
+      } else {
         const items =
           mode === 'empty' ? [] : slugs.map((slug, index) => ({ id: String(index), slug, name: `Категория ${index}`, parent: null, description: '', featuredAsset: null }));
         response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ data: { collections: { items } } }));
@@ -79,10 +81,13 @@ export function homepageFixture(tileProduct) {
       assert.equal(stats.active, 0, `${scenario}: no active mock requests after HTML completes`);
       assert.equal(new Set(stats.starts.map(({ index }) => index)).size, stats.starts.length, `${scenario}: TC-S6 no retries`);
       const logs = readLogs().slice(logStart);
+      const records = [...logs.matchAll(/\[catalog-observability\] (\{[^\n]+\})/g)].map((match) => JSON.parse(match[1]));
       assert.ok(!logs.includes(SECRET), `${scenario}: TC-S6 no backend secret/payload in logs`);
       assert.doesNotMatch(logs, /collectionSlug|basePriceWithTax|\bvariables\b|\bquery GetAllCollections/, `${scenario}: TC-S6 no GraphQL document or variables in logs`);
       if (scenario === 'critical') {
-        assert.match(logs, /\[catalog-ssr\].*"operation":"GetAllCollections".*"category":null.*"errorClass":"Http502"/);
+        assert.match(logs, /\[catalog-observability\].*"stage":"header".*"operation":"GetAllCollections".*"errorClass":"Http5xx"/);
+        const record = records.find((entry) => entry.stage === 'header' && entry.operation === 'GetAllCollections' && entry.outcome === 'failure');
+        assert.ok(record?.durationMs >= 100 && record.durationMs <= 500, `critical: measured header failure duration ${record?.durationMs}`);
         assert.equal(stats.starts.length, 0);
         continue;
       }
@@ -124,8 +129,14 @@ export function homepageFixture(tileProduct) {
         if (scenario !== 'happy') {
           assert.match(
             logs,
-            new RegExp(`\\[catalog-ssr\\].*"operation":"SearchCollectionProducts".*"category":"${slugs[1]}".*"errorClass":"${scenario === '502' ? 'Http502' : 'TimeoutError'}"`),
+            new RegExp(
+              `\\[catalog-observability\\].*"stage":"recommendations".*"operation":"SearchCollectionProducts".*"errorClass":"${scenario === '502' ? 'Http5xx' : 'TimeoutError'}"`,
+            ),
           );
+          const record = records.find((entry) => entry.stage === 'recommendations' && entry.operation === 'SearchCollectionProducts' && entry.outcome === 'failure');
+          const minimumDuration = scenario === '502' ? 50 : scenario === 'budget' ? 4_900 : 1_900;
+          const maximumDuration = scenario === '502' ? 1_000 : scenario === 'budget' ? 6_000 : 3_000;
+          assert.ok(record?.durationMs >= minimumDuration && record.durationMs <= maximumDuration, `${scenario}: measured recommendation batch duration ${record?.durationMs}`);
         }
         if (scenario === 'timeout' || scenario === 'body-timeout') {
           assert.deepEqual(stats.cancelled, [1], 'TC-S3 single timeout cancels actual mock stream');

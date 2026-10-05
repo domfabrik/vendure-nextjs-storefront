@@ -4,7 +4,10 @@ import { cache } from 'react';
 import { arrayToTree, type RootNode } from '@/shared/lib';
 import type { Collection, CollectionTile, CollectionTileProductVariant, HomepageCollection, HomepageProduct, NavigationCollection } from '@/shared/model';
 
-import { apiClient } from '../api-client';
+import { apiClient, catalogApiRequest } from '../api-client';
+import { inheritCatalogRequestID } from '../catalog-observability';
+import type { CatalogStage } from '../catalog-observability-core';
+import { safeCatalogError } from '../catalog-observability-core';
 import { GET_ALL_COLLECTIONS, GET_COLLECTION_BY_SLUG, GET_COLLECTION_PRODUCT_VARIANTS, SEARCH_COLLECTION_PRODUCTS } from './queries';
 import { CATALOG_REQUEST_TIMEOUT_MS, loadSecondaryCollections, reportCatalogFailure } from './ssr-budget';
 
@@ -24,16 +27,22 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
 
 // React cache is scoped to the server render, sharing the result with Header.
 const loadAllCollections = cache(async (): Promise<CollectionTile[]> => {
+  const startedAt = performance.now();
   try {
-    const data = await apiClient.request<{ collections: { items: CollectionTile[] } }>({
-      document: GET_ALL_COLLECTIONS,
-      signal: AbortSignal.timeout(CATALOG_REQUEST_TIMEOUT_MS),
-    });
-    return data.collections.items;
+    const data = await catalogApiRequest<{ collections: { items: CollectionTile[] } }>(
+      'GetAllCollections',
+      'header',
+      GET_ALL_COLLECTIONS,
+      undefined,
+      AbortSignal.timeout(CATALOG_REQUEST_TIMEOUT_MS),
+    );
+    return inheritCatalogRequestID(data.collections.items, data);
   } catch (error) {
-    reportCatalogFailure('GetAllCollections', null, error);
     // Critical failure must keep HTTP 5xx, without leaking the GraphQL payload.
-    throw new Error('Catalogue unavailable');
+    reportCatalogFailure('GetAllCollections', null, error, performance.now() - startedAt);
+    const safeError = safeCatalogError(error);
+    inheritCatalogRequestID(safeError, error);
+    throw safeError;
   }
 });
 
@@ -68,10 +77,12 @@ export async function getNavigationTree(): Promise<RootNode<NavigationCollection
   return arrayToTree(enriched);
 }
 
-export async function getProductsByCollection(collectionSlug: string, take?: number): Promise<HomepageProduct[]> {
+export async function getProductsByCollection(collectionSlug: string, take?: number, observabilityStage?: CatalogStage): Promise<HomepageProduct[]> {
   if (take != null) {
-    const data = await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug, take });
-    return data.search.items;
+    const data = observabilityStage
+      ? await catalogApiRequest<CollectionSearchResponse>('SearchCollectionProducts', observabilityStage, SEARCH_COLLECTION_PRODUCTS, { collectionSlug, take })
+      : await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, { collectionSlug, take });
+    return inheritCatalogRequestID(data.search.items, data);
   }
 
   const firstPage = await apiClient.request<CollectionSearchResponse>(SEARCH_COLLECTION_PRODUCTS, {
@@ -97,10 +108,8 @@ export async function getProductsByCollection(collectionSlug: string, take?: num
 
 export async function getCollectionsWithProducts(take = 6): Promise<HomepageCollection[]> {
   const collections = await getAllCollections();
-  const results = await loadSecondaryCollections(
-    collections,
-    (collection, signal) => apiClient.request<CollectionSearchResponse>({ document: SEARCH_COLLECTION_PRODUCTS, variables: { collectionSlug: collection.slug, take }, signal }),
-    (collection) => collection.slug,
+  const results = await loadSecondaryCollections(collections, (collection, signal) =>
+    apiClient.request<CollectionSearchResponse>({ document: SEARCH_COLLECTION_PRODUCTS, variables: { collectionSlug: collection.slug, take }, signal }),
   );
   return collections
     .map((c, i) => ({

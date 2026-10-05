@@ -1,6 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
 import { cookies } from 'next/headers';
 import { envServer } from '@/shared/config/index.server';
+import { attachCatalogRequestID, catalogPropagation } from './catalog-observability';
+import type { CatalogOperation, CatalogStage } from './catalog-observability-core';
 
 const ENDPOINT = `${envServer.API_URL}?languageCode=RU`;
 
@@ -10,6 +12,20 @@ export const apiClient = new GraphQLClient(ENDPOINT, {
     'vendure-token': 'default-channel',
   },
 });
+
+export function catalogApiRequest<T>(operation: CatalogOperation, stage: CatalogStage, document: string, variables?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+  const propagation = catalogPropagation(stage, operation);
+  return apiClient
+    .request<T>({ document, variables, requestHeaders: propagation.headers, signal })
+    .then((result) => {
+      attachCatalogRequestID(result, propagation.requestID);
+      return result;
+    })
+    .catch((error: unknown) => {
+      attachCatalogRequestID(error, propagation.requestID);
+      throw error;
+    });
+}
 
 const AUTH_COOKIE = 'vendure-auth-token';
 

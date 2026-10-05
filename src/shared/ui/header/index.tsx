@@ -4,6 +4,7 @@ import { Box, Typography } from '@mui/material';
 import { contacts, routes } from '@routes';
 import NextLink from 'next/link';
 import { getAllCollections } from '@/shared/api';
+import { observeCatalogStage } from '@/shared/api/catalog-observability';
 import { CartBadge } from './components/cart-badge';
 import { CatalogDrawer } from './components/catalog-drawer';
 import { CategoryNav } from './components/category-nav';
@@ -11,7 +12,7 @@ import { Search } from './components/search';
 import { TopBar } from './components/top-bar';
 
 export async function Header() {
-  const collections = await getAllCollections();
+  const collections = await observeCatalogStage('header', 'GetAllCollections', getAllCollections);
 
   return (
     <>
