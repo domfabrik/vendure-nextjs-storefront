@@ -34,7 +34,7 @@ export const vendorsConfig: Record<string, VendorConfig> = {
   // ФСМ
   '257': {
     description: 'Фабрика стильной мебели — диваны, кресла, стулья и столы с безупречным дизайном',
-    logo: '/images/vendors/fsm-logo.png',
+    logo: '/images/vendors/fsm-logo.webp',
     banner: '/images/vendors/fsm-banner.jpg',
   },
 };
