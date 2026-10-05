@@ -125,7 +125,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
   }));
 
   const handleAddToCart = () => {
-    if (!variant || price === undefined || !currency) return;
+    if (!variant || !price || !currency) return;
     addToCart({
       productVariantId: variant.id,
       productName: product.name,
@@ -161,7 +161,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               {product.customFields.vendorName}
             </Typography>
           )}
-          {variant && stock.purchasable && (
+          {variant && stock.kind === 'in-stock' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'success.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'success.main' }}
@@ -169,7 +169,15 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               В наличии
             </Typography>
           )}
-          {variant && !stock.purchasable && stock.kind === 'out-of-stock' && (
+          {variant && stock.kind === 'low-stock' && (
+            <Typography
+              variant="overline"
+              sx={{ bgcolor: 'warning.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'warning.dark' }}
+            >
+              Осталось мало товара
+            </Typography>
+          )}
+          {variant && stock.kind === 'out-of-stock' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'error.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'error.main' }}
@@ -217,7 +225,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         />
 
         {/* Price */}
-        {variant && price !== undefined && currency ? (
+        {variant && price && currency ? (
           <PriceBlock
             price={price}
             currency={currency}

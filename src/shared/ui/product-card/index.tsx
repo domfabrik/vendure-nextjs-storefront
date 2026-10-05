@@ -27,11 +27,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const href = routes.product(product.slug, offer?.productVariantId);
   const currency = normalizeCurrencyCode(offer?.currencyCode);
   const price = normalizeMinorPrice(offer?.priceWithTax);
-  const formattedPrice = price !== undefined && currency ? priceFormatter(price, currency) : undefined;
+  const formattedPrice = price && currency ? priceFormatter(price, currency) : undefined;
   const basePrice = normalizeMinorPrice(offer?.basePriceWithTax);
   const formattedBasePrice = basePrice !== undefined && currency ? priceFormatter(basePrice, currency) : undefined;
   const showDiscount = Boolean(offer && Number.isFinite(offer.discountPercent) && offer.discountPercent > 0 && formattedBasePrice);
-  const canAdd = price !== undefined && !!currency && !!formattedPrice && !!offer;
+  const canAdd = !!price && !!currency && !!formattedPrice && !!offer;
   const inCart = cartQuantity > 0;
 
   const handleAdd = () => {
