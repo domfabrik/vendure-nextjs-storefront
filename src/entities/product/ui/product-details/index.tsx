@@ -154,23 +154,43 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         {/* Meta */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
           {product.customFields.vendorName && (
-            <Typography sx={{ bgcolor: '#F5F2EC', px: 1.25, py: 0.5, borderRadius: '6px', fontSize: 13, fontWeight: 600, color: '#5A6475' }}>
+            <Typography
+              variant="overline"
+              sx={{ bgcolor: 'warmBg', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'text.secondary' }}
+            >
               {product.customFields.vendorName}
             </Typography>
           )}
           {variant && stock.purchasable && (
-            <Typography sx={{ bgcolor: '#E7F3EA', px: 1.25, py: 0.5, borderRadius: '6px', fontSize: 13, fontWeight: 600, color: '#2E7D32' }}>В наличии</Typography>
+            <Typography
+              variant="overline"
+              sx={{ bgcolor: 'success.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'success.main' }}
+            >
+              В наличии
+            </Typography>
           )}
           {variant && !stock.purchasable && stock.kind === 'out-of-stock' && (
-            <Typography sx={{ bgcolor: '#FDEAEA', px: 1.25, py: 0.5, borderRadius: '6px', fontSize: 13, fontWeight: 600, color: '#C62828' }}>Нет в наличии</Typography>
+            <Typography
+              variant="overline"
+              sx={{ bgcolor: 'error.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'error.main' }}
+            >
+              Нет в наличии
+            </Typography>
           )}
-          {variant?.sku && <Typography sx={{ fontSize: 13, color: '#8B9099' }}>Арт. {variant.sku}</Typography>}
+          {variant?.sku && (
+            <Typography
+              variant="overline"
+              sx={{ color: 'text.hint' }}
+            >
+              Арт. {variant.sku}
+            </Typography>
+          )}
         </Box>
 
         {/* Title */}
         <Typography
-          variant="h1"
-          sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 800, lineHeight: 1.15, color: '#1B2B45' }}
+          variant="h2"
+          sx={{ lineHeight: 1.15 }}
         >
           {product.name}
         </Typography>
@@ -181,7 +201,8 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
             {quickTags.map((tag) => (
               <Typography
                 key={tag}
-                sx={{ border: '1px solid #E6E2DB', borderRadius: '8px', px: 1.25, py: 0.75, fontSize: 13, color: '#5A6475', lineHeight: 1 }}
+                variant="overline"
+                sx={(t) => ({ border: `1px solid ${t.palette.border.main}`, borderRadius: '8px', px: 1.25, py: 0.75, color: 'text.secondary', lineHeight: 1 })}
               >
                 {tag}
               </Typography>
@@ -210,30 +231,53 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
             onChangeQuantity={(q) => setItemQuantity(variant.id, q)}
           />
         ) : variant ? (
-          <Box sx={{ border: '1px solid #E6E2DB', borderRadius: '16px', p: 3 }}>
-            <Typography sx={{ fontSize: 18, color: '#6B7586' }}>Цена уточняется</Typography>
+          <Box sx={(t) => ({ border: `1px solid ${t.palette.border.main}`, borderRadius: '16px', p: 3 })}>
+            <Typography
+              variant="h6"
+              sx={{ color: 'text.muted' }}
+            >
+              Цена уточняется
+            </Typography>
           </Box>
         ) : null}
 
         {/* Services */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <LocalShippingOutlined sx={{ fontSize: 22, color: '#5A6475' }} />
-            <Typography sx={{ fontSize: 14, color: '#343E50' }}>Доставка по России</Typography>
+            <LocalShippingOutlined sx={{ fontSize: 22, color: 'text.secondary' }} />
+            <Typography
+              variant="body2"
+              sx={{ color: 'primary.light' }}
+            >
+              Доставка по России
+            </Typography>
           </Box>
           {product.customFields.warrantyMonths && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <ShieldOutlined sx={{ fontSize: 22, color: '#5A6475' }} />
-              <Typography sx={{ fontSize: 14, color: '#343E50' }}>Гарантия фабрики {product.customFields.warrantyMonths} мес.</Typography>
+              <ShieldOutlined sx={{ fontSize: 22, color: 'text.secondary' }} />
+              <Typography
+                variant="body2"
+                sx={{ color: 'primary.light' }}
+              >
+                Гарантия фабрики {product.customFields.warrantyMonths} мес.
+              </Typography>
             </Box>
           )}
         </Box>
 
         {/* Promo */}
-        <Box sx={{ bgcolor: '#F5F2EC', borderRadius: '16px', p: 3 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1B2B45', mb: 1 }}>Поможем рассчитать кухню и мебель под ваши размеры</Typography>
-          <Typography sx={{ fontSize: 14, color: '#343E50', mb: 1.5 }}>Позвоните нам или оставьте заявку, и мы свяжемся с вами</Typography>
-          <Typography sx={{ fontSize: 18, fontWeight: 700, color: '#1B2B45' }}>
+        <Box sx={{ bgcolor: 'warmBg', borderRadius: '16px', p: 3 }}>
+          <Typography sx={{ fontSize: 16, fontWeight: 700, color: 'text.primary', mb: 1 }}>Поможем рассчитать кухню и мебель под ваши размеры</Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: 'primary.light', mb: 1.5 }}
+          >
+            Позвоните нам или оставьте заявку, и мы свяжемся с вами
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ color: 'text.primary' }}
+          >
             <a
               href={contacts.phoneHref}
               style={{ color: 'inherit', textDecoration: 'none' }}

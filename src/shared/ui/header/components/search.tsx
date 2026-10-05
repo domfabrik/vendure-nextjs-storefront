@@ -171,30 +171,30 @@ export function Search() {
                 <InputAdornment position="start">
                   <SearchIcon
                     fontSize="small"
-                    sx={{ color: '#5A6475' }}
+                    sx={{ color: 'text.secondary' }}
                   />
                 </InputAdornment>
               ),
               endAdornment: loading ? <CircularProgress size={18} /> : null,
             },
           }}
-          sx={{
+          sx={(t) => ({
             '& .MuiOutlinedInput-root': {
               height: 46,
               borderRadius: '10px',
-              bgcolor: '#FAF9F7',
+              bgcolor: 'inputBg',
               '& fieldset': {
                 borderWidth: '1.5px',
-                borderColor: '#D9D4CC',
+                borderColor: t.palette.border.dark,
               },
               '&:hover fieldset': {
-                borderColor: '#1B2B45',
+                borderColor: t.palette.primary.main,
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#1B2B45',
+                borderColor: t.palette.primary.main,
               },
             },
-          }}
+          })}
         />
       )}
       sx={{

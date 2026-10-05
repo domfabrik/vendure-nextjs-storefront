@@ -30,7 +30,12 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
     <>
       {groups.map((group) => (
         <Box key={group.id}>
-          <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#5A6475', mb: 1.5 }}>{group.name}</Typography>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 600, color: 'text.secondary', mb: 1.5 }}
+          >
+            {group.name}
+          </Typography>
           <Box
             sx={{
               display: 'grid',
@@ -42,22 +47,22 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
               <Box
                 key={option.id}
                 onClick={() => onSelect(group.id, option.id)}
-                sx={{
+                sx={(t) => ({
                   cursor: 'pointer',
                   border: '2px solid',
-                  borderColor: option.isSelected ? '#1B2B45' : '#E6E2DB',
+                  borderColor: option.isSelected ? t.palette.primary.main : t.palette.border.main,
                   borderRadius: '12px',
                   overflow: 'hidden',
                   opacity: option.stock.kind === 'out-of-stock' ? 0.5 : 1,
                   transition: 'border-color 0.2s',
-                  '&:hover': { borderColor: option.isSelected ? '#1B2B45' : '#A8A29E' },
-                }}
+                  '&:hover': { borderColor: option.isSelected ? t.palette.primary.main : '#A8A29E' },
+                })}
               >
                 {option.preview && (
                   <Box
                     sx={{
                       aspectRatio: '4 / 3',
-                      bgcolor: '#F3F1EE',
+                      bgcolor: 'neutral',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -77,11 +82,12 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
                   </Box>
                 )}
                 <Typography
+                  variant="caption"
                   sx={{
+                    display: 'block',
                     textAlign: 'center',
-                    fontSize: 12,
                     fontWeight: option.isSelected ? 600 : 400,
-                    color: '#1B2B45',
+                    color: 'text.primary',
                     py: 0.75,
                     px: 0.5,
                     lineHeight: 1.3,

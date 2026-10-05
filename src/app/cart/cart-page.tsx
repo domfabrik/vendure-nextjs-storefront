@@ -48,8 +48,7 @@ export function CartPage() {
       <Box>
         <Typography
           variant="h4"
-          component="h1"
-          sx={{ fontWeight: 700, mb: 3 }}
+          sx={{ mb: 3 }}
         >
           Корзина
         </Typography>
@@ -83,14 +82,17 @@ export function CartPage() {
                   />
                 )}
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                    component={NextLink}
+                  <NextLink
                     href={routes.product(item.slug, item.productVariantId)}
-                    sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 500, display: 'block' }}
-                    noWrap
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                   >
-                    {item.productName}
-                  </Typography>
+                    <Typography
+                      sx={{ fontWeight: 500 }}
+                      noWrap
+                    >
+                      {item.productName}
+                    </Typography>
+                  </NextLink>
                   {item.variantName !== item.productName && (
                     <Typography
                       variant="body2"

@@ -26,45 +26,51 @@ export function NewArrivals({ products }: NewArrivalsProps) {
   return (
     <SectionContainer sx={{ pt: 10 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 3.5 }}>
-        <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Новинки</Typography>
+        <Typography
+          variant="h2"
+          sx={{ letterSpacing: '-0.6px', m: 0 }}
+        >
+          Новинки
+        </Typography>
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Box
               onClick={goPrev}
-              sx={{
+              sx={(t) => ({
                 width: { xs: 40, md: 46 },
                 height: { xs: 40, md: 46 },
                 borderRadius: '23px',
                 border: '1.5px solid',
-                borderColor: page === 0 ? '#D9D4CC' : '#1B2B45',
-                bgcolor: '#FFFFFF',
+                borderColor: page === 0 ? t.palette.border.dark : t.palette.primary.main,
+                bgcolor: 'background.default',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 18,
-                color: page === 0 ? '#D9D4CC' : '#1B2B45',
+                color: page === 0 ? t.palette.border.dark : t.palette.primary.main,
                 cursor: page === 0 ? 'default' : 'pointer',
                 userSelect: 'none',
-              }}
+              })}
             >
               <ChevronLeftIcon sx={{ fontSize: 22 }} />
             </Box>
             <Box
               onClick={goNext}
-              sx={{
+              sx={(t) => ({
                 width: { xs: 40, md: 46 },
                 height: { xs: 40, md: 46 },
                 borderRadius: '23px',
-                border: '1.5px solid #1B2B45',
-                bgcolor: page === totalPages - 1 ? '#FFFFFF' : '#1B2B45',
+                border: '1.5px solid',
+                borderColor: t.palette.primary.main,
+                bgcolor: page === totalPages - 1 ? 'background.default' : t.palette.primary.main,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 18,
-                color: page === totalPages - 1 ? '#D9D4CC' : '#FFFFFF',
+                color: page === totalPages - 1 ? t.palette.border.dark : t.palette.text.contrast,
                 cursor: page === totalPages - 1 ? 'default' : 'pointer',
                 userSelect: 'none',
-              }}
+              })}
             >
               <ChevronRightIcon sx={{ fontSize: 22 }} />
             </Box>

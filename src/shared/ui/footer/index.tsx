@@ -25,11 +25,11 @@ const bottomLinks = [
 ];
 
 const linkSx = {
-  color: '#C9D1DD',
+  color: 'footer.text',
   fontSize: 14,
   lineHeight: 1.8,
   '&:hover': { color: '#FFFFFF' },
-};
+} as const;
 
 export function Footer() {
   return (
@@ -50,9 +50,19 @@ export function Footer() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }}>
           <Typography sx={{ fontSize: 22, color: '#FFFFFF' }}>
             <span style={{ fontWeight: 800 }}>Дом</span>
-            <span style={{ fontWeight: 500, color: '#9AA6B8' }}>Фабрик</span>
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, color: 'footer.textSubdued' }}
+            >
+              Фабрик
+            </Typography>
           </Typography>
-          <Typography sx={{ color: '#C9D1DD', fontSize: 14, lineHeight: 1.5 }}>Мебель напрямую от фабрик с доставкой по России</Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: 'footer.text', lineHeight: 1.5 }}
+          >
+            Мебель напрямую от фабрик с доставкой по России
+          </Typography>
         </Box>
 
         {/* Каталог */}
@@ -60,7 +70,12 @@ export function Footer() {
           aria-label="Каталог"
           style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
         >
-          <Typography sx={{ color: '#FFFFFF', fontSize: 15, fontWeight: 700 }}>Каталог</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: '#FFFFFF' }}
+          >
+            Каталог
+          </Typography>
           {catalogLinks.map((link) => (
             <NextLink
               key={link.href}
@@ -77,7 +92,12 @@ export function Footer() {
           aria-label="Покупателям"
           style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
         >
-          <Typography sx={{ color: '#FFFFFF', fontSize: 15, fontWeight: 700 }}>Покупателям</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: '#FFFFFF' }}
+          >
+            Покупателям
+          </Typography>
           {customerLinks.map((link) => (
             <NextLink
               key={link.label}
@@ -91,20 +111,45 @@ export function Footer() {
 
         {/* Контакты */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-          <Typography sx={{ color: '#FFFFFF', fontSize: 15, fontWeight: 700 }}>Контакты</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: '#FFFFFF' }}
+          >
+            Контакты
+          </Typography>
           <a
             href={contacts.phoneHref}
             style={{ textDecoration: 'none' }}
           >
-            <Typography sx={{ color: '#FFFFFF', fontSize: 18, fontWeight: 700 }}>{contacts.phone}</Typography>
+            <Typography
+              variant="h6"
+              sx={{ color: '#FFFFFF' }}
+            >
+              {contacts.phone}
+            </Typography>
           </a>
-          <Typography sx={{ color: '#C9D1DD', fontSize: 14 }}>{contacts.workingHours}</Typography>
-          <Typography sx={{ color: '#C9D1DD', fontSize: 14 }}>{contacts.address}</Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: 'footer.text' }}
+          >
+            {contacts.workingHours}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: 'footer.text' }}
+          >
+            {contacts.address}
+          </Typography>
           <a
             href={contacts.emailHref}
             style={{ textDecoration: 'none' }}
           >
-            <Typography sx={{ color: '#C9D1DD', fontSize: 14 }}>{contacts.email}</Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: 'footer.text' }}
+            >
+              {contacts.email}
+            </Typography>
           </a>
         </Box>
       </Box>
@@ -116,7 +161,8 @@ export function Footer() {
           mx: 'auto',
           px: { xs: 1, sm: 4 },
           py: 2.5,
-          borderTop: '1px solid #34445E',
+          borderTop: '1px solid',
+          borderTopColor: 'footer.border',
           display: 'flex',
           flexWrap: 'wrap',
           gap: 3,
@@ -124,7 +170,12 @@ export function Footer() {
           fontSize: 13,
         }}
       >
-        <Typography sx={{ fontSize: 13, color: '#C9D1DD' }}>&copy; {new Date().getFullYear()} DomFabrik</Typography>
+        <Typography
+          variant="overline"
+          sx={{ color: 'footer.text' }}
+        >
+          &copy; {new Date().getFullYear()} DomFabrik
+        </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
           {bottomLinks.map((link) => (
             <NextLink
@@ -132,10 +183,18 @@ export function Footer() {
               href={link.href}
               style={{ textDecoration: 'none' }}
             >
-              <Typography sx={{ fontSize: 13, color: '#C9D1DD', '&:hover': { color: '#FFFFFF' } }}>{link.label}</Typography>
+              <Typography
+                variant="overline"
+                sx={{ color: 'footer.text', '&:hover': { color: '#FFFFFF' } }}
+              >
+                {link.label}
+              </Typography>
             </NextLink>
           ))}
-          <Typography sx={{ fontSize: 13, color: '#C9D1DD' }}>
+          <Typography
+            variant="overline"
+            sx={{ color: 'footer.text' }}
+          >
             <AnalyticsSettingsTrigger />
           </Typography>
         </Box>

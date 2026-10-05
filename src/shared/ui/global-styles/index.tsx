@@ -26,7 +26,7 @@ export function GlobalStyles() {
           textDecoration: 'none',
           color: palette.primary.main,
           '&:hover': {
-            color: '#96592C',
+            color: palette.accent.main,
           },
         },
       })}

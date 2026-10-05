@@ -15,29 +15,29 @@ export function CartBadge() {
       style={{ textDecoration: 'none' }}
     >
       <Box
-        sx={{
+        sx={(t) => ({
           position: 'relative',
           width: 46,
           height: 46,
           borderRadius: '10px',
-          border: '1.5px solid #D9D4CC',
+          border: `1.5px solid ${t.palette.border.dark}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
           transition: 'all .2s',
           '&:hover': {
-            borderColor: '#1B2B45',
+            borderColor: t.palette.primary.main,
             backgroundColor: 'rgba(27, 43, 69, 0.08)',
           },
-        }}
+        })}
       >
         <svg
           width="22"
           height="22"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#1B2B45"
+          stroke="currentColor"
           strokeWidth="1.8"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -56,13 +56,13 @@ export function CartBadge() {
         </svg>
         {totalQuantity > 0 && (
           <Typography
+            variant="caption"
             sx={{
               position: 'absolute',
               top: -7,
               right: -7,
-              bgcolor: '#96592C',
-              color: '#FFFFFF',
-              fontSize: 12,
+              bgcolor: 'accent.main',
+              color: 'text.contrast',
               fontWeight: 700,
               minWidth: 20,
               height: 20,

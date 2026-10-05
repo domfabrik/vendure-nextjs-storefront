@@ -31,28 +31,28 @@ export function ProductTabs({ description, productCustomFields, variantCustomFie
     <Box sx={{ mt: 6 }}>
       {/* Tab navigation */}
       <Box
-        sx={{
+        sx={(t) => ({
           display: 'flex',
           gap: { xs: 2, md: 4 },
-          borderBottom: '1px solid #E6E2DB',
+          borderBottom: `1px solid ${t.palette.border.main}`,
           mb: 4,
-        }}
+        })}
       >
         {tabs.map((tab) => (
           <Box
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            sx={{
+            sx={(t) => ({
               pb: 1.5,
               cursor: 'pointer',
               fontSize: { xs: 13, md: 16 },
               fontWeight: 600,
-              color: activeTab === tab.key ? '#1B2B45' : '#6B7586',
-              borderBottom: activeTab === tab.key ? '3px solid #1B2B45' : '3px solid transparent',
+              color: activeTab === tab.key ? t.palette.text.primary : t.palette.text.muted,
+              borderBottom: activeTab === tab.key ? `3px solid ${t.palette.primary.main}` : '3px solid transparent',
               transition: 'all 0.2s',
-              '&:hover': { color: '#1B2B45' },
+              '&:hover': { color: t.palette.text.primary },
               userSelect: 'none',
-            }}
+            })}
           >
             {tab.label}
           </Box>
@@ -69,14 +69,21 @@ export function ProductTabs({ description, productCustomFields, variantCustomFie
 
 function DescriptionTab({ description }: { description: string }) {
   if (!description) {
-    return <Typography sx={{ color: '#6B7586', fontSize: 17 }}>Описание отсутствует</Typography>;
+    return (
+      <Typography
+        variant="subtitle1"
+        sx={{ color: 'text.muted' }}
+      >
+        Описание отсутствует
+      </Typography>
+    );
   }
 
   return (
     <Box>
       <Typography
-        variant="h2"
-        sx={{ fontSize: { xs: 22, md: 28 }, fontWeight: 800, mb: 2, color: '#1B2B45' }}
+        variant="h3"
+        sx={{ mb: 2 }}
       >
         Описание товара
       </Typography>
@@ -84,7 +91,7 @@ function DescriptionTab({ description }: { description: string }) {
         sx={{
           fontSize: { xs: 15, md: 17 },
           lineHeight: 1.65,
-          color: '#343E50',
+          color: 'primary.light',
           '& p': { mb: 1.5 },
           '& ul, & ol': { pl: 3, mb: 1.5 },
         }}
@@ -96,14 +103,21 @@ function DescriptionTab({ description }: { description: string }) {
 
 function CharacteristicsTab({ rows }: { rows: { label: string; value: string }[] }) {
   if (rows.length === 0) {
-    return <Typography sx={{ color: '#6B7586', fontSize: 17 }}>Характеристики не указаны</Typography>;
+    return (
+      <Typography
+        variant="subtitle1"
+        sx={{ color: 'text.muted' }}
+      >
+        Характеристики не указаны
+      </Typography>
+    );
   }
 
   return (
     <Box>
       <Typography
-        variant="h2"
-        sx={{ fontSize: { xs: 22, md: 28 }, fontWeight: 800, mb: 3, color: '#1B2B45' }}
+        variant="h3"
+        sx={{ mb: 3 }}
       >
         Характеристики
       </Typography>
@@ -117,18 +131,18 @@ function CharacteristicsTab({ rows }: { rows: { label: string; value: string }[]
         {rows.map((row) => (
           <Box
             key={row.label}
-            sx={{
+            sx={(t) => ({
               display: 'flex',
               justifyContent: 'space-between',
               py: 1.5,
               px: 1,
-              borderBottom: '1px solid #EFEBE5',
+              borderBottom: `1px solid ${t.palette.border.light}`,
               gap: 2,
-            }}
+            })}
           >
             <Typography
               sx={{
-                color: '#5A6475',
+                color: 'text.secondary',
                 fontSize: { xs: 13, md: 15 },
                 flexShrink: 0,
               }}
@@ -139,7 +153,7 @@ function CharacteristicsTab({ rows }: { rows: { label: string; value: string }[]
               sx={{
                 fontSize: { xs: 13, md: 15 },
                 fontWeight: 500,
-                color: '#1B2B45',
+                color: 'text.primary',
                 textAlign: 'right',
               }}
             >
@@ -155,17 +169,17 @@ function CharacteristicsTab({ rows }: { rows: { label: string; value: string }[]
 function DeliveryTab() {
   const cards = [
     {
-      icon: <LocalShippingOutlined sx={{ fontSize: 28, color: '#1B2B45' }} />,
+      icon: <LocalShippingOutlined sx={{ fontSize: 28, color: 'text.primary' }} />,
       title: 'Доставка',
       text: 'Доставка по Туле — бесплатно. Доставка по России транспортными компаниями СДЭК, Деловые Линии, ПЭК. Стоимость рассчитывается индивидуально.',
     },
     {
-      icon: <PaymentOutlined sx={{ fontSize: 28, color: '#1B2B45' }} />,
+      icon: <PaymentOutlined sx={{ fontSize: 28, color: 'text.primary' }} />,
       title: 'Оплата',
       text: 'Наличные, банковская карта, безналичный расчёт. Предоплата 100%',
     },
     {
-      icon: <StorefrontOutlined sx={{ fontSize: 28, color: '#1B2B45' }} />,
+      icon: <StorefrontOutlined sx={{ fontSize: 28, color: 'text.primary' }} />,
       title: 'Шоурум в Туле',
       text: `${contacts.address}. ${contacts.workingHours}. Тел: ${contacts.phone}`,
     },
@@ -183,7 +197,7 @@ function DeliveryTab() {
         <Box
           key={card.title}
           sx={{
-            bgcolor: '#F5F2EC',
+            bgcolor: 'warmBg',
             borderRadius: '16px',
             p: 3,
             display: 'flex',
@@ -192,8 +206,13 @@ function DeliveryTab() {
           }}
         >
           {card.icon}
-          <Typography sx={{ fontSize: 18, fontWeight: 700, color: '#1B2B45' }}>{card.title}</Typography>
-          <Typography sx={{ fontSize: 15, lineHeight: 1.6, color: '#343E50' }}>{card.text}</Typography>
+          <Typography variant="h6">{card.title}</Typography>
+          <Typography
+            variant="subtitle1"
+            sx={{ lineHeight: 1.6, color: 'primary.light' }}
+          >
+            {card.text}
+          </Typography>
         </Box>
       ))}
     </Box>

@@ -13,7 +13,12 @@ export function ProductTypes({ collections }: ProductTypesProps) {
   return (
     <SectionContainer sx={{ pt: 10 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 3.5 }}>
-        <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Что ищете?</Typography>
+        <Typography
+          variant="h2"
+          sx={{ letterSpacing: '-0.6px', m: 0 }}
+        >
+          Что ищете?
+        </Typography>
         <NextLink
           href={routes.catalog()}
           aria-label="Все категории"
@@ -25,17 +30,23 @@ export function ProductTypes({ collections }: ProductTypesProps) {
               width: 40,
               height: 40,
               borderRadius: '20px',
-              border: '1.5px solid #1B2B45',
+              border: '1.5px solid',
+              borderColor: 'primary.main',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#1B2B45',
-              '&:hover': { bgcolor: '#1B2B45', color: '#FFFFFF' },
+              color: 'primary.main',
+              '&:hover': { bgcolor: 'primary.main', color: 'text.contrast' },
               transition: 'all .2s',
             }}
           >
             <ChevronRightIcon sx={{ fontSize: 22 }} />
           </Box>
-          <Typography sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 600, fontSize: 15, color: '#1B2B45', '&:hover': { color: '#96592C' } }}>Все категории →</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ display: { xs: 'none', sm: 'block' }, color: 'text.primary', '&:hover': { color: 'accent.main' } }}
+          >
+            Все категории →
+          </Typography>
         </NextLink>
       </Box>
 
@@ -64,7 +75,7 @@ export function ProductTypes({ collections }: ProductTypesProps) {
                   px: 1.5,
                   py: 2.5,
                   borderRadius: '14px',
-                  bgcolor: '#F5F2EC',
+                  bgcolor: 'warmBg',
                   '&:hover': { opacity: 0.85 },
                   transition: 'opacity .2s',
                 }}
@@ -79,7 +90,12 @@ export function ProductTypes({ collections }: ProductTypesProps) {
                     />
                   )}
                 </Box>
-                <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#1B2B45' }}>{collection.name}</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ color: 'text.primary' }}
+                >
+                  {collection.name}
+                </Typography>
               </Box>
             </NextLink>
           );

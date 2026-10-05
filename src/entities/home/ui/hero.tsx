@@ -12,17 +12,17 @@ export function Hero() {
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
           borderRadius: '20px',
           overflow: 'hidden',
-          bgcolor: '#F5F2EC',
+          bgcolor: 'warmBg',
         }}
       >
         <Box sx={{ p: { xs: 4, md: '64px 56px' }, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
           <Typography
+            variant="body2"
             sx={{
-              fontSize: 14,
               fontWeight: 700,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
-              color: '#96592C',
+              color: 'accent.main',
             }}
           >
             Напрямую от 5 фабрик
@@ -31,9 +31,7 @@ export function Hero() {
           <Typography
             variant="h1"
             sx={{
-              fontSize: { xs: 34, md: 52 },
               lineHeight: 1.08,
-              fontWeight: 800,
               letterSpacing: '-1.2px',
               m: 0,
             }}
@@ -41,7 +39,10 @@ export function Hero() {
             Мебель для всего дома по ценам производителя
           </Typography>
 
-          <Typography sx={{ fontSize: 18, lineHeight: 1.55, color: '#4A5466', maxWidth: 480 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 400, lineHeight: 1.55, color: 'primary.light', maxWidth: 480 }}
+          >
             Спальни, гостиные, кухни и мягкая мебель от Fortuna Home, Арида, Эра, Nartmi и ФСМ. Привезём в любой город России.
           </Typography>
 

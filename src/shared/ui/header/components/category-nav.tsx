@@ -35,7 +35,12 @@ export async function CategoryNav({ collections }: CategoryNavProps) {
           href={routes.collection(node.slug)}
           style={{ textDecoration: 'none' }}
         >
-          <Typography sx={{ fontSize: 15, fontWeight: 500, color: '#1B2B45', '&:hover': { color: '#96592C' } }}>{node.name}</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: 'text.primary', '&:hover': { color: 'accent.main' } }}
+          >
+            {node.name}
+          </Typography>
         </NextLink>
       ))}
     </Box>

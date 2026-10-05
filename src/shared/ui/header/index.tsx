@@ -42,7 +42,7 @@ export async function Header() {
             >
               <path
                 d="M22 32 L48 14 L74 32"
-                stroke="#1B2B45"
+                stroke="currentColor"
                 strokeWidth="6"
                 fill="none"
                 strokeLinecap="round"
@@ -50,11 +50,11 @@ export async function Header() {
               />
               <path
                 d="M26 40 H50 a22 21 0 0 1 0 42 H26 Z M36 50 V72 H50 a11 11 0 0 0 0 -22 Z"
-                fill="#1B2B45"
+                fill="currentColor"
                 fillRule="evenodd"
               />
             </svg>
-            <Typography sx={{ fontSize: 24, letterSpacing: '-0.5px', color: '#1B2B45' }}>
+            <Typography sx={{ fontSize: 24, letterSpacing: '-0.5px', color: 'text.primary' }}>
               <span style={{ fontWeight: 800 }}>Дом</span>
               <span style={{ fontWeight: 500, color: '#6B7586' }}>Фабрик</span>
             </Typography>
@@ -76,9 +76,19 @@ export async function Header() {
               href={contacts.phoneHref}
               style={{ textDecoration: 'none' }}
             >
-              <Typography sx={{ fontWeight: 700, fontSize: 17, color: '#1B2B45' }}>{contacts.phone}</Typography>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 700, color: 'text.primary' }}
+              >
+                {contacts.phone}
+              </Typography>
             </a>
-            <Typography sx={{ fontSize: 12, color: '#5A6475' }}>{contacts.workingHours}</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary' }}
+            >
+              {contacts.workingHours}
+            </Typography>
           </Box>
 
           {/* Корзина */}

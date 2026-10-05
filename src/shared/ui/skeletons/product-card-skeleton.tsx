@@ -4,7 +4,8 @@ export function ProductCardSkeleton() {
   return (
     <Box
       sx={{
-        border: '1px solid #E6E2DB',
+        border: '1px solid',
+        borderColor: 'border.main',
         borderRadius: '16px',
         overflow: 'hidden',
       }}

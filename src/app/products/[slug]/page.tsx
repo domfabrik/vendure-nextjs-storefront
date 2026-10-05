@@ -86,8 +86,8 @@ export default async function Page(props: PageProps) {
       {alsoBought.length > 0 && (
         <Box sx={{ mt: 6 }}>
           <Typography
-            variant="h2"
-            sx={{ fontSize: 28, fontWeight: 800, mb: 3, color: '#1B2B45' }}
+            variant="h3"
+            sx={{ mb: 3 }}
           >
             Также вам может быть интересно
           </Typography>

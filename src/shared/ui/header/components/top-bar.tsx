@@ -13,7 +13,7 @@ const links = [
 
 export async function TopBar() {
   return (
-    <Box sx={{ bgcolor: '#1B2B45', display: { xs: 'none', md: 'block' } }}>
+    <Box sx={{ bgcolor: 'primary.main', display: { xs: 'none', md: 'block' } }}>
       <Box
         sx={{
           maxWidth: 1280,
@@ -26,7 +26,7 @@ export async function TopBar() {
           gap: 2,
         }}
       >
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', color: '#E8ECF2' }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', color: 'footer.textLight' }}>
           <svg
             width="16"
             height="16"
@@ -50,7 +50,13 @@ export async function TopBar() {
               r="1.8"
             />
           </svg>
-          <Typography sx={{ fontSize: 13, color: '#E8ECF2' }}>Доставка по России</Typography>
+          <Typography
+            variant="overline"
+            sx={{ color: 'footer.textLight' }}
+          >
+            {' '}
+            Доставка по России
+          </Typography>
         </Box>
         <nav style={{ display: 'flex', gap: 24 }}>
           {links.map((link) => (
@@ -59,7 +65,12 @@ export async function TopBar() {
               href={link.href}
               style={{ textDecoration: 'none' }}
             >
-              <Typography sx={{ fontSize: 13, color: '#E8ECF2', '&:hover': { opacity: 0.8 } }}>{link.label}</Typography>
+              <Typography
+                variant="overline"
+                sx={{ color: 'footer.textLight', '&:hover': { opacity: 0.8 } }}
+              >
+                {link.label}
+              </Typography>
             </NextLink>
           ))}
         </nav>

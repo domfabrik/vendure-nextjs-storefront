@@ -17,7 +17,12 @@ export function Rooms({ collections }: RoomsProps) {
   return (
     <SectionContainer sx={{ pt: 10 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 3.5 }}>
-        <Typography sx={{ fontSize: { xs: 24, md: 36 }, fontWeight: 800, letterSpacing: '-0.6px', m: 0 }}>Мебель по комнатам</Typography>
+        <Typography
+          variant="h2"
+          sx={{ letterSpacing: '-0.6px', m: 0 }}
+        >
+          Мебель по комнатам
+        </Typography>
         <NextLink
           href={routes.catalog()}
           aria-label="Весь каталог"
@@ -29,17 +34,23 @@ export function Rooms({ collections }: RoomsProps) {
               width: 40,
               height: 40,
               borderRadius: '20px',
-              border: '1.5px solid #1B2B45',
+              border: '1.5px solid',
+              borderColor: 'primary.main',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#1B2B45',
-              '&:hover': { bgcolor: '#1B2B45', color: '#FFFFFF' },
+              color: 'primary.main',
+              '&:hover': { bgcolor: 'primary.main', color: 'text.contrast' },
               transition: 'all .2s',
             }}
           >
             <ChevronRightIcon sx={{ fontSize: 22 }} />
           </Box>
-          <Typography sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 600, fontSize: 15, color: '#1B2B45', '&:hover': { color: '#96592C' } }}>Весь каталог →</Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ display: { xs: 'none', sm: 'block' }, color: 'text.primary', '&:hover': { color: 'accent.main' } }}
+          >
+            Весь каталог →
+          </Typography>
         </NextLink>
       </Box>
 
@@ -62,7 +73,7 @@ export function Rooms({ collections }: RoomsProps) {
                 aspectRatio: '4 / 3',
                 borderRadius: '16px',
                 overflow: 'hidden',
-                bgcolor: '#F3F1EE',
+                bgcolor: 'neutral',
                 '& img': { transform: 'scale(1.02)', transition: 'transform .4s ease' },
                 '&:hover img': { transform: 'scale(1.08)' },
               }}
@@ -81,7 +92,7 @@ export function Rooms({ collections }: RoomsProps) {
                   left: 16,
                   bottom: 16,
                   right: 16,
-                  bgcolor: '#FFFFFF',
+                  bgcolor: 'background.default',
                   borderRadius: '12px',
                   px: 2.25,
                   py: 1.75,
@@ -90,7 +101,12 @@ export function Rooms({ collections }: RoomsProps) {
                   alignItems: 'center',
                 }}
               >
-                <Typography sx={{ fontWeight: 700, fontSize: 18, color: '#1B2B45' }}>{collection.name}</Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ color: 'text.primary' }}
+                >
+                  {collection.name}
+                </Typography>
               </Box>
             </Box>
           </NextLink>

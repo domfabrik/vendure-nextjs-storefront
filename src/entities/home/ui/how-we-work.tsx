@@ -27,7 +27,12 @@ const steps = [
 export function HowWeWork() {
   return (
     <SectionContainer sx={{ pt: 10 }}>
-      <Typography sx={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.6px', mb: 3.5 }}>Как мы работаем</Typography>
+      <Typography
+        variant="h2"
+        sx={{ letterSpacing: '-0.6px', mb: 3.5 }}
+      >
+        Как мы работаем
+      </Typography>
 
       <Box
         sx={{
@@ -42,15 +47,21 @@ export function HowWeWork() {
             sx={{
               p: '28px 24px',
               borderRadius: '16px',
-              border: '1px solid #E6E2DB',
+              border: '1px solid',
+              borderColor: 'border.main',
               display: 'flex',
               flexDirection: 'column',
               gap: 1.5,
             }}
           >
-            <Typography sx={{ fontSize: 40, fontWeight: 800, color: '#96592C', lineHeight: 1 }}>{step.n}</Typography>
-            <Typography sx={{ fontSize: 18, fontWeight: 700 }}>{step.title}</Typography>
-            <Typography sx={{ fontSize: 15, color: '#5A6475', lineHeight: 1.5 }}>{step.text}</Typography>
+            <Typography sx={{ fontSize: 40, fontWeight: 800, color: 'accent.main', lineHeight: 1 }}>{step.n}</Typography>
+            <Typography variant="h6">{step.title}</Typography>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 400, color: 'text.secondary', lineHeight: 1.5 }}
+            >
+              {step.text}
+            </Typography>
           </Box>
         ))}
       </Box>
