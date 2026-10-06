@@ -8,6 +8,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
+import { CURRENT_SEARCH_INPUT_SELECTOR, distinctProductSlugs, isVisibleSearchControl } from './acceptance-search-mobile-helpers.mjs';
 import { canonicalRouteHref, matchesCollectionPage, validateCartMoneyText, validatePaginationShape } from './acceptance-value-helpers.mjs';
 
 const rawBase = process.env.BASE_URL;
@@ -376,7 +377,7 @@ async function main() {
     assert.equal(search.response.status, 200);
     assert.ok(links(search.text, '/products/').length, 'search must render product links');
     assert.ok(plainText(search.text).toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()), 'search must render the chosen query');
-    const defaultHtmlSlugs = links(search.text, '/products/').map((href) => new URL(href, base).pathname.split('/').filter(Boolean).at(-1));
+    const defaultHtmlSlugs = distinctProductSlugs(links(search.text, '/products/'), base);
     assert.deepEqual(
       defaultHtmlSlugs.slice(0, 3),
       apiRelevance.items.slice(0, 3).map((item) => item.slug),
@@ -391,7 +392,7 @@ async function main() {
       assert.equal(sorted.response.status, 200);
       assert.equal(new URL(sorted.url).searchParams.get('sort'), sort, `search URL must preserve ${sort}`);
       const apiSorted = (await shopApiQuery(searchQuery, { input: { term: searchTerm, take: 24, groupByProduct: true, sort: apiSort } })).search;
-      const htmlSlugs = links(sorted.text, '/products/').map((href) => new URL(href, base).pathname.split('/').filter(Boolean).at(-1));
+      const htmlSlugs = distinctProductSlugs(links(sorted.text, '/products/'), base);
       assert.ok(htmlSlugs.length && apiSorted.items.length, `${sort} must return real results`);
       assert.deepEqual(
         htmlSlugs.slice(0, 3),
@@ -642,7 +643,24 @@ async function main() {
       await browser.setViewport(390, 844, true);
       await browser.navigate('/');
       const home = await browser.evaluate(
-        '({width:document.documentElement.scrollWidth, viewport:innerWidth, menu:!!document.querySelector(`[aria-label="Каталог"]`), search:!!document.querySelector(`input[placeholder*="Поиск"]`)})',
+        `(() => {
+          const input = document.querySelector(${JSON.stringify(CURRENT_SEARCH_INPUT_SELECTOR)});
+          const style = input ? getComputedStyle(input) : null;
+          const rect = input?.getBoundingClientRect();
+          return {
+            width: document.documentElement.scrollWidth,
+            viewport: innerWidth,
+            menu: !!document.querySelector('[aria-label="Каталог"]'),
+            search: ${isVisibleSearchControl.toString()}({
+              exists: !!input,
+              display: style?.display,
+              visibility: style?.visibility,
+              opacity: style?.opacity,
+              width: rect?.width ?? 0,
+              height: rect?.height ?? 0,
+            }),
+          };
+        })()`,
       );
       assert.ok(home.width <= home.viewport + 1, 'mobile homepage must not overflow');
       assert.ok(home.menu && home.search, 'mobile menu and search must be available');
