@@ -24,6 +24,7 @@ const sourceUrlSchema = z.string().refine((value) => {
 const experimentKeySchema = z.enum([DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY]);
 
 const comparisonSchema = z.object({
+  studySessionId: z.string().uuid().nullable().optional(),
   status: z.enum(['READY', 'COMPLETE', 'UNAVAILABLE']),
   ballotToken: z.string().min(1).nullable(),
   productId: z.string().min(1).nullable(),
@@ -55,6 +56,7 @@ const comparisonSchema = z.object({
 });
 
 const voteInputSchema = z.object({
+  studySessionId: z.string().uuid().optional(),
   ballotToken: z.string().min(1),
   choice: z.enum(['LEFT', 'RIGHT', 'EQUAL', 'SKIP']),
   leftComment: z.string().max(2000),
@@ -82,16 +84,19 @@ function isConflictError(error: unknown): boolean {
   return /CONFLICT|ALREADY_SUBMITTED|VERSION_MISMATCH/i.test(firstGraphqlMessage(error));
 }
 
-export async function prepareDescriptionComparison(experimentKey = DESCRIPTION_EXPERIMENT_KEY): Promise<DescriptionComparison> {
+export async function prepareDescriptionComparison(experimentKey = DESCRIPTION_EXPERIMENT_KEY, studySessionId?: string): Promise<DescriptionComparison> {
   const parsedExperimentKey = experimentKeySchema.safeParse(experimentKey);
   if (!parsedExperimentKey.success) throw new Error(DESCRIPTION_COMPARISON_ERROR_CODES.requestFailed);
 
   try {
     const result = await sessionRequest<{ prepareDescriptionComparison: unknown }>(PREPARE_DESCRIPTION_COMPARISON, {
       experimentKey: parsedExperimentKey.data,
+      studySessionId,
     });
 
-    return comparisonSchema.parse(result.prepareDescriptionComparison);
+    const comparison = comparisonSchema.parse(result.prepareDescriptionComparison);
+    if (studySessionId && !comparison.studySessionId) throw new Error('missing canonical studySessionId');
+    return comparison;
   } catch {
     throw new Error(DESCRIPTION_COMPARISON_ERROR_CODES.requestFailed);
   }

@@ -1,8 +1,9 @@
 import { gql } from 'graphql-request';
 
 export const PREPARE_DESCRIPTION_COMPARISON = gql`
-  mutation PrepareDescriptionComparison($experimentKey: String!) {
-    prepareDescriptionComparison(experimentKey: $experimentKey) {
+  mutation PrepareDescriptionComparison($experimentKey: String!, $studySessionId: String) {
+    prepareDescriptionComparison(experimentKey: $experimentKey, studySessionId: $studySessionId) {
+      studySessionId
       status
       ballotToken
       productId

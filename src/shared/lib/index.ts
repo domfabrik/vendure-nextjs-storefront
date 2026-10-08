@@ -26,7 +26,7 @@ export {
   setGa4ConsentChoice,
 } from './ga4-consent';
 export { isIndexationAllowed, PRODUCTION_ORIGIN } from './indexation-policy';
-export { METRIKA_IDS, resolveMetrikaConfig } from './metrika-config';
+export { METRIKA_IDS, resolveMetrikaConfig, sanitizeMetrikaUrl } from './metrika-config';
 export { priceFormatter } from './price-formatter';
 export { serializeJsonLd } from './serialize-json-ld';
 export { stripHtml } from './strip-html';

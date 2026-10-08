@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createDescriptionReviewController, DESCRIPTION_EXPERIMENT_KEY, type DescriptionComparison, prepareDescriptionComparison, submitDescriptionComparison } from '@/shared/api';
 import { DescriptionEvidence } from './description-evidence';
 import { DescriptionPanel } from './description-panel';
+import { canonicalizeContinuationUrl, continuationUrl, resolveStudySessionId, studySessionStorageKey } from './study-session';
 
 interface DescriptionReviewProps {
   experimentKey?: string;
@@ -29,20 +30,77 @@ function statusMessage(comparison: DescriptionComparison): string {
 }
 
 export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, qaMode = false }: DescriptionReviewProps) {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState(false);
+  const [storageAvailable, setStorageAvailable] = useState(true);
+  const [showContinuation, setShowContinuation] = useState(false);
+  const [continuationCopied, setContinuationCopied] = useState(false);
   const controller = useMemo(
     () =>
-      createDescriptionReviewController({
-        prepare: () => prepareDescriptionComparison(experimentKey),
-        submit: submitDescriptionComparison,
-      }),
+      createDescriptionReviewController(
+        {
+          prepare: (studySessionId) => prepareDescriptionComparison(experimentKey, studySessionId),
+          submit: submitDescriptionComparison,
+        },
+        undefined,
+        (canonicalId) => {
+          try {
+            window.localStorage.setItem(studySessionStorageKey(experimentKey), canonicalId);
+            setStorageAvailable(true);
+          } catch {
+            setStorageAvailable(false);
+          }
+          const nextUrl = canonicalizeContinuationUrl(window.location.href, canonicalId);
+          if (nextUrl !== window.location.href) window.history.replaceState(window.history.state, '', nextUrl);
+          setSessionId(canonicalId);
+        },
+      ),
     [experimentKey],
   );
   const [state, setState] = useState(controller.getState());
 
   useEffect(() => controller.subscribe(setState), [controller]);
   useEffect(() => {
+    let resolved;
+    let storage: Storage | null = null;
+    try {
+      storage = window.localStorage;
+    } catch {
+      /* Browser storage can be disabled by policy. */
+    }
+    try {
+      resolved = resolveStudySessionId({
+        search: window.location.search,
+        experimentKey,
+        storage,
+        randomUUID: () => window.crypto.randomUUID(),
+      });
+    } catch {
+      setSessionError(true);
+      return;
+    }
+    setSessionId(resolved.studySessionId);
+    setStorageAvailable(resolved.storageAvailable);
+    controller.setStudySessionId(resolved.studySessionId);
+    try {
+      window.localStorage.setItem(studySessionStorageKey(experimentKey), resolved.studySessionId);
+    } catch {
+      setStorageAvailable(false);
+    }
     void controller.loadNext();
-  }, [controller]);
+  }, [controller, experimentKey]);
+
+  const continuation = sessionId && typeof window !== 'undefined' ? continuationUrl(window.location.href, sessionId) : '';
+  const copyContinuation = async () => {
+    if (!continuation) return;
+    try {
+      await navigator.clipboard.writeText(continuation);
+      setContinuationCopied(true);
+    } catch {
+      setShowContinuation(true);
+      setContinuationCopied(false);
+    }
+  };
 
   const comparison = state.comparison;
   const controlsDisabled = state.loading || state.submitting || Boolean(state.error) || comparison?.status !== 'READY';
@@ -66,6 +124,40 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
         </Typography>
       </Box>
 
+      {sessionError && <Alert severity="error">Некорректный идентификатор сессии в ссылке. Исправьте ссылку, чтобы продолжить.</Alert>}
+      {sessionId && (!storageAvailable || showContinuation) && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {!storageAvailable && <Alert severity="info">Автосохранение сессии в этом браузере недоступно. Сохраните ссылку, чтобы продолжить позже.</Alert>}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Button
+              size="small"
+              onClick={() => setShowContinuation((value) => !value)}
+            >
+              Ссылка для продолжения
+            </Button>
+            {continuationCopied && <Typography color="text.secondary">Ссылка скопирована</Typography>}
+          </Box>
+          {showContinuation && (
+            <Box
+              aria-label="Ссылка для продолжения"
+              component="input"
+              onFocus={(event: React.FocusEvent<HTMLInputElement>) => event.currentTarget.select()}
+              readOnly
+              sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, width: '100%' }}
+              value={continuation}
+            />
+          )}
+        </Box>
+      )}
+      {sessionId && storageAvailable && !showContinuation && (
+        <Button
+          size="small"
+          onClick={() => setShowContinuation(true)}
+        >
+          Ссылка для продолжения
+        </Button>
+      )}
+
       {state.notice && <Alert severity="info">{state.notice}</Alert>}
 
       {state.error && (
@@ -86,11 +178,20 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
         </Alert>
       )}
 
-      {state.loading && (
+      {state.loading && !sessionError && (
         <Box sx={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: 2, py: 8 }}>
           <CircularProgress aria-label="Загрузка" />
           <Typography color="text.secondary">Загружаем следующую пару…</Typography>
         </Box>
+      )}
+
+      {sessionId && (
+        <Button
+          size="small"
+          onClick={() => void copyContinuation()}
+        >
+          Скопировать ссылку
+        </Button>
       )}
 
       {!state.loading && showStatus && !state.error && comparison && <Alert severity={comparison.status === 'COMPLETE' ? 'success' : 'warning'}>{statusMessage(comparison)}</Alert>}
@@ -104,6 +205,7 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
                   alt={comparison.productName ?? 'Товар'}
                   component="img"
                   src={comparison.imageUrl}
+                  referrerPolicy="no-referrer"
                   sx={{ aspectRatio: '4 / 3', borderRadius: 1, maxWidth: 480, objectFit: 'contain', width: '100%' }}
                 />
               )}

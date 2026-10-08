@@ -13,6 +13,8 @@ export interface DescriptionCharacteristic {
 }
 
 export interface DescriptionComparison {
+  /** Optional for compatibility with responses from older API deployments. */
+  studySessionId?: string | null;
   status: DescriptionComparisonStatus;
   ballotToken: string | null;
   productId: string | null;
@@ -29,6 +31,8 @@ export interface DescriptionComparison {
 }
 
 export interface DescriptionComparisonVoteInput {
+  /** Optional only for callers that still target an older API deployment. */
+  studySessionId?: string;
   ballotToken: string;
   choice: DescriptionComparisonChoice;
   leftComment: string;

@@ -1,6 +1,7 @@
 type DescriptionComparisonStatus = 'READY' | 'COMPLETE' | 'UNAVAILABLE';
 type DescriptionComparisonChoice = 'LEFT' | 'RIGHT' | 'EQUAL' | 'SKIP';
 interface DescriptionComparison {
+  studySessionId?: string | null;
   status: DescriptionComparisonStatus;
   ballotToken: string | null;
   productId: string | null;
@@ -49,7 +50,7 @@ export interface DescriptionReviewState {
 }
 
 export interface DescriptionReviewControllerDependencies {
-  prepare: () => Promise<DescriptionComparison>;
+  prepare: (studySessionId?: string) => Promise<DescriptionComparison>;
   submit: (input: DescriptionComparisonVoteInput) => Promise<DescriptionComparisonVoteResult | DescriptionComparisonConflictResult>;
 }
 
@@ -60,6 +61,8 @@ export interface DescriptionReviewController {
   setComment: (side: 'left' | 'right', comment: string) => void;
   submit: (choice: DescriptionComparisonChoice) => Promise<void>;
   retry: () => Promise<void>;
+  setStudySessionId: (studySessionId: string) => void;
+  getStudySessionId: () => string | undefined;
 }
 
 const initialState: DescriptionReviewState = {
@@ -72,8 +75,13 @@ const initialState: DescriptionReviewState = {
   notice: null,
 };
 
-export function createDescriptionReviewController(dependencies: DescriptionReviewControllerDependencies): DescriptionReviewController {
+export function createDescriptionReviewController(
+  dependencies: DescriptionReviewControllerDependencies,
+  initialStudySessionId?: string,
+  onCanonicalSessionId?: (id: string) => void,
+): DescriptionReviewController {
   let state = { ...initialState };
+  let studySessionId = initialStudySessionId;
   let loadInFlight: Promise<void> | null = null;
   const listeners = new Set<(nextState: DescriptionReviewState) => void>();
 
@@ -93,7 +101,12 @@ export function createDescriptionReviewController(dependencies: DescriptionRevie
       update({ comparison: null, loading: true, error: null, notice: null });
 
       try {
-        const next = await dependencies.prepare();
+        const next = await dependencies.prepare(studySessionId);
+        const canonicalSessionId = next.studySessionId;
+        if (canonicalSessionId) {
+          studySessionId = canonicalSessionId;
+          onCanonicalSessionId?.(canonicalSessionId);
+        }
         update({
           comparison: next,
           loading: false,
@@ -119,6 +132,7 @@ export function createDescriptionReviewController(dependencies: DescriptionRevie
 
     const input: DescriptionComparisonVoteInput = {
       ballotToken: comparison.ballotToken,
+      ...(studySessionId ? { studySessionId } : {}),
       choice,
       leftComment: state.leftComment,
       rightComment: state.rightComment,
@@ -177,5 +191,9 @@ export function createDescriptionReviewController(dependencies: DescriptionRevie
     setComment: (side, comment) => update(side === 'left' ? { leftComment: comment } : { rightComment: comment }),
     submit,
     retry,
+    setStudySessionId: (id) => {
+      studySessionId = id;
+    },
+    getStudySessionId: () => studySessionId,
   };
 }

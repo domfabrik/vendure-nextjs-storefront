@@ -6,14 +6,18 @@ import { DescriptionEvidence } from '../src/app/description-review/description-e
 import { resolveDescriptionExperimentKey } from '../src/app/description-review/description-experiment-key.ts';
 import { DescriptionPanel } from '../src/app/description-review/description-panel.ts';
 import { isDescriptionReviewEnabled } from '../src/app/description-review/description-review-gate.ts';
+import { canonicalizeContinuationUrl, continuationUrl, resolveStudySessionId, studySessionStorageKey } from '../src/app/description-review/study-session.ts';
 import { createDescriptionReviewController } from '../src/shared/api/description-experiment/controller.ts';
-import { displayDescriptionText } from '../src/shared/api/description-experiment/model.ts';
+import { DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY, displayDescriptionText } from '../src/shared/api/description-experiment/model.ts';
 
 const pageSource = readFileSync(new URL('../src/app/description-review/page.tsx', import.meta.url), 'utf8');
 const reviewSource = readFileSync(new URL('../src/app/description-review/description-review.tsx', import.meta.url), 'utf8');
 const apiSource = readFileSync(new URL('../src/shared/api/description-experiment/api.ts', import.meta.url), 'utf8');
 
 const choices = ['LEFT', 'RIGHT', 'EQUAL', 'SKIP'];
+const sessionMain = '11111111-1111-4111-8111-111111111111';
+const sessionUrl = '22222222-2222-4222-8222-222222222222';
+const sessionCanonical = '33333333-3333-4333-8333-333333333333';
 
 function deferred() {
   let resolve;
@@ -208,6 +212,85 @@ async function testCompleteUnavailableAndProgress() {
   }
 }
 
+async function testSessionResolutionAndLinks() {
+  const values = new Map([[studySessionStorageKey(DESCRIPTION_EXPERIMENT_KEY), sessionMain]]);
+  const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  let generated = 0;
+  const randomUUID = () => {
+    generated += 1;
+    return sessionUrl;
+  };
+  assert.equal(
+    resolveStudySessionId({ search: `?sessionId=${sessionUrl}`, experimentKey: DESCRIPTION_EXPERIMENT_KEY, storage, randomUUID }).studySessionId,
+    sessionUrl,
+    'URL ID wins over saved value',
+  );
+  assert.equal(
+    resolveStudySessionId({ search: '', experimentKey: DESCRIPTION_EXPERIMENT_KEY, storage, randomUUID }).studySessionId,
+    sessionMain,
+    'saved value wins over fresh UUID',
+  );
+  assert.equal(
+    resolveStudySessionId({ search: '', experimentKey: DESCRIPTION_QA_EXPERIMENT_KEY, storage, randomUUID }).studySessionId,
+    sessionUrl,
+    'experiment storage namespaces are isolated',
+  );
+  assert.equal(generated, 1);
+  assert.throws(() => resolveStudySessionId({ search: '?sessionId=broken', experimentKey: DESCRIPTION_EXPERIMENT_KEY, storage, randomUUID }), /INVALID_STUDY_SESSION_ID/);
+  assert.throws(
+    () => resolveStudySessionId({ search: `?sessionId=${sessionUrl}&sessionId=broken`, experimentKey: DESCRIPTION_EXPERIMENT_KEY, storage, randomUUID }),
+    /INVALID_STUDY_SESSION_ID/,
+  );
+  assert.equal(generated, 1, 'invalid URL must not silently reset to a new ID');
+  assert.equal(
+    resolveStudySessionId({ search: '', experimentKey: DESCRIPTION_EXPERIMENT_KEY, storage: { getItem: () => 'bad' }, randomUUID }).studySessionId,
+    sessionUrl,
+    'invalid saved ID is replaced',
+  );
+  const blocked = resolveStudySessionId({
+    search: '',
+    experimentKey: DESCRIPTION_EXPERIMENT_KEY,
+    storage: {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+    },
+    randomUUID,
+  });
+  assert.equal(blocked.studySessionId, sessionUrl);
+  assert.equal(blocked.storageAvailable, false, 'blocked storage leaves the generated in-memory ID intact');
+  const qaUrl = continuationUrl('https://test.domfabrik.ru/description-review?qa=1&other=kept', sessionUrl);
+  assert.match(qaUrl, /qa=1/);
+  assert.match(qaUrl, /sessionId=22222222-2222-4222-8222-222222222222/);
+  assert.match(canonicalizeContinuationUrl(qaUrl, sessionCanonical), /qa=1/);
+  assert.match(canonicalizeContinuationUrl(qaUrl, sessionCanonical), /sessionId=33333333-3333-4333-8333-333333333333/);
+}
+
+async function testCanonicalSessionPropagatesToVoteAndRetry() {
+  const submissions = [];
+  let prepareCalls = 0;
+  const controller = createDescriptionReviewController(
+    {
+      prepare: async (sessionId) => {
+        assert.equal(sessionId, prepareCalls === 0 ? sessionUrl : sessionCanonical);
+        prepareCalls += 1;
+        return { ...(prepareCalls === 1 ? ready('session-ballot') : complete(1, 1)), studySessionId: sessionCanonical };
+      },
+      submit: async (input) => {
+        submissions.push(input);
+        if (submissions.length === 1) throw new Error('retry me');
+        return { outcome: 'RESULT', saved: true, duplicate: false, completed: 1 };
+      },
+    },
+    sessionUrl,
+  );
+  await load(controller);
+  await controller.submit('LEFT');
+  assert.equal(submissions[0].studySessionId, sessionCanonical, 'prepare canonical ID is used on first vote');
+  await controller.retry();
+  assert.equal(submissions[1].studySessionId, sessionCanonical, 'retry retains canonical ID');
+}
+
 async function testLogicalSidesAndBothCommentsForEveryChoice() {
   for (const choice of choices) {
     let prepareCalls = 0;
@@ -315,6 +398,8 @@ await testSubmitFailurePreservesPairAndComments();
 await testDoubleClickSubmitsOnce();
 await testDuplicateConflictAndReset();
 await testCompleteUnavailableAndProgress();
+await testSessionResolutionAndLinks();
+await testCanonicalSessionPropagatesToVoteAndRetry();
 await testLogicalSidesAndBothCommentsForEveryChoice();
 
 console.log('Description review controller flow tests passed');

@@ -31,7 +31,9 @@ function isSafeSourceUrl(sourceUrl: string | null): sourceUrl is string {
 export function DescriptionEvidence(props: DescriptionEvidenceProps) {
   const sourceLabel = props.sourceKind === 'CATALOG' ? 'Исходная карточка DomFabrik' : 'Исходная информация';
   const sourceLink =
-    props.sourceKind && isSafeSourceUrl(props.sourceUrl) ? createElement(Link, { href: props.sourceUrl, rel: 'noopener noreferrer', target: '_blank' }, sourceLabel) : null;
+    props.sourceKind && isSafeSourceUrl(props.sourceUrl)
+      ? createElement(Link, { href: props.sourceUrl, referrerPolicy: 'no-referrer', rel: 'noopener noreferrer', target: '_blank' }, sourceLabel)
+      : null;
   const characteristicContent =
     props.parsedCharacteristics.length > 0
       ? createElement(
