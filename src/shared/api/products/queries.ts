@@ -44,6 +44,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
           name
         }
         customFields {
+          priceNotSpecified
           discountPercent
           oldPrice
           finishLabel
@@ -112,6 +113,7 @@ export const GET_FEATURED_PRODUCTS = gql`
   query GetFeaturedProducts($take: Int) {
     search(input: { take: $take, groupByProduct: true, sort: { price: ASC } }) {
       items {
+        priceNotSpecified
         productName
         slug
         collectionIds

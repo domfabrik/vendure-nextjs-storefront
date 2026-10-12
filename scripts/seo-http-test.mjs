@@ -258,6 +258,20 @@ function product(slug) {
       variants: [{ ...baseProduct.variants[0], priceWithTax: 0, basePriceWithTax: 0, stockLevel: 'UNKNOWN' }],
     };
   }
+  if (slug === 'missing-price' || slug === 'missing-price-stale') {
+    return {
+      ...baseProduct,
+      name: 'Товар без указанной цены',
+      variants: [
+        {
+          ...baseProduct.variants[0],
+          priceWithTax: slug === 'missing-price' ? 0 : 12000,
+          basePriceWithTax: 15000,
+          customFields: { priceNotSpecified: true, discountPercent: 20, oldPrice: 15000 },
+        },
+      ],
+    };
+  }
   if (slug === 'structured-empty') return { ...baseProduct, name: 'Товар без вариантов', variants: [] };
   if (slug === 'structured-currency') {
     return {
@@ -633,6 +647,19 @@ try {
     assert.equal(unknownProduct.offers.offers[0].availability, undefined, `${userAgent} TC-2 offer unknown availability is omitted`);
     assert.match(unknownHtml, /Наличие уточняется/, `${userAgent} TC-2 unknown stock has a neutral visible state`);
     assert.doesNotMatch(unknownHtml, /data-testid="add-to-cart"/, `${userAgent} TC-2 unknown stock cannot be submitted as known available`);
+
+    for (const slug of ['missing-price', 'missing-price-stale']) {
+      const missingPriceHtml = await (await get(`/products/${slug}`)).text();
+      assert.equal(jsonLdByType(missingPriceHtml, 'Product').offers, undefined, `${userAgent} flagged price omits Offer even with a stale positive value`);
+      const ownDetails = missingPriceHtml.split('<h1')[1].split('Доставка по России')[0];
+      assert.match(ownDetails, /Цена не указана/, `${userAgent} flagged PDP preserves the exact label`);
+      assert.doesNotMatch(
+        ownDetails,
+        /Цена уточняется|В наличии|Осталось мало товара|Нет в наличии|Наличие уточняется|data-testid="add-to-cart"|Экономия|-20%/,
+        `${userAgent} flagged PDP hides own purchase, stock and discount claims`,
+      );
+      assert.doesNotMatch(ownDetails, /120\s*₽|150\s*₽/, `${userAgent} flagged PDP hides stale numeric prices`);
+    }
 
     const emptyProductHtml = await (await get('/products/structured-empty')).text();
     const emptyProduct = jsonLdByType(emptyProductHtml, 'Product');

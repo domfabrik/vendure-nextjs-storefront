@@ -61,7 +61,7 @@ export default async function Page(props: PageProps) {
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
 
-      {initialPrice !== undefined && initialCurrency === 'RUB' && (
+      {initialVariant?.customFields.priceNotSpecified !== true && initialPrice !== undefined && initialCurrency === 'RUB' && (
         <ProductDetailEvent
           id={product.id}
           name={product.name}
