@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 
-const { METRIKA_IDS, resolveMetrikaConfig } = await import('../src/shared/lib/metrika-config.ts');
+const { METRIKA_IDS, resolveMetrikaConfig, sanitizeMetrikaUrl } = await import('../src/shared/lib/metrika-config.ts');
+
+assert.equal(sanitizeMetrikaUrl('https://test.domfabrik.ru/description-review?qa=1&sessionId=secret'), 'https://test.domfabrik.ru/description-review?qa=1');
+assert.equal(sanitizeMetrikaUrl(''), '');
 
 const cases = [
   ['domfabrik.ru', String(METRIKA_IDS.production), METRIKA_IDS.production],
@@ -98,7 +101,7 @@ assert.match(hitSource, /resolveMetrikaConfig/);
 assert.match(ecommerceSource, /resolveMetrikaConfig/);
 assert.match(scriptSource, /document\.scripts\.length/);
 const reactMock = `data:text/javascript,${encodeURIComponent('export let effect; export const useEffect = (callback) => { effect = callback; }; export const useRef = (value) => ({ current: value });')}`;
-const navigationMock = `data:text/javascript,${encodeURIComponent("export const usePathname = () => '/test';")}`;
+const navigationMock = `data:text/javascript,${encodeURIComponent("export const usePathname = () => globalThis.testMetrikaPath || '/test';")}`;
 const hitTestSource = ts.transpileModule(
   hitSource
     .replace("from 'next/navigation'", `from ${JSON.stringify(navigationMock)}`)
@@ -122,6 +125,24 @@ for (const [hostname, configuredId, expectedId] of [
   if (expectedId) assert.deepEqual(hitCalls.at(-1), [expectedId, 'hit', `https://${hostname}/page`, { referer: '' }]);
 }
 assert.equal(hitCalls.length, 2, 'disabled host must not send a hit');
+process.env.NEXT_PUBLIC_METRIKA_ID = String(METRIKA_IDS.test);
+globalThis.window = { location: { hostname: 'test.domfabrik.ru', href: 'https://test.domfabrik.ru/description-review?sessionId=secret' }, ym: (...args) => hitCalls.push(args) };
+globalThis.testMetrikaPath = '/description-review';
+MetrikaHit();
+reactRuntime.effect();
+assert.deepEqual(hitCalls.at(-1), [METRIKA_IDS.test, 'destruct'], 'viewer stops an already-running Metrika counter');
+assert.equal(hitCalls.filter((call) => call[1] === 'hit').length, 2, 'viewer must not emit a Metrika hit');
+globalThis.testMetrikaPath = '/contacts';
+window.location.href = 'https://test.domfabrik.ru/contacts';
+document.referrer = 'https://test.domfabrik.ru/description-review?sessionId=secret';
+MetrikaHit();
+reactRuntime.effect();
+assert.equal(hitCalls.at(-1)[3].referer, 'https://test.domfabrik.ru/description-review', 'recovery ID must not appear in subsequent referrer');
+const initScript = scriptSource.match(/return `([\s\S]*?)`;/)[1].replaceAll('$' + '{tagId}', String(METRIKA_IDS.test));
+window.location.pathname = '/description-review';
+new Function(initScript)();
+assert.equal(hitCalls.length, 4, 'viewer initial script must not initialize Metrika or webvisor');
+delete globalThis.testMetrikaPath;
 const goalSources = [
   hitSource,
   ecommerceSource,

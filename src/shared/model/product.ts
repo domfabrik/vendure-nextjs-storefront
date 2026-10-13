@@ -55,6 +55,7 @@ export interface ProductCustomFields {
 }
 
 export interface ProductVariantCustomFields {
+  priceNotSpecified?: boolean | null;
   discountPercent: number | null;
   oldPrice: number | null;
   finishLabel: string | null;
@@ -107,6 +108,7 @@ export interface SearchResultPrice {
 }
 
 export interface SearchResult {
+  priceNotSpecified?: boolean | null;
   productName: string;
   slug: string;
   collectionIds: string[];
