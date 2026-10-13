@@ -37,6 +37,7 @@ export function ProductGallery({ images, name, discountPercent }: ProductGallery
         <img
           src={current?.preview}
           alt={name}
+          fetchPriority="high"
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
