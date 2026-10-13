@@ -247,6 +247,7 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
           <Button
             onClick={handleClose}
             disabled={isPending}
+            data-testid="checkout-cancel"
           >
             {receipt ? 'Закрыть' : 'Отмена'}
           </Button>
@@ -254,6 +255,7 @@ export function CheckoutDialog({ open, onClose, prepareAction = prepareLeadOrder
             <Button
               type="submit"
               variant="contained"
+              data-testid="checkout-submit"
               disabled={isPending || sessionPending || (!sessionCapability && !attempt)}
             >
               {isPending ? 'Отправка...' : frozenAttempt ? 'Повторить отправку' : 'Отправить заявку'}

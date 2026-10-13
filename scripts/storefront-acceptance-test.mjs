@@ -476,24 +476,24 @@ async function main() {
     for (const id of ['A06', 'A07', 'A08', 'A09', 'A13', 'A16']) record(id, 'NOT_RUN', `browser setup failed: ${error.message}`);
   }
   if (browser) {
-    const clickButton = (text) =>
+    const clickByTestId = (testId) =>
       browser.evaluate(
-        `(() => { const b=[...document.querySelectorAll('button,[role="button"],a')].find(x=>((x.textContent ?? '').includes(${JSON.stringify(text)}) || x.getAttribute('aria-label') === ${JSON.stringify(text)}) && !x.disabled); if (!b) return false; b.scrollIntoView({block:'center'}); b.click(); return true; })()`,
+        `(() => { const b=document.querySelector('[data-testid="${testId}"]'); if (!b || b.disabled) return false; b.scrollIntoView({block:'center'}); b.click(); return true; })()`,
       );
     const body = () => browser.evaluate('document.body.innerText');
     await browserCase('A06', 'available filter applies, updates URL/results, and reset restores the category', async () => {
       await browser.navigate(category);
-      assert.equal(await clickButton('Фильтры'), true, 'filter control must be clickable');
-      await waitFor(() => browser.evaluate('document.querySelectorAll("input[type=checkbox]").length > 0'), 'filter checkbox');
-      const before = await browser.evaluate('document.querySelectorAll(`a[href^="/products/"]`).length');
+      assert.equal(await clickByTestId('filter-button'), true, 'filter control must be clickable');
+      await waitFor(() => browser.evaluate('document.querySelectorAll(\'[data-testid="filter-checkbox"]\').length > 0'), 'filter checkbox');
+      const before = await browser.evaluate('document.querySelectorAll(\'[data-testid="product-card-link"]\').length');
       const selected = await browser.evaluate(
-        '(() => { const input=[...document.querySelectorAll("input[type=checkbox]")].find(x=>!x.disabled && /\\([1-9]\\d*\\)/.test(x.closest("label")?.innerText ?? "")); if(!input)return null; const text=(input.closest("label")?.innerText ?? "").trim(); input.click(); return {label:text.replace(/\\s*\\([0-9]+\\)\\s*$/, "").trim(), count:Number(text.match(/\\(([0-9]+)\\)/)?.[1] ?? 0)}; })()',
+        '(() => { const input=[...document.querySelectorAll(\'[data-testid="filter-checkbox"]\')].find(x=>!x.disabled && /\\([1-9]\\d*\\)/.test(x.closest("label")?.innerText ?? "")); if(!input)return null; const text=(input.closest("label")?.innerText ?? "").trim(); input.click(); return {label:text.replace(/\\s*\\([0-9]+\\)\\s*$/, "").trim(), count:Number(text.match(/\\(([0-9]+)\\)/)?.[1] ?? 0)}; })()',
       );
       assert.ok(selected, 'category must expose an available filter value');
       await waitFor(() => browser.evaluate('location.search.includes("filters=")'), 'filter URL');
-      await waitFor(() => browser.evaluate('document.querySelectorAll(`a[href^="/products/"]`).length > 0'), 'filtered product links');
+      await waitFor(() => browser.evaluate('document.querySelectorAll(\'[data-testid="product-card-link"]\').length > 0'), 'filtered product links');
       const filteredSlugs = await browser.evaluate(
-        '[...document.querySelectorAll(`a[href^="/products/"]`)].map((link) => new URL(link.href).pathname.split("/").filter(Boolean).at(-1))',
+        '[...document.querySelectorAll(\'[data-testid="product-card-link"]\')].map((link) => new URL(link.href).pathname.split("/").filter(Boolean).at(-1))',
       );
       const filtered = filteredSlugs.length;
       assert.ok(filtered > 0 && filtered <= before, 'filtered results must remain real product links');
@@ -502,7 +502,7 @@ async function main() {
         apiProducts.every((item) => item?.facetValues?.some((facetValue) => facetValue.name === selected.label)),
         'every filtered result must carry the selected API facet value',
       );
-      assert.equal(await clickButton('Сбросить все'), true, 'filter reset must be available');
+      assert.equal(await clickByTestId('reset-filters'), true, 'filter reset must be available');
       await waitFor(() => browser.evaluate('!location.search.includes("filters=")'), 'filter reset URL');
       return { before, filtered, selectedFacet: selected, filteredSlugs, apiFacetMatches: apiProducts.map((item) => item.slug), finalUrl: await browser.evaluate('location.href') };
     });
@@ -513,17 +513,17 @@ async function main() {
       const optionName = alternate.options[0].name;
       await browser.navigate(`/products/${multiVariantCandidate.slug}`);
       const clicked = await browser.evaluate(
-        `(name => { const node=[...document.querySelectorAll('.MuiChip-root,[role="button"],button')].find((element) => (element.textContent ?? '').trim() === name); if (!node) return false; node.click(); return true; })(${JSON.stringify(optionName)})`,
+        `(name => { const node=[...document.querySelectorAll('[data-testid="variant-option"]')].find((element) => (element.textContent ?? '').trim() === name); if (!node) return false; node.click(); return true; })(${JSON.stringify(optionName)})`,
       );
       assert.equal(clicked, true, 'multi-variant option must be clickable');
       await new Promise((resolve) => setTimeout(resolve, 250));
       assert.ok((await body()).includes(optionName), 'selected option must remain visible');
-      assert.equal(await clickButton('В корзину'), true, 'selected variant must be addable');
+      assert.equal(await clickByTestId('add-to-cart'), true, 'selected variant must be addable');
       const cart = await browser.evaluate('JSON.parse(localStorage.getItem("cart-storage")).state.items[0]');
       assert.equal(String(cart.productVariantId), String(alternate.id), 'cart must retain the selected API variant ID');
       assert.equal(Number(cart.price), Number(alternate.priceWithTax), 'cart must retain the selected API variant minor price');
       await browser.navigate('/cart');
-      assert.equal(await clickButton('Удалить'), true, 'variant test cart item must be removable');
+      assert.equal(await clickByTestId('cart-remove'), true, 'variant test cart item must be removable');
       await waitFor(() => browser.evaluate('document.body.innerText.includes("Корзина пуста")'), 'variant test empty cart');
       return {
         variantCoverage: 'multi-variant UI exercised',
@@ -549,7 +549,7 @@ async function main() {
       'cart add, quantity, removal, empty state, and reload persistence are client-only',
       async () => {
         await browser.navigate(product);
-        assert.equal(await clickButton('В корзину'), true, 'PDP add-to-cart must be clickable');
+        assert.equal(await clickByTestId('add-to-cart'), true, 'PDP add-to-cart must be clickable');
         const expectedVariant = selectedProduct.variants[0];
         const cartItem = await browser.evaluate('JSON.parse(localStorage.getItem("cart-storage")).state.items[0]');
         a08Evidence.cartVariantId = String(cartItem?.productVariantId ?? '');
@@ -559,7 +559,7 @@ async function main() {
         await browser.navigate('/cart');
         const rowText = () =>
           browser.evaluate(
-            `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.innerText ?? '')(${JSON.stringify(selectedProduct.name)})`,
+            `(name => [...document.querySelectorAll('[data-testid="cart-item"]')].find((row) => (row.innerText ?? '').includes(name))?.innerText ?? '')(${JSON.stringify(selectedProduct.name)})`,
           );
         assert.match(await rowText(), new RegExp(selectedProduct.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
         const selectedPriceMinor = Number(expectedVariant.priceWithTax);
@@ -569,12 +569,12 @@ async function main() {
         a08Evidence.displayedTotalMinor = initialMoney.totalMinor;
         const quantityControl = () =>
           browser.evaluate(
-            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); return {row:!!row, increment:row?.querySelector('button[aria-label="Увеличить"]') !== null}; })(${JSON.stringify(selectedProduct.name)})`,
+            `(name => { const row=[...document.querySelectorAll('[data-testid="cart-item"]')].find((item) => (item.innerText ?? '').includes(name)); return {row:!!row, increment:row?.querySelector('[data-testid="cart-increment"]') !== null}; })(${JSON.stringify(selectedProduct.name)})`,
           );
         assert.deepEqual(await quantityControl(), { row: true, increment: true }, 'selected cart row must expose one quantity control');
         assert.equal(
           await browser.evaluate(
-            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Увеличить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
+            `(name => { const row=[...document.querySelectorAll('[data-testid="cart-item"]')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('[data-testid="cart-increment"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
           ),
           true,
           'cart quantity increment must be clickable in the selected row',
@@ -582,7 +582,7 @@ async function main() {
         await waitFor(
           () =>
             browser.evaluate(
-              `(name => [...document.querySelectorAll('.MuiCard-root')].find((row) => (row.innerText ?? '').includes(name))?.querySelector('button[aria-label="Увеличить"]')?.parentElement?.innerText.includes('2'))(${JSON.stringify(selectedProduct.name)})`,
+              `(name => [...document.querySelectorAll('[data-testid="cart-item"]')].find((row) => (row.innerText ?? '').includes(name))?.querySelector('[data-testid="cart-increment"]')?.parentElement?.innerText.includes('2'))(${JSON.stringify(selectedProduct.name)})`,
             ),
           'cart quantity 2',
         );
@@ -591,7 +591,7 @@ async function main() {
         a08Evidence.quantity2DisplayedTotalMinor = quantityTwoMoney.totalMinor;
         assert.equal(
           await browser.evaluate(
-            `(name => { const row=[...document.querySelectorAll('.MuiCard-root')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('button[aria-label="Удалить"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
+            `(name => { const row=[...document.querySelectorAll('[data-testid="cart-item"]')].find((item) => (item.innerText ?? '').includes(name)); const button=row?.querySelector('[data-testid="cart-remove"]'); if (!button) return false; button.click(); return true; })(${JSON.stringify(selectedProduct.name)})`,
           ),
           true,
           'selected cart row remove must be clickable',
@@ -603,21 +603,21 @@ async function main() {
     );
     await browserCase('A09', 'checkout server-action preparation is blocked and dialog remains safe to close/reopen', async () => {
       await browser.navigate(product);
-      assert.equal(await clickButton('В корзину'), true);
+      assert.equal(await clickByTestId('add-to-cart'), true);
       await browser.navigate('/cart');
       const blockedBefore = browser.blocked.length;
-      assert.equal(await clickButton('Оформить заказ'), true, 'checkout must open from a nonempty cart');
+      assert.equal(await clickByTestId('checkout-open'), true, 'checkout must open from a nonempty cart');
       await waitFor(() => browser.evaluate('document.body.innerText.includes("Оформление заявки")'), 'checkout dialog');
       await new Promise((resolve) => setTimeout(resolve, 500));
       const blockedActions = browser.blocked.slice(blockedBefore).filter((request) => request.nextAction);
       assert.ok(blockedActions.length, 'checkout preparation Next-Action must be blocked before egress');
       const submitState = await browser.evaluate(
-        '(() => { const button=[...document.querySelectorAll("button")].find((node) => node.textContent.includes("Отправить заявку")); return {exists:!!button, disabled:!!button?.disabled}; })()',
+        '(() => { const button=document.querySelector(\'[data-testid="checkout-submit"]\'); return {exists:!!button, disabled:!!button?.disabled}; })()',
       );
       assert.ok(submitState.exists, 'checkout submit control must remain observable');
       assert.ok(submitState.disabled || /не удалось|ошибк|недоступ/i.test(await body()), 'blocked preparation must leave submit disabled or show an error');
-      assert.equal(await clickButton('Отмена'), true, 'checkout close must work');
-      assert.equal(await clickButton('Оформить заказ'), true, 'checkout reopen must work');
+      assert.equal(await clickByTestId('checkout-cancel'), true, 'checkout close must work');
+      assert.equal(await clickByTestId('checkout-open'), true, 'checkout reopen must work');
       assert.ok((await body()).includes('Оформление заявки'));
       const sameOriginPosts = browser.network.filter((request) => request.method === 'POST' && sameOrigin(request.url));
       const mutationPosts = sameOriginPosts.filter(
@@ -650,7 +650,7 @@ async function main() {
           return {
             width: document.documentElement.scrollWidth,
             viewport: innerWidth,
-            menu: !!document.querySelector('[aria-label="Каталог"]'),
+            menu: !!document.querySelector('[data-testid="catalog-menu"]'),
             search: ${isVisibleSearchControl.toString()}({
               exists: !!input,
               display: style?.display,

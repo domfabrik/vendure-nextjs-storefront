@@ -207,6 +207,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         <Typography
           variant="h2"
           component="h1"
+          data-testid="product-title"
           sx={{ lineHeight: 1.15 }}
         >
           {product.name}

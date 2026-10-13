@@ -225,7 +225,7 @@ assert.notDeepEqual(
   'a genuinely wrong product order must remain observable after deduplication',
 );
 assert.equal(CURRENT_SEARCH_INPUT_PLACEHOLDER, 'Кровать, диван, кухня…');
-assert.equal(CURRENT_SEARCH_INPUT_SELECTOR, 'input[placeholder="Кровать, диван, кухня…"]');
+assert.equal(CURRENT_SEARCH_INPUT_SELECTOR, '[data-testid="search-input"]');
 assert.equal(
   isVisibleSearchControl({ exists: true, display: 'block', visibility: 'visible', opacity: '1', width: 320, height: 44 }),
   true,

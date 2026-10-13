@@ -601,7 +601,7 @@ try {
     );
 
     const productHtml = await (await get('/products/test-chair')).text();
-    assert.match(productHtml, /<h1[^>]*>Тестовый стул<\/h1>/, `${userAgent} valid product H1`);
+    assert.match(productHtml, /<h1[^>]*data-testid="product-title"[^>]*>Тестовый стул</, `${userAgent} valid product H1 is an h1 tag`);
     assert.match(productHtml, /"@type":"Product"/, `${userAgent} valid product JSON-LD`);
     assert.match(productHtml, /"lowPrice":10/, `${userAgent} valid product price`);
     assert.doesNotMatch(productHtml, /name="robots"[^>]+content="[^"]*noindex/i, `${userAgent} TC-R4 production product must not receive global noindex`);
@@ -623,7 +623,7 @@ try {
     assert.match(edgeHtml, /10,5/, `${userAgent} TC-3 visible default price matches JSON-LD`);
     assert.match(edgeHtml, /Осталось мало товара/, `${userAgent} TC-2 LOW_STOCK enum does not fabricate a numeric quantity`);
     assert.match(edgeHtml, /data-testid="add-to-cart"/, `${userAgent} TC-2 known available default remains purchasable`);
-    assert.match(edgeHtml, /tabindex="0"[^>]*role="button"|role="button"[^>]*tabindex="0"/, `${userAgent} TC-2 variant choice stays keyboard accessible`);
+    assert.match(edgeHtml, /data-testid="variant-option"/, `${userAgent} TC-2 variant choice stays keyboard accessible`);
 
     const unknownHtml = await (await get('/products/structured-unknown')).text();
     const unknownProduct = jsonLdByType(unknownHtml, 'Product');

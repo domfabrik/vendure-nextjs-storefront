@@ -66,6 +66,7 @@ export function CartPage() {
             {items.map((item) => (
               <Card
                 key={item.productVariantId}
+                data-testid="cart-item"
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -113,6 +114,7 @@ export function CartPage() {
                   <IconButton
                     size="small"
                     aria-label="Уменьшить"
+                    data-testid="cart-decrement"
                     onClick={() => {
                       if (item.quantity <= 1) {
                         removeFromCart(item.productVariantId);
@@ -127,6 +129,7 @@ export function CartPage() {
                   <IconButton
                     size="small"
                     aria-label="Увеличить"
+                    data-testid="cart-increment"
                     onClick={() => setItemQuantity(item.productVariantId, item.quantity + 1)}
                   >
                     <AddIcon fontSize="small" />
@@ -137,6 +140,7 @@ export function CartPage() {
                   size="small"
                   color="error"
                   aria-label="Удалить"
+                  data-testid="cart-remove"
                   onClick={() => removeFromCart(item.productVariantId)}
                 >
                   <DeleteIcon fontSize="small" />
@@ -180,6 +184,7 @@ export function CartPage() {
               variant="contained"
               size="large"
               fullWidth
+              data-testid="checkout-open"
               onClick={() => {
                 reachGoal('begin_checkout');
                 setCheckoutOpen(true);

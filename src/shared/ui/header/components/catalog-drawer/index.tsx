@@ -21,6 +21,7 @@ export function CatalogDrawer({ collections }: CatalogDrawerProps) {
         variant="contained"
         onClick={() => setOpen(true)}
         aria-label="Каталог"
+        data-testid="catalog-menu"
         sx={{ px: { xs: 1.5, sm: 2.25 }, flexShrink: 0, minWidth: 'auto', gap: 1 }}
       >
         <svg

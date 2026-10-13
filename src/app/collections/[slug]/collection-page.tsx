@@ -131,6 +131,7 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
                     size="small"
                     checked={filters[group.id]?.includes(value.id) ?? false}
                     onChange={() => toggleFilter(group.id, value.id)}
+                    data-testid="filter-checkbox"
                   />
                 }
                 label={
@@ -179,6 +180,7 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
           variant="outlined"
           startIcon={<FilterListIcon />}
           onClick={() => setFiltersOpen(true)}
+          data-testid="filter-button"
         >
           Фильтры{activeFilterCount > 0 && ` (${activeFilterCount})`}
         </Button>
@@ -221,6 +223,7 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
             size="small"
             variant="outlined"
             onClick={clearFilters}
+            data-testid="reset-filters"
           />
         </Box>
       )}
@@ -252,7 +255,10 @@ export function CollectionPage({ collectionName, initialData, allFacetValues, js
         <>
           <ProductList products={products} />
           {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Box
+              data-testid="pagination"
+              sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}
+            >
               <Pagination
                 count={totalPages}
                 page={page}

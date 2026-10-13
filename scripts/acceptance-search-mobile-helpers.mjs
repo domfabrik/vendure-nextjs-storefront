@@ -1,5 +1,5 @@
 export const CURRENT_SEARCH_INPUT_PLACEHOLDER = 'Кровать, диван, кухня…';
-export const CURRENT_SEARCH_INPUT_SELECTOR = `input[placeholder="${CURRENT_SEARCH_INPUT_PLACEHOLDER}"]`;
+export const CURRENT_SEARCH_INPUT_SELECTOR = '[data-testid="search-input"]';
 
 /** Collapse image/title links from one card, preserving product order. */
 export function distinctProductSlugs(hrefs, baseUrl = 'https://test.example/') {

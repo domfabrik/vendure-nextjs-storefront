@@ -48,6 +48,7 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
                 key={option.id}
                 role="button"
                 tabIndex={0}
+                data-testid="variant-option"
                 onClick={() => onSelect(group.id, option.id)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {

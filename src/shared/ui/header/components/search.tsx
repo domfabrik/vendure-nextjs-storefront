@@ -157,6 +157,7 @@ export function Search() {
           {...params}
           placeholder="Кровать, диван, кухня…"
           size="small"
+          data-testid="search-input"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();

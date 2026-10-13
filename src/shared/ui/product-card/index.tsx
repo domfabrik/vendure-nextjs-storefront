@@ -48,6 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Box
+      data-testid="product-card"
       sx={(t) => ({
         display: 'flex',
         flexDirection: 'column',
@@ -62,6 +63,7 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       <NextLink
         href={href}
+        data-testid="product-card-link"
         style={{ textDecoration: 'none' }}
       >
         <Box
@@ -161,6 +163,7 @@ export function ProductCard({ product }: ProductCardProps) {
               variant="outlined"
               fullWidth
               disabled={!canAdd}
+              data-testid="add-to-cart"
               sx={{
                 height: 46,
                 border: '1.5px solid',
