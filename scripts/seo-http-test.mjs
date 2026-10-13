@@ -682,13 +682,17 @@ try {
 
     const structuredCollectionHtml = await (await get('/collections/structured-catalog')).text();
     const structuredItemList = jsonLdByType(structuredCollectionHtml, 'ItemList');
-    assert.equal(structuredItemList.itemListElement[0].item.offers.price, 0, `${userAgent} TC-3 catalog preserves a real zero price`);
-    assert.equal(structuredItemList.itemListElement[0].item.offers.availability, undefined, `${userAgent} TC-2 search result without stock omits availability`);
+    assert.equal(structuredItemList.itemListElement[0].item, undefined, `${userAgent} TC-3 catalog omits a zero price offer`);
     assert.equal(structuredItemList.itemListElement[1].item, undefined, `${userAgent} TC-3 catalog omits an invalid price offer`);
     assert.equal(structuredItemList.itemListElement[2].item, undefined, `${userAgent} TC-3 catalog omits an unsupported non-RUB currency offer`);
     assert.equal(structuredItemList.itemListElement[3].item, undefined, `${userAgent} TC-3 catalog omits a reversed price range offer`);
     assert.match(structuredCollectionHtml, /Невалидный диапазон/, `${userAgent} TC-3 malformed range product remains visible with a neutral price state`);
-    assert.match(structuredCollectionHtml, /href="\/products\/invalid-range"[\s\S]*?<button[^>]*disabled/, `${userAgent} TC-3 malformed range cannot enter the cart`);
+    assert.match(structuredCollectionHtml, /href="\/products\/invalid-range"/, `${userAgent} TC-3 malformed range product is linked`);
+    assert.doesNotMatch(
+      structuredCollectionHtml,
+      /href="\/products\/invalid-range"[\s\S]*?В корзину[\s\S]*?href="\/products\//,
+      `${userAgent} TC-3 malformed range has no cart button`,
+    );
     assert.doesNotMatch(
       structuredCollectionHtml,
       /schema\.org\/(?:InStock|OutOfStock|BackOrder)|NaN|Infinity/,

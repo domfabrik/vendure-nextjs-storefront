@@ -108,7 +108,6 @@ export interface SearchResultPrice {
 }
 
 export interface SearchResult {
-  priceNotSpecified?: boolean | null;
   productName: string;
   slug: string;
   collectionIds: string[];

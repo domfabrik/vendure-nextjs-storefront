@@ -50,7 +50,6 @@ export const SEARCH_COLLECTION_PRODUCTS = gql`
     search(input: { collectionSlug: $collectionSlug, take: $take, skip: $skip, groupByProduct: true }) {
       totalItems
       items {
-        priceNotSpecified
         productName
         slug
         productVariantId

@@ -60,7 +60,6 @@ export interface CatalogChosenOffer {
 }
 
 export interface HomepageProduct {
-  priceNotSpecified?: boolean | null;
   productName: string;
   slug: string;
   productVariantId: string;

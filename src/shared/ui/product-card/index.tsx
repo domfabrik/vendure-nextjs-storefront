@@ -23,8 +23,6 @@ export function ProductCard({ product }: ProductCardProps) {
   });
 
   const offer = product.chosenOffer;
-  // The grouped flag can coexist with a priced offer from another variant.
-  const isPriceNotSpecified = product.priceNotSpecified === true && !offer;
   const image = offer?.productAsset?.preview ?? product.productAsset?.preview;
   const href = routes.product(product.slug, offer?.productVariantId);
   const currency = normalizeCurrencyCode(offer?.currencyCode);
@@ -119,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </NextLink>
 
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, mt: 'auto' }}>
-          <Typography variant="price">{isPriceNotSpecified ? 'Цена не указана' : (formattedPrice ?? 'Цена уточняется')}</Typography>
+          <Typography variant="price">{formattedPrice ?? 'Цена уточняется'}</Typography>
           {showDiscount && formattedBasePrice && (
             <Typography
               variant="body2"
@@ -130,7 +128,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </Box>
 
-        {!isPriceNotSpecified &&
+        {formattedPrice &&
           (inCart ? (
             <Box
               sx={{

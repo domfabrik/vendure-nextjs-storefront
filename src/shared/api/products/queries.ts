@@ -113,7 +113,6 @@ export const GET_FEATURED_PRODUCTS = gql`
   query GetFeaturedProducts($take: Int) {
     search(input: { take: $take, groupByProduct: true, sort: { price: ASC } }) {
       items {
-        priceNotSpecified
         productName
         slug
         collectionIds

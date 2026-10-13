@@ -23,10 +23,6 @@ export function buildCollectionBreadcrumbJsonLd(collection: Collection, siteUrl:
 }
 
 function getMinPrice(product: HomepageProduct): number | undefined {
-  if (product.priceNotSpecified === true) {
-    const offerPrice = normalizeMinorPrice(product.chosenOffer?.priceWithTax);
-    return offerPrice !== undefined && offerPrice > 0 ? offerPrice / 100 : undefined;
-  }
   const p = product.priceWithTax;
   if (p.__typename === 'SinglePrice') {
     const minorPrice = normalizeMinorPrice(p.value);
@@ -43,14 +39,14 @@ export function buildCollectionItemListJsonLd(products: HomepageProduct[], siteU
     '@type': 'ItemList',
     itemListElement: products.slice(0, 30).map((product, index) => {
       const price = getMinPrice(product);
-      const priceCurrency = normalizeCurrencyCode(product.priceNotSpecified === true ? product.chosenOffer?.currencyCode : product.currencyCode);
+      const priceCurrency = normalizeCurrencyCode(product.currencyCode);
       return {
         '@type': 'ListItem',
         position: index + 1,
         url: `${siteUrl}/products/${product.slug}`,
         name: product.productName,
         image: product.productAsset?.preview,
-        ...(price !== undefined && priceCurrency
+        ...(price !== undefined && price > 0 && priceCurrency
           ? {
               item: {
                 '@type': 'Product',

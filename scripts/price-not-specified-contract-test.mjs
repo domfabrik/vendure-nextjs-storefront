@@ -187,32 +187,21 @@ assert.equal(buildProductJsonLd(product, 'https://test.example').offers.offerCou
 const tile = {
   productName: 'Без цены',
   slug: 'missing-price',
-  priceNotSpecified: true,
   chosenOffer: null,
   productAsset: null,
   currencyCode: 'RUB',
   priceWithTax: { __typename: 'SinglePrice', value: 0 },
 };
 const tileHtml = markup(ProductCard({ product: tile }));
-assert.match(tileHtml, /Цена не указана/);
-assert.doesNotMatch(tileHtml, /В корзину|Цена уточняется|В корзине/);
-assert.equal(buildCollectionItemListJsonLd([tile], 'https://test.example').itemListElement[0].item, undefined, 'unknown catalog item has no Offer');
+assert.match(tileHtml, /Цена уточняется/);
+assert.doesNotMatch(tileHtml, /В корзину|В корзине/);
+assert.equal(buildCollectionItemListJsonLd([tile], 'https://test.example').itemListElement[0].item, undefined, 'zero-price catalog item has no Offer');
 const mixedTile = {
   ...tile,
   chosenOffer: { productVariantId: 'priced', currencyCode: 'RUB', priceWithTax: 12000, basePriceWithTax: 15000, discountPercent: 20, productAsset: null },
 };
 assert.match(markup(ProductCard({ product: mixedTile })), /120\s*₽/);
 assert.match(markup(ProductCard({ product: mixedTile })), /В корзину/);
-for (const priceWithTax of [
-  { __typename: 'SinglePrice', value: 0 },
-  { __typename: 'PriceRange', min: 0, max: 12000 },
-]) {
-  assert.equal(
-    buildCollectionItemListJsonLd([{ ...mixedTile, priceWithTax }], 'https://test.example').itemListElement[0].item.offers.price,
-    120,
-    'mixed catalog schema uses the real chosen price instead of a flagged zero',
-  );
-}
 
 const querySource = readFileSync(new URL('../src/shared/api/products/queries.ts', import.meta.url), 'utf8');
 const document = parse([...querySource.matchAll(/gql`([\s\S]*?)`/g)][0][1]);
@@ -228,19 +217,4 @@ assert.match(
   /initialVariant\?\.customFields\.priceNotSpecified !== true && initialPrice !== undefined[\s\S]*?<ProductDetailEvent/,
   'flagged PDP cannot emit Metrika product-detail analytics',
 );
-for (const [path, operationName] of [
-  ['products', 'GetFeaturedProducts'],
-  ['collections', 'SearchCollectionProducts'],
-  ['search', 'SearchProducts'],
-]) {
-  const source = readFileSync(new URL(`../src/shared/api/${path}/queries.ts`, import.meta.url), 'utf8');
-  const operation = [...source.matchAll(/gql`([\s\S]*?)`/g)].map((match) => parse(match[1]).definitions[0]).find((definition) => definition.name?.value === operationName);
-  const items = operation.selectionSet.selections[0].selectionSet.selections.find((selection) => selection.name?.value === 'items');
-  assert.ok(
-    items.selectionSet.selections.some((selection) => selection.name?.value === 'priceNotSpecified'),
-    `${operationName} propagates the grouped flag`,
-  );
-}
-const searchPageSource = readFileSync(new URL('../src/app/search/search-page.tsx', import.meta.url), 'utf8');
-assert.match(searchPageSource, /priceNotSpecified: p\.priceNotSpecified/, 'search mapping passes the grouped flag to shared cards');
 console.log('PDP missing-price render, variant switching, cart, analytics, query and JSON-LD checks passed');
