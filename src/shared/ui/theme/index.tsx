@@ -13,7 +13,7 @@ declare module '@mui/material/styles' {
   interface Palette {
     accent: { main: string; dark: string; light: string };
     warmBg: string;
-    border: { main: string; light: string; dark: string };
+    border: { main: string; light: string; dark: string; hover: string };
     neutral: string;
     inputBg: string;
     footer: { text: string; textSubdued: string; textLight: string; border: string; hoverBorder: string };
@@ -22,7 +22,7 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     accent?: { main: string; dark?: string; light?: string };
     warmBg?: string;
-    border?: { main: string; light?: string; dark?: string };
+    border?: { main: string; light?: string; dark?: string; hover?: string };
     neutral?: string;
     inputBg?: string;
     footer?: { text: string; textSubdued?: string; textLight?: string; border?: string; hoverBorder?: string };
@@ -78,6 +78,7 @@ export function Theme(props: PropsWithChildren) {
         main: '#E6E2DB',
         light: '#EFEBE5',
         dark: '#D9D4CC',
+        hover: '#A8A29E',
       },
       neutral: '#F3F1EE',
       inputBg: '#FAF9F7',
@@ -113,18 +114,18 @@ export function Theme(props: PropsWithChildren) {
             height: 46,
             '&:hover': {
               opacity: 0.9,
-              backgroundColor: '#1B2B45',
-              color: '#FFFFFF',
+              backgroundColor: 'var(--mui-palette-primary-main)',
+              color: 'var(--mui-palette-text-contrast)',
             },
           },
           outlined: {
             height: 46,
             borderWidth: '1.5px',
-            borderColor: '#1B2B45',
+            borderColor: 'var(--mui-palette-primary-main)',
             '&:hover': {
               borderWidth: '1.5px',
-              borderColor: '#1B2B45',
-              backgroundColor: 'rgba(27, 43, 69, 0.08)',
+              borderColor: 'var(--mui-palette-primary-main)',
+              backgroundColor: 'rgba(var(--mui-palette-primary-mainChannel), 0.08)',
             },
           },
           sizeLarge: {
@@ -142,7 +143,7 @@ export function Theme(props: PropsWithChildren) {
       fontFamily: 'var(--font-manrope), sans-serif',
 
       allVariants: {
-        color: '#1B2B45',
+        color: 'var(--mui-palette-primary-main)',
       },
 
       h1: {

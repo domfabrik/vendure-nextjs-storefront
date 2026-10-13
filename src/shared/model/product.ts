@@ -55,7 +55,6 @@ export interface ProductCustomFields {
 }
 
 export interface ProductVariantCustomFields {
-  priceNotSpecified?: boolean | null;
   discountPercent: number | null;
   oldPrice: number | null;
   finishLabel: string | null;

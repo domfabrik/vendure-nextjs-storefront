@@ -70,9 +70,8 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
   const images = getImagesForVariant(product, variant);
 
   const stock = normalizeCatalogStock(variant?.stockLevel);
-  const isPriceNotSpecified = variant?.customFields.priceNotSpecified === true;
-  const price = isPriceNotSpecified ? undefined : normalizeMinorPrice(variant?.priceWithTax);
-  const basePrice = isPriceNotSpecified ? undefined : normalizeMinorPrice(variant?.basePriceWithTax);
+  const price = normalizeMinorPrice(variant?.priceWithTax);
+  const basePrice = normalizeMinorPrice(variant?.basePriceWithTax);
   const currency = normalizeCurrencyCode(variant?.currencyCode);
   const discountPercent = variant?.customFields.discountPercent;
   const hasDiscount = typeof discountPercent === 'number' && Number.isFinite(discountPercent) && discountPercent > 0 && basePrice !== undefined;
@@ -111,7 +110,6 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         return {
           ...option,
           stock: normalizeCatalogStock(relatedVariant.stockLevel),
-          priceNotSpecified: relatedVariant.customFields.priceNotSpecified === true,
           isSelected: selectedOptions[group.id] === option.id,
           preview: relatedVariant.featuredAsset?.preview ?? null,
         };
@@ -121,7 +119,6 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
       id: string;
       code: string;
       stock: ReturnType<typeof normalizeCatalogStock>;
-      priceNotSpecified: boolean;
       isSelected: boolean;
       preview: string | null;
     }>,
@@ -164,7 +161,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               {product.customFields.vendorName}
             </Typography>
           )}
-          {variant && !isPriceNotSpecified && stock.kind === 'in-stock' && (
+          {variant && stock.kind === 'in-stock' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'success.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'success.main' }}
@@ -172,7 +169,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               В наличии
             </Typography>
           )}
-          {variant && !isPriceNotSpecified && stock.kind === 'low-stock' && (
+          {variant && stock.kind === 'low-stock' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'warning.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'warning.dark' }}
@@ -180,7 +177,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               Осталось мало товара
             </Typography>
           )}
-          {variant && !isPriceNotSpecified && stock.kind === 'out-of-stock' && (
+          {variant && stock.kind === 'out-of-stock' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'error.light', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'error.main' }}
@@ -188,7 +185,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
               Нет в наличии
             </Typography>
           )}
-          {variant && !isPriceNotSpecified && stock.kind === 'unknown' && (
+          {variant && stock.kind === 'unknown' && (
             <Typography
               variant="overline"
               sx={{ bgcolor: 'warmBg', px: 1.25, py: 0.5, borderRadius: '6px', fontWeight: 600, color: 'text.secondary' }}
@@ -237,17 +234,7 @@ export function ProductDetails({ product, initialVariantId }: ProductDetailsProp
         />
 
         {/* Price */}
-        {isPriceNotSpecified ? (
-          <Box sx={(t) => ({ border: `1px solid ${t.palette.border.main}`, borderRadius: '16px', p: 3 })}>
-            <Typography
-              variant="h6"
-              data-testid="price-not-specified"
-              sx={{ color: 'text.muted' }}
-            >
-              Цена не указана
-            </Typography>
-          </Box>
-        ) : variant && price && currency ? (
+        {variant && price && currency ? (
           <PriceBlock
             price={price}
             currency={currency}

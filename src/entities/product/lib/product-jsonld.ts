@@ -2,7 +2,6 @@ import type { Product } from '@/shared/api';
 import { normalizeCatalogBrand, normalizeCatalogStock, normalizeCurrencyCode, normalizeMinorPrice, stripHtml } from '@/shared/lib';
 
 function buildVariantOffer(variant: Product['variants'][number], canonical: string) {
-  if (variant.customFields.priceNotSpecified === true) return null;
   const minorPrice = normalizeMinorPrice(variant.priceWithTax);
   const priceCurrency = normalizeCurrencyCode(variant.currencyCode);
   if (minorPrice === undefined || !priceCurrency) return null;

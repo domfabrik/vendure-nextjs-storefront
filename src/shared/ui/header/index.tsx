@@ -16,7 +16,7 @@ export async function Header() {
   return (
     <>
       <TopBar />
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E6E2DB', position: 'sticky', top: 0, zIndex: 1100 }}>
+      <header style={{ background: 'var(--mui-palette-background-default)', borderBottom: '1px solid var(--mui-palette-border-main)', position: 'sticky', top: 0, zIndex: 1100 }}>
         <Box
           sx={{
             maxWidth: 1280,
@@ -56,7 +56,7 @@ export async function Header() {
             </svg>
             <Typography sx={{ fontSize: 24, letterSpacing: '-0.5px', color: 'text.primary' }}>
               <span style={{ fontWeight: 800 }}>Дом</span>
-              <span style={{ fontWeight: 500, color: '#6B7586' }}>Фабрик</span>
+              <span style={{ fontWeight: 500, color: 'var(--mui-palette-text-muted)' }}>Фабрик</span>
             </Typography>
           </NextLink>
 

@@ -40,7 +40,7 @@ export function Factories({ vendors }: FactoriesProps) {
         >
           <Typography
             variant="h2"
-            sx={{ letterSpacing: '-0.6px', lineHeight: 1.15, color: '#FFFFFF' }}
+            sx={{ letterSpacing: '-0.6px', lineHeight: 1.15, color: 'text.contrast' }}
           >
             Работаем напрямую с фабриками — без наценки посредников
           </Typography>

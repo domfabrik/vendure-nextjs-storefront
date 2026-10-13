@@ -28,12 +28,12 @@ const linkSx = {
   color: 'footer.text',
   fontSize: 14,
   lineHeight: 1.8,
-  '&:hover': { color: '#FFFFFF' },
+  '&:hover': { color: 'text.contrast' },
 } as const;
 
 export function Footer() {
   return (
-    <footer style={{ background: '#1B2B45', color: '#C9D1DD', fontSize: 14 }}>
+    <footer style={{ background: 'var(--mui-palette-primary-main)', color: 'var(--mui-palette-footer-text)', fontSize: 14 }}>
       <Box
         sx={{
           maxWidth: 1280,
@@ -48,7 +48,7 @@ export function Footer() {
       >
         {/* Бренд */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }}>
-          <Typography sx={{ fontSize: 22, color: '#FFFFFF' }}>
+          <Typography sx={{ fontSize: 22, color: 'text.contrast' }}>
             <span style={{ fontWeight: 800 }}>Дом</span>
             <Typography
               component="span"
@@ -72,7 +72,7 @@ export function Footer() {
         >
           <Typography
             variant="subtitle2"
-            sx={{ color: '#FFFFFF' }}
+            sx={{ color: 'text.contrast' }}
           >
             Каталог
           </Typography>
@@ -94,7 +94,7 @@ export function Footer() {
         >
           <Typography
             variant="subtitle2"
-            sx={{ color: '#FFFFFF' }}
+            sx={{ color: 'text.contrast' }}
           >
             Покупателям
           </Typography>
@@ -113,7 +113,7 @@ export function Footer() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
           <Typography
             variant="subtitle2"
-            sx={{ color: '#FFFFFF' }}
+            sx={{ color: 'text.contrast' }}
           >
             Контакты
           </Typography>
@@ -123,7 +123,7 @@ export function Footer() {
           >
             <Typography
               variant="h6"
-              sx={{ color: '#FFFFFF' }}
+              sx={{ color: 'text.contrast' }}
             >
               {contacts.phone}
             </Typography>
@@ -185,7 +185,7 @@ export function Footer() {
             >
               <Typography
                 variant="overline"
-                sx={{ color: 'footer.text', '&:hover': { color: '#FFFFFF' } }}
+                sx={{ color: 'footer.text', '&:hover': { color: 'text.contrast' } }}
               >
                 {link.label}
               </Typography>

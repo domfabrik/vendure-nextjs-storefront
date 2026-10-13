@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { routes } from '@routes';
 import NextLink from 'next/link';
 import { useCartStore } from '@/shared/store/cart';
@@ -28,7 +29,7 @@ export function CartBadge() {
           transition: 'all .2s',
           '&:hover': {
             borderColor: t.palette.primary.main,
-            backgroundColor: 'rgba(27, 43, 69, 0.08)',
+            backgroundColor: alpha(t.palette.primary.main, 0.08),
           },
         })}
       >

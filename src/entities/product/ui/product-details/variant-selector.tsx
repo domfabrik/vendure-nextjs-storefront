@@ -8,7 +8,6 @@ interface EnrichedOption {
   id: string;
   code: string;
   stock: CatalogStockState;
-  priceNotSpecified: boolean;
   isSelected: boolean;
   preview: string | null;
 }
@@ -62,9 +61,9 @@ export function VariantSelector({ groups, onSelect }: VariantSelectorProps) {
                   borderColor: option.isSelected ? t.palette.primary.main : t.palette.border.main,
                   borderRadius: '12px',
                   overflow: 'hidden',
-                  opacity: !option.priceNotSpecified && option.stock.kind === 'out-of-stock' ? 0.5 : 1,
+                  opacity: option.stock.kind === 'out-of-stock' ? 0.5 : 1,
                   transition: 'border-color 0.2s',
-                  '&:hover': { borderColor: option.isSelected ? t.palette.primary.main : '#A8A29E' },
+                  '&:hover': { borderColor: option.isSelected ? t.palette.primary.main : t.palette.border.hover },
                 })}
               >
                 {option.preview && (

@@ -4,6 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Button, IconButton, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { priceFormatter } from '@/shared/lib';
 
 interface PriceBlockProps {
@@ -106,15 +107,15 @@ export function PriceBlock({ price, currency, basePrice, savings, hasDiscount, d
                 fullWidth
                 disabled
                 startIcon={<ShoppingCartIcon />}
-                sx={{
+                sx={(t) => ({
                   bgcolor: 'primary.main',
                   height: 54,
                   borderRadius: '12px',
                   fontSize: 16,
                   fontWeight: 600,
                   textTransform: 'none',
-                  '&.Mui-disabled': { bgcolor: 'primary.main', color: 'rgba(255,255,255,0.7)' },
-                }}
+                  '&.Mui-disabled': { bgcolor: 'primary.main', color: alpha(t.palette.text.contrast, 0.7) },
+                })}
               >
                 В корзине
               </Button>
