@@ -163,7 +163,7 @@ export function ProductCard({ product }: ProductCardProps) {
               variant="outlined"
               fullWidth
               disabled={!canAdd}
-              data-testid="add-to-cart"
+              data-testid="product-add-to-cart"
               sx={{
                 height: 46,
                 border: '1.5px solid',
