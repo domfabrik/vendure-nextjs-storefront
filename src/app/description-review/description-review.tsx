@@ -10,6 +10,7 @@ import { canonicalizeContinuationUrl, continuationUrl, resolveStudySessionId, st
 interface DescriptionReviewProps {
   experimentKey?: string;
   qaMode?: boolean;
+  round?: string;
 }
 
 function imageCanRender(imageUrl: string | null): imageUrl is string {
@@ -29,7 +30,7 @@ function statusMessage(comparison: DescriptionComparison): string {
   return 'Сравнение временно недоступно.';
 }
 
-export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, qaMode = false }: DescriptionReviewProps) {
+export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, qaMode = false, round = '20261014' }: DescriptionReviewProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState(false);
   const [storageAvailable, setStorageAvailable] = useState(true);
@@ -50,12 +51,12 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
           } catch {
             setStorageAvailable(false);
           }
-          const nextUrl = canonicalizeContinuationUrl(window.location.href, canonicalId);
+          const nextUrl = canonicalizeContinuationUrl(window.location.href, canonicalId, round);
           if (nextUrl !== window.location.href) window.history.replaceState(window.history.state, '', nextUrl);
           setSessionId(canonicalId);
         },
       ),
-    [experimentKey],
+    [experimentKey, round],
   );
   const [state, setState] = useState(controller.getState());
 
@@ -90,7 +91,7 @@ export function DescriptionReview({ experimentKey = DESCRIPTION_EXPERIMENT_KEY, 
     void controller.loadNext();
   }, [controller, experimentKey]);
 
-  const continuation = sessionId && typeof window !== 'undefined' ? continuationUrl(window.location.href, sessionId) : '';
+  const continuation = sessionId && typeof window !== 'undefined' ? continuationUrl(window.location.href, sessionId, round) : '';
   const copyContinuation = async () => {
     if (!continuation) return;
     try {
