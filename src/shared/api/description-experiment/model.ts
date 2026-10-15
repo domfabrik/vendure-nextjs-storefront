@@ -1,5 +1,15 @@
-export const DESCRIPTION_EXPERIMENT_KEY = 'description-third-20261005-v1';
-export const DESCRIPTION_QA_EXPERIMENT_KEY = 'description-study-qa-20261005-v1';
+export const DESCRIPTION_CURRENT_EXPERIMENT_KEY = 'description-sol-vs-crewai-20261014-v1';
+export const DESCRIPTION_QA_EXPERIMENT_KEY = 'description-sol-vs-crewai-20261014-v1-qa';
+export const DESCRIPTION_PREVIOUS_EXPERIMENT_KEY = 'description-third-20261005-v1';
+export const DESCRIPTION_PREVIOUS_QA_EXPERIMENT_KEY = 'description-study-qa-20261005-v1';
+// Rollback changes this selector only; the API allowlist and pinned links retain both rounds.
+export const DESCRIPTION_EXPERIMENT_KEY = DESCRIPTION_CURRENT_EXPERIMENT_KEY;
+export const DESCRIPTION_EXPERIMENT_KEYS = [
+  DESCRIPTION_CURRENT_EXPERIMENT_KEY,
+  DESCRIPTION_QA_EXPERIMENT_KEY,
+  DESCRIPTION_PREVIOUS_EXPERIMENT_KEY,
+  DESCRIPTION_PREVIOUS_QA_EXPERIMENT_KEY,
+] as const;
 
 export type DescriptionComparisonStatus = 'READY' | 'COMPLETE' | 'UNAVAILABLE';
 

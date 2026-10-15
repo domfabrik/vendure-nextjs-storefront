@@ -16,19 +16,26 @@ export const metadata: Metadata = {
 };
 
 interface DescriptionReviewPageProps {
-  searchParams?: Promise<{ qa?: string | string[] }>;
+  searchParams?: Promise<{ qa?: string | string[]; round?: string | string[]; sessionId?: string | string[] }>;
 }
 
 export default async function DescriptionReviewPage({ searchParams }: DescriptionReviewPageProps) {
   if (!isDescriptionReviewEnabled(envServer.SITE_URL)) notFound();
   const params = await searchParams;
-  const resolved = resolveDescriptionExperimentKey(params?.qa, DESCRIPTION_EXPERIMENT_KEY);
+  let resolved;
+  try {
+    resolved = resolveDescriptionExperimentKey(params?.qa, DESCRIPTION_EXPERIMENT_KEY, params?.round, params?.sessionId);
+  } catch {
+    notFound();
+  }
 
   return (
     <PageContainer>
       <DescriptionReview
+        key={resolved.experimentKey}
         experimentKey={resolved.experimentKey}
         qaMode={resolved.qaMode}
+        round={resolved.round}
       />
     </PageContainer>
   );

@@ -5,7 +5,7 @@ import { sessionRequest } from '../api-client';
 import {
   DESCRIPTION_COMPARISON_ERROR_CODES,
   DESCRIPTION_EXPERIMENT_KEY,
-  DESCRIPTION_QA_EXPERIMENT_KEY,
+  DESCRIPTION_EXPERIMENT_KEYS,
   type DescriptionComparison,
   type DescriptionComparisonVoteInput,
   type DescriptionComparisonVoteResult,
@@ -21,7 +21,7 @@ const sourceUrlSchema = z.string().refine((value) => {
     return false;
   }
 }, 'sourceUrl must be a userinfo-free HTTP(S) URL');
-const experimentKeySchema = z.enum([DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY]);
+const experimentKeySchema = z.enum(DESCRIPTION_EXPERIMENT_KEYS);
 
 const comparisonSchema = z.object({
   studySessionId: z.string().uuid().nullable().optional(),

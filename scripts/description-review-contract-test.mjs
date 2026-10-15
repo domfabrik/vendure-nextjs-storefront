@@ -8,7 +8,7 @@ import { DescriptionPanel } from '../src/app/description-review/description-pane
 import { isDescriptionReviewEnabled } from '../src/app/description-review/description-review-gate.ts';
 import { canonicalizeContinuationUrl, continuationUrl, resolveStudySessionId, studySessionStorageKey } from '../src/app/description-review/study-session.ts';
 import { createDescriptionReviewController } from '../src/shared/api/description-experiment/controller.ts';
-import { DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY, displayDescriptionText } from '../src/shared/api/description-experiment/model.ts';
+import { DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_EXPERIMENT_KEYS, DESCRIPTION_QA_EXPERIMENT_KEY, displayDescriptionText } from '../src/shared/api/description-experiment/model.ts';
 
 const pageSource = readFileSync(new URL('../src/app/description-review/page.tsx', import.meta.url), 'utf8');
 const reviewSource = readFileSync(new URL('../src/app/description-review/description-review.tsx', import.meta.url), 'utf8');
@@ -327,13 +327,48 @@ assert.match(pageSource, /if \(!isDescriptionReviewEnabled\(envServer\.SITE_URL\
 assert.match(pageSource, /robots: \{ index: false, follow: false \}/);
 assert.match(pageSource, /searchParams/);
 assert.match(reviewSource, /Режим проверки: ответы не входят в статистику исследования/);
-assert.match(apiSource, /z\.enum\(\[DESCRIPTION_EXPERIMENT_KEY, DESCRIPTION_QA_EXPERIMENT_KEY\]\)/);
+assert.match(apiSource, /z\.enum\(DESCRIPTION_EXPERIMENT_KEYS\)/);
+assert.deepEqual(
+  [...DESCRIPTION_EXPERIMENT_KEYS],
+  ['description-sol-vs-crewai-20261014-v1', 'description-sol-vs-crewai-20261014-v1-qa', 'description-third-20261005-v1', 'description-study-qa-20261005-v1'],
+);
 assert.match(reviewSource, /import \{ DescriptionPanel \} from '\.\/description-panel'/);
 assert.match(reviewSource, /headingId="description-review-variant-left-heading"/);
 assert.match(reviewSource, /headingId="description-review-variant-right-heading"/);
-assert.deepEqual(resolveDescriptionExperimentKey(undefined, 'description-third-20261005-v1'), { experimentKey: 'description-third-20261005-v1', qaMode: false });
-assert.deepEqual(resolveDescriptionExperimentKey('1', 'description-third-20261005-v1'), { experimentKey: 'description-study-qa-20261005-v1', qaMode: true });
-assert.deepEqual(resolveDescriptionExperimentKey('anything-else', 'description-third-20261005-v1'), { experimentKey: 'description-third-20261005-v1', qaMode: false });
+assert.deepEqual(resolveDescriptionExperimentKey(undefined, 'description-third-20261005-v1'), { experimentKey: 'description-third-20261005-v1', qaMode: false, round: '20261005' });
+assert.deepEqual(resolveDescriptionExperimentKey('1', 'description-third-20261005-v1'), { experimentKey: 'description-study-qa-20261005-v1', qaMode: true, round: '20261005' });
+assert.deepEqual(resolveDescriptionExperimentKey('anything-else', 'description-third-20261005-v1'), {
+  experimentKey: 'description-third-20261005-v1',
+  qaMode: false,
+  round: '20261005',
+});
+
+// fabric-l5p.43: the default round and old recovery URLs use independent namespaces.
+assert.deepEqual(resolveDescriptionExperimentKey(undefined, DESCRIPTION_EXPERIMENT_KEY), { experimentKey: DESCRIPTION_EXPERIMENT_KEY, qaMode: false, round: '20261014' });
+assert.deepEqual(resolveDescriptionExperimentKey('1', DESCRIPTION_EXPERIMENT_KEY), { experimentKey: DESCRIPTION_QA_EXPERIMENT_KEY, qaMode: true, round: '20261014' });
+assert.equal(resolveDescriptionExperimentKey(undefined, DESCRIPTION_EXPERIMENT_KEY, undefined, sessionUrl).experimentKey, 'description-third-20261005-v1');
+assert.equal(resolveDescriptionExperimentKey('1', DESCRIPTION_EXPERIMENT_KEY, undefined, sessionUrl).experimentKey, 'description-study-qa-20261005-v1');
+assert.equal(resolveDescriptionExperimentKey(undefined, DESCRIPTION_EXPERIMENT_KEY, '20261005').experimentKey, 'description-third-20261005-v1');
+assert.equal(
+  resolveDescriptionExperimentKey(undefined, 'description-third-20261005-v1', '20261014').experimentKey,
+  DESCRIPTION_EXPERIMENT_KEY,
+  'explicit new continuation survives rollback of default selector',
+);
+for (const invalid of ['unknown', '', ['20261014'], DESCRIPTION_EXPERIMENT_KEY])
+  assert.throws(() => resolveDescriptionExperimentKey(undefined, DESCRIPTION_EXPERIMENT_KEY, invalid));
+for (const round of ['20261014', '20261005']) {
+  const pinned = continuationUrl('https://test.domfabrik.ru/description-review?qa=1&other=kept', sessionUrl, round);
+  const parsed = new URL(pinned);
+  assert.equal(parsed.searchParams.get('round'), round);
+  assert.equal(parsed.searchParams.get('qa'), '1');
+  assert.equal(parsed.searchParams.get('other'), 'kept');
+  assert.equal(resolveDescriptionExperimentKey('1', DESCRIPTION_EXPERIMENT_KEY, parsed.searchParams.get('round'), parsed.searchParams.get('sessionId')).round, round);
+  const canonical = canonicalizeContinuationUrl(pinned, sessionCanonical, round);
+  assert.match(canonical, new RegExp(`round=${round}`));
+  assert.match(canonical, /sessionId=33333333-3333-4333-8333-333333333333/);
+}
+assert.notEqual(studySessionStorageKey(DESCRIPTION_EXPERIMENT_KEY), studySessionStorageKey('description-third-20261005-v1'));
+assert.notEqual(studySessionStorageKey(DESCRIPTION_EXPERIMENT_KEY), studySessionStorageKey(DESCRIPTION_QA_EXPERIMENT_KEY));
 
 const renderedPanel = renderToStaticMarkup(
   createElement(DescriptionPanel, {

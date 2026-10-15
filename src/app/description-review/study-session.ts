@@ -35,15 +35,17 @@ export function resolveStudySessionId(options: { search: string; experimentKey: 
   };
 }
 
-export function continuationUrl(href: string, studySessionId: string): string {
+export function continuationUrl(href: string, studySessionId: string, round?: string): string {
   const url = new URL(href);
   url.searchParams.set('sessionId', studySessionId);
+  if (round !== undefined) url.searchParams.set('round', round);
   return url.toString();
 }
 
-export function canonicalizeContinuationUrl(href: string, studySessionId: string): string {
+export function canonicalizeContinuationUrl(href: string, studySessionId: string, round?: string): string {
   const url = new URL(href);
-  if (url.searchParams.get('sessionId') === studySessionId) return href;
+  if (url.searchParams.get('sessionId') === studySessionId && (round === undefined || url.searchParams.get('round') === round)) return href;
   url.searchParams.set('sessionId', studySessionId);
+  if (round !== undefined) url.searchParams.set('round', round);
   return `${url.pathname}${url.search}${url.hash}`;
 }
